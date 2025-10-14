@@ -1,0 +1,2 @@
+# SequenceGame
+Sequence board. game 
