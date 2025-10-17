@@ -1,0 +1,13 @@
+//
+//  BoardTile.swift
+//  SequenceGame
+//
+//  Created by Prajakta Kulkarni on 22/10/2025.
+//
+import Foundation
+
+struct BoardTile: Identifiable {
+    let id = UUID()
+    var card: Card?
+    var isEmpty: Bool
+}
