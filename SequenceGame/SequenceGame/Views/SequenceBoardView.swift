@@ -17,7 +17,8 @@ struct SequenceBoardView: View {
         HStack {
             Text("********* Sequence *********")
                 .frame(width: 10, height: 542, alignment: .center)
-                .background(Color.secondary)
+                .background(Color.black)
+                .foregroundStyle(.white)
                 .padding(.leading, 10)
                 .padding(.trailing, 2)
             VStack {
@@ -38,13 +39,15 @@ struct SequenceBoardView: View {
             .padding(.bottom, 20)
             Text("********* Sequence *********")
                 .frame(width: 10, height: 542, alignment: .center)
-                .background(Color.secondary)
+                .background(Color.black)
+                .foregroundStyle(.white)
                 .padding(.trailing, 10)
                 .padding(.leading, 2)
         }
         .edgesIgnoringSafeArea(.bottom)
         .edgesIgnoringSafeArea(.top)
-        .border(Color.secondary, width: 10)
+        .border(Color.black, width: 10)
+        .background(.wood)
         .onAppear {
             setupBoard()
         }
