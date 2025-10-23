@@ -10,39 +10,55 @@ import SwiftUI
 struct CardFaceView: View {
     let card: Card
     var body: some View {
-        ZStack {
-            VStack {
-                HStack {
-                    Text(card.cardFace.displayValue)
-                        .font(.system(size: 5))
-                        .fontWeight(.bold)
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            let height = geometry.size.height
+            let fontSize = width * 0.22
+            
+            ZStack {
+                // Four corner labels (top-left, top-right, bottom-left, bottom-right)
+                VStack {
+                    HStack {
+                        Text(card.cardFace.displayValue)
+                            .font(.system(size: fontSize, weight: .bold))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading, fontSize * 0.2)
+                            .padding(.top, fontSize * 0.1)
+                        Spacer()
+                        Text(card.cardFace.displayValue)
+                            .font(.system(size: fontSize, weight: .bold))
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .padding(.trailing, fontSize * 0.2)
+                            .padding(.top, fontSize * 0.1)
+                    }
                     Spacer()
-                    Text(card.cardFace.displayValue)
-                        .font(.system(size: 5))
-                        .fontWeight(.bold)
+                    HStack {
+                        Text(card.cardFace.displayValue)
+                            .font(.system(size: fontSize, weight: .bold))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading, fontSize * 0.2)
+                            .padding(.bottom, fontSize * 0.1)
+                        Spacer()
+                        Text(card.cardFace.displayValue)
+                            .font(.system(size: fontSize, weight: .bold))
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .padding(.trailing, fontSize * 0.2)
+                            .padding(.bottom, fontSize * 0.1)
+                    }
                 }
-                .padding(.vertical, 2)
-                Spacer()
-                HStack {
-                    Text(card.cardFace.displayValue)
-                        .font(.system(size: 5))
-                        .fontWeight(.bold)
-                    Spacer()
-                    Text(card.cardFace.displayValue)
-                        .font(.system(size: 5))
-                        .fontWeight(.bold)
-                }
-                .padding(.vertical, 2)
+                // Center pip arrangement
+                CardPipsView(card: card)
+                    .padding(fontSize * 0.1) // small padding if you want
             }
-            CardPipsView(card: card)
+            .background(.white)
+            .foregroundColor(card.suit.color)
+            .frame(width: width, height: height)
+            .border(Color.white, width: 1)
         }
-        .frame(width: 25, height: 45)
-        .foregroundColor(card.suit.color)
-        .padding(.horizontal, 2)
-        .border(Color.black)
     }
 }
 
 #Preview {
     CardFaceView(card: .init(cardFace: .ten, suit: .diamonds))
+        .frame(width: 30, height: 50)
 }

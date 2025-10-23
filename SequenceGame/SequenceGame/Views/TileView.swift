@@ -13,16 +13,19 @@ struct TileView: View {
     var body: some View {
         if isCard {
             CardFaceView(card: card ?? Card(cardFace: .queen, suit: .clubs))
+                .frame(width: 28, height: 45)
         } else {
             ZStack {
                 Image(systemName: "circle" )
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .frame(width: 23, height: 41)
+                    .padding(2)
             }
-            .frame(width: 25, height: 45)
-            .foregroundColor(Color.black)
+            .background(.white)
+            .frame(width: 25, height: 41)
+            .foregroundStyle(.secondary)
             .padding(.horizontal, 3)
-            .border(Color.black)
         }
     }
 }
