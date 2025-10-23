@@ -17,7 +17,7 @@ class Board {
         for _ in 0..<row {
             var rowTiles: [BoardTile] = []
             for _ in 0..<col {
-                rowTiles.append(BoardTile(card: nil, isEmpty: true))
+                rowTiles.append(BoardTile(card: nil, isEmpty: true, isChipOn: false, chip: nil))
             }
             boardTiles.append(rowTiles)
         }
