@@ -17,7 +17,7 @@ struct TileView: View {
         if isCard {
             ZStack {
                 CardFaceView(card: card ?? Card(cardFace: .queen, suit: .clubs))
-                    .frame(width: 28, height: 41)
+                    .frame(width: GameConstants.UISizing.tileWidth, height: GameConstants.UISizing.tileHeight)
                 ChipView(color: color)
                     .opacity(isChipVisible ? 1 : 0)
             }

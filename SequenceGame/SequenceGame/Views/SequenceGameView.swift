@@ -20,7 +20,7 @@ struct SequenceGameView: View {
     @State private var team2CoinsPlaced: Int = 0
     @State private var gameOverViewOverlay: GameOverviewOverlay?
     @State private var isOverlayPresent: Bool = false
-    let colorNames: [Color] = [.blue, .green, .red]
+    let colorNames: [Color] = GameConstants.teamColors
     let dealDeck: Deck = .init()
     var body: some View {
         ScrollView(showsIndicators: true) {
@@ -108,20 +108,7 @@ struct SequenceGameView: View {
     }
     
     func cardsPerPlayer(for players: Int) -> Int {
-        switch players {
-        case 2:
-            return 7
-        case 3, 4:
-            return 6
-        case 6:
-            return 5
-        case 8, 9:
-            return 4
-        case 10, 12:
-            return 3
-        default:
-            return 0 // Or handle invalid input as needed
-        }
+        return GameConstants.cardsPerPlayer(playerCount: players)
     }
 }
 

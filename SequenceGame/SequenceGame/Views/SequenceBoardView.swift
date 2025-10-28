@@ -9,10 +9,10 @@ import SwiftUI
 
 struct SequenceBoardView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State private var boardTiles: [[BoardTile]] = Board(row: 10, col: 10).boardTiles
+    @State private var boardTiles: [[BoardTile]] = Board().boardTiles
     @State private var isBoardInitialized: Bool = false
-    var numberOfRows: Int = 10
-    var numberOfColumns: Int = 10
+    var numberOfRows: Int = GameConstants.boardRows
+    var numberOfColumns: Int = GameConstants.boardColumns
     var cardsPlaced = 0
     var emptyTiles = 0
     @State var tappedTile: (Int, Int)?
@@ -85,19 +85,8 @@ struct SequenceBoardView: View {
     }
     
     func isEmptyTile(_ row: Int, _ column: Int) -> Bool {
-        if row == 0 && column == 0 {
-            return true
-        }
-        if row == 0 && column == numberOfColumns-1 {
-            return true
-        }
-        if row == numberOfRows-1 && column == 0 {
-            return true
-        }
-        if row == numberOfRows-1 && column == numberOfColumns-1 {
-            return true
-        }
-        return false
+        let position = (row: row, col: column)
+        return GameConstants.cornerPositions.contains { $0.row == position.row && $0.col == position.col }
     }
     
     func placeChip(color: Color) {

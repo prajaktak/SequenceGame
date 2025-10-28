@@ -8,57 +8,107 @@
 import SwiftUI
 
 struct MainMenu: View {
+    @State private var scatterItems: [ScatterItem] = []
+    
     var body: some View {
         NavigationView {
             ZStack {
-                ThemeColor.backgroundMenu
+                LinearGradient(
+                    colors: [ThemeColor.backgroundMenu, ThemeColor.backgroundMenu.opacity(0.9)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
                     .ignoresSafeArea()
                 
-                VStack(spacing: 40) {
+                VStack(spacing: GameConstants.UISizing.largeSpacing) {
                     // Logo/Title Section
                     VStack(spacing: 16) {
                         ZStack {
-                            HStack(spacing: 10) {
-                                ForEach(0..<5) { index in
-                                    let size: CGFloat = {
-                                        switch index {
-                                        case 0: return 20
-                                        case 1: return 30
-                                        case 2: return 50  // peak
-                                        case 3: return 30
-                                        case 4: return 20
-                                        default: return 40
-                                        }
-                                    }()
-                                    let yOffset: CGFloat = {
-                                        switch index {
-                                        case 0: return 5
-                                        case 1: return -5
-                                        case 2: return -15 // center, no offset
-                                        case 3: return -5
-                                        case 4: return 5
-                                        default: return 0
-                                        }
-                                    }()
-                                    Image(systemName: "star.fill")
-                                        .font(.system(size: size))
-                                        .foregroundStyle(
-                                            AngularGradient(colors: [ThemeColor.accentYellowGolden,
-                                                ThemeColor.accentPrimary,
-                                                ThemeColor.accentGolden], center: UnitPoint(x: 0.5, y: 0.5), angle: Angle(degrees: 90))
+                            ForEach(scatterItems) { item in
+                                switch item.kind {
+                                case .chip(let color, let size):
+                                    Circle()
+                                        .fill(color)
+                                        .frame(width: size, height: size)
+                                        .shadow(
+                                            color: .black.opacity(item.shadowOpacity),
+                                            radius: 4,
+                                            x: 2,
+                                            y: 2
                                         )
-                                        .shadow(color: ThemeColor.accentPrimary.opacity(0.3), radius: 12, x: 0, y: 4)
-                                        .offset(y: yOffset)
+                                        .offset(item.offset)
+                                        .rotationEffect(item.rotation)
+                                case .card(let borderColor, let suitSymbol, let size):
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(.white)
+                                        .frame(width: size * 0.75, height: size)
+                                        .overlay(
+                                            ZStack {
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .stroke(borderColor, lineWidth: 2)
+                                                Image(systemName: suitSymbol)
+                                                    .font(.system(size: size * 0.4))
+                                                    .foregroundStyle(borderColor)
+                                            }
+                                        )
+                                        .shadow(
+                                            color: .black.opacity(item.shadowOpacity * 0.8),
+                                            radius: 6,
+                                            x: 1,
+                                            y: 3
+                                        )
+                                        .offset(item.offset)
+                                        .rotationEffect(item.rotation)
                                 }
                             }
                         }
-                        .frame(height: 60)
+                        .frame(height: 90)
+                        .onAppear {
+                            guard scatterItems.isEmpty else { return }
+                            // Use theme tertiary accent color from assets
+                            let chipColors: [Color] = [ThemeColor.teamBlue, ThemeColor.teamGreen, ThemeColor.accentSecondary, ThemeColor.accentTertiary]
+                            // Generate 5 chips
+                            var generated: [ScatterItem] = (0..<5).map { _ in
+                                let color = chipColors.randomElement() ?? ThemeColor.teamBlue
+                                let size = CGFloat(Int.random(in: 26...38))
+                                let offsetX = CGFloat(Int.random(in: -70...70))
+                                let offsetY = CGFloat(Int.random(in: -18...30))
+                                let rotationDegrees = Double(Int.random(in: -40...40))
+                                return ScatterItem(
+                                    kind: .chip(color, size),
+                                    offset: CGSize(width: offsetX, height: offsetY),
+                                    rotation: .degrees(rotationDegrees),
+                                    shadowOpacity: 0.28
+                                )
+                            }
+                            // Add two tilted cards with suits resembling Jacks context
+                            let card1 = ScatterItem(
+                                kind: .card(ThemeColor.accentPrimary, "spade.fill", 62),
+                                offset: CGSize(width: -28, height: 8),
+                                rotation: .degrees(38),
+                                shadowOpacity: 0.22
+                            )
+                            let card2 = ScatterItem(
+                                kind: .card(ThemeColor.accentSecondary, "diamond.fill", 56),
+                                offset: CGSize(width: 42, height: 18),
+                                rotation: .degrees(-22),
+                                shadowOpacity: 0.22
+                            )
+                            generated.append(contentsOf: [card1, card2])
+                            scatterItems = generated
+                        }
                         
                         Text("Sequence")
-                            .font(.system(size: 52, weight: .bold, design: .rounded))
-                            .foregroundStyle(ThemeColor.textPrimary)
-                        Text("Classic Card Game")
-                            .font(.title3)
+                            .font(.system(size: 58, weight: .black, design: .rounded))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [ThemeColor.accentPrimary, ThemeColor.accentSecondary],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                        Text("Classic Board Game")
+                            .font(.title3.weight(.heavy))
                             .foregroundStyle(ThemeColor.textPrimary.opacity(0.7))
                     }
                     .padding(.top, 60)
@@ -66,44 +116,46 @@ struct MainMenu: View {
                     Spacer()
                     
                     // Menu Buttons
-                    VStack(spacing: 16) {
+                    VStack(spacing: GameConstants.UISizing.verticalSpacing) {
                         // New Game Button
                         NavigationLink(destination: GameSettingsView()) {
                             HStack(spacing: 16) {
                                 Image(systemName: "play.circle.fill")
-                                    .font(.system(size: 28))
+                                    .font(.system(size: GameConstants.UISizing.iconSizeLarge))
+                                    .foregroundStyle(ThemeColor.textOnAccent)
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("New Game")
-                                        .font(.headline)
+                                Text("New Game")
+                                        .font(.system(.headline, design: .rounded).weight(.heavy))
                                     Text("Start a fresh game")
-                                        .font(.subheadline)
-                                        .opacity(0.8)
+                                        .font(.system(.subheadline, design: .rounded))
+                                        .opacity(0.9)
                                 }
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
-                                    .opacity(0.5)
+                                    .opacity(0.7)
                             }
                             .foregroundStyle(ThemeColor.textOnAccent)
                             .padding(.horizontal, 20)
-                            .frame(maxWidth: .infinity, minHeight: 70)
+                            .frame(maxWidth: .infinity, minHeight: GameConstants.UISizing.secondaryButtonHeight)
                             .background(
                                 LinearGradient(
-                                    colors: [
-                                        ThemeColor.accentPrimary.opacity(0.95),
-                                        ThemeColor.accentPrimary
-                                    ],
+                                    colors: [ThemeColor.accentPrimary, ThemeColor.accentSecondary],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius, style: .continuous))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 16)
+                                RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius)
                                     .stroke(ThemeColor.border, lineWidth: 1.5)
                             )
-                            .shadow(color: ThemeColor.accentPrimary.opacity(0.3), radius: 8, x: 0, y: 4)
-                            .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius)
+                                    .stroke(ThemeColor.accentSecondary.opacity(0.35), lineWidth: 1)
+                                    .padding(1)
+                            )
+                            .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                         }
                         
                         // Resume Game Button
@@ -111,27 +163,79 @@ struct MainMenu: View {
                             HStack(spacing: 16) {
                                 Image(systemName: "arrow.uturn.forward.circle.fill")
                                     .font(.system(size: 28))
-                                    .foregroundStyle(ThemeColor.accentSecondary)
+                                    .foregroundStyle(ThemeColor.textOnAccent)
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Resume Game")
-                                        .font(.headline)
+                                        .font(.system(.headline, design: .rounded).weight(.heavy))
                                     Text("Continue where you left off")
-                                        .font(.subheadline)
-                                        .opacity(0.8)
+                                        .font(.system(.subheadline, design: .rounded))
+                                        .opacity(0.9)
                                 }
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
-                                    .opacity(0.5)
+                                    .opacity(0.7)
                             }
-                            .foregroundStyle(ThemeColor.textPrimary)
+                            .foregroundStyle(ThemeColor.textOnAccent)
                             .padding(.horizontal, 20)
-                            .frame(maxWidth: .infinity, minHeight: 70)
-                            .background(ThemeColor.backgroundMenu)
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .frame(maxWidth: .infinity, minHeight: GameConstants.UISizing.secondaryButtonHeight)
+                            .background(
+                                LinearGradient(
+                                    colors: [ThemeColor.accentPrimary, ThemeColor.accentTertiary],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius, style: .continuous))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 16)
+                                RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius)
                                     .stroke(ThemeColor.border, lineWidth: 1.5)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius)
+                                    .stroke(ThemeColor.accentTertiary.opacity(0.35), lineWidth: 1)
+                                    .padding(1)
+                            )
+                            .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+                        }
+                        
+                        // Help Button
+                        NavigationLink(destination: HelpView()) {
+                            HStack(spacing: 16) {
+                                Image(systemName: "questionmark.circle.fill")
+                                    .font(.system(size: 28))
+                                    .foregroundStyle(ThemeColor.textOnAccent)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("How to Play")
+                                        .font(.system(.headline, design: .rounded).weight(.heavy))
+                                    Text("Game rules and tips")
+                                        .font(.system(.subheadline, design: .rounded))
+                                        .opacity(0.9)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .opacity(0.7)
+                            }
+                            .foregroundStyle(ThemeColor.textOnAccent)
+                            .padding(.horizontal, 20)
+                            .frame(maxWidth: .infinity, minHeight: GameConstants.UISizing.secondaryButtonHeight)
+                            .background(
+                                LinearGradient(
+                                    colors: [ThemeColor.accentPrimary, ThemeColor.accentSecondary],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius)
+                                    .stroke(ThemeColor.border, lineWidth: 1.5)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius)
+                                    .stroke(ThemeColor.accentSecondary.opacity(0.35), lineWidth: 1)
+                                    .padding(1)
                             )
                             .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                         }
@@ -141,62 +245,79 @@ struct MainMenu: View {
                             HStack(spacing: 16) {
                                 Image(systemName: "gearshape.circle.fill")
                                     .font(.system(size: 28))
-                                    .foregroundStyle(ThemeColor.accentPrimary)
+                                    .foregroundStyle(ThemeColor.textOnAccent)
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Settings")
-                                        .font(.headline)
+                                        .font(.system(.headline, design: .rounded).weight(.heavy))
                                     Text("Preferences and options")
-                                        .font(.subheadline)
-                                        .opacity(0.8)
+                                        .font(.system(.subheadline, design: .rounded))
+                                        .opacity(0.9)
                                 }
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
-                                    .opacity(0.5)
+                                    .opacity(0.7)
                             }
-                            .foregroundStyle(ThemeColor.textPrimary)
+                            .foregroundStyle(ThemeColor.textOnAccent)
                             .padding(.horizontal, 20)
-                            .frame(maxWidth: .infinity, minHeight: 70)
-                            .background(ThemeColor.backgroundMenu)
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .frame(maxWidth: .infinity, minHeight: GameConstants.UISizing.secondaryButtonHeight)
+                            .background(
+                                LinearGradient(
+                                    colors: [ThemeColor.accentPrimary, ThemeColor.accentTertiary],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius, style: .continuous))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 16)
+                                RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius)
                                     .stroke(ThemeColor.border, lineWidth: 1.5)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius)
+                                    .stroke(ThemeColor.accentTertiary.opacity(0.35), lineWidth: 1)
+                                    .padding(1)
                             )
                             .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                         }
                         
                         // About Button
-                        NavigationLink(destination: AttributionsView()) {
+                        NavigationLink(destination: CreditsView()) {
                             HStack(spacing: 16) {
                                 Image(systemName: "info.circle.fill")
                                     .font(.system(size: 28))
-                                    .foregroundStyle(ThemeColor.accentSecondary)
+                                    .foregroundStyle(ThemeColor.textOnAccent)
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("About & Credits")
-                                        .font(.headline)
+                                        .font(.system(.headline, design: .rounded).weight(.heavy))
                                     Text("App info and attributions")
-                                        .font(.subheadline)
-                                        .opacity(0.8)
+                                        .font(.system(.subheadline, design: .rounded))
+                                        .opacity(0.9)
                                 }
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
-                                    .opacity(0.5)
+                                    .opacity(0.7)
                             }
-                            .foregroundStyle(ThemeColor.textPrimary)
+                            .foregroundStyle(ThemeColor.textOnAccent)
                             .padding(.horizontal, 20)
-                            .frame(maxWidth: .infinity, minHeight: 70)
-                            .background(ThemeColor.backgroundMenu)
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .frame(maxWidth: .infinity, minHeight: GameConstants.UISizing.secondaryButtonHeight)
+                            .background(
+                                LinearGradient(
+                                    colors: [ThemeColor.accentPrimary, ThemeColor.accentSecondary],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius, style: .continuous))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 16)
+                                RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius)
                                     .stroke(ThemeColor.border, lineWidth: 1.5)
                             )
                             .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                         }
                     }
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, GameConstants.UISizing.horizontalPadding)
                     
                     Spacer()
                     

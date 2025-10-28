@@ -15,9 +15,12 @@ class Deck {
     
     func resetDeck() {
         cards = []
-        for suit in Suit.allCases {
-            for face in CardFace.allCases {
-                cards.append(Card(cardFace: face, suit: suit))
+        // Create double deck (104 cards total for Sequence game)
+        for _ in 0..<2 {
+            for suit in Suit.allCases {
+                for face in CardFace.allCases {
+                    cards.append(Card(cardFace: face, suit: suit))
+                }
             }
         }
     }
