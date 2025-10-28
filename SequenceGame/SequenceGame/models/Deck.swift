@@ -32,7 +32,6 @@ class Deck {
         }
         cardDrawCount += 1
         let card = cards.removeLast()
-        print("cardDrawCount \(cardDrawCount) card drawn: \(card.cardFace.displayValue) of (\(card.suit))")
         return card// or removeFirst() based on your logic
     }
     func drawCardExceptJacks() -> Card? {

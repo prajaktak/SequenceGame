@@ -10,4 +10,6 @@ struct BoardTile: Identifiable {
     let id = UUID()
     var card: Card?
     var isEmpty: Bool
+    var isChipOn: Bool
+    var chip: Chip?
 }

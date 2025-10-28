@@ -23,4 +23,10 @@ struct Chip {
     init(color: Color) {
         self.color = color
     }
+    init(color: Color, positionRow: Int, positionColumn: Int, isPlaced: Bool) {
+        self.color = color
+        self.positionRow = positionRow
+        self.positionColumn = positionColumn
+        self.isPlaced = isPlaced
+    }
 }
