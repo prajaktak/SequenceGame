@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SequenceGameView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State var numberOfPlayers: Int = 2
     @State var numberOfTeams: Int = 2
     @State private var maxCardsPerPlayer: Int = 7
@@ -30,12 +31,22 @@ struct SequenceGameView: View {
                             isOverlayPresent = true
                         }
                     }
-                    .foregroundStyle(.black)
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .padding(.top, 10)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(ThemeColor.textOnAccent)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 12)
+                    .background(ThemeColor.accentPrimary)
+                    .clipShape(Capsule())
+                    .shadow(color: .black.opacity(0.15), radius: 2, x: 0, y: 1)
+                    .padding(.top, 8)
                     if let currentPlayer = currentPlayer {
                         SequenceBoardView(currentPlayer: $currentPlayer)
+                            .padding(12)
+                            .background(ThemeColor.boardFelt)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(ThemeColor.border, lineWidth: 1))
+                            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                            .padding(.horizontal, 12)
                             .padding(.top, 10)
                     }
                     HStack {
@@ -47,7 +58,14 @@ struct SequenceGameView: View {
                             }
                         }
                     }
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .background(ThemeColor.boardFelt)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(ThemeColor.border, lineWidth: 1))
                 }
+                .padding(.horizontal, 16)
+                .frame(maxWidth: 800) 
                 .onAppear {
                     setupGame()
                 }
