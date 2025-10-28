@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SequenceBoardView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var boardTiles: [[BoardTile]] = Board(row: 10, col: 10).boardTiles
     @State private var isBoardInitialized: Bool = false
     var numberOfRows: Int = 10
@@ -18,12 +19,6 @@ struct SequenceBoardView: View {
     @Binding var currentPlayer: Player?
     var body: some View {
         HStack {
-            Text("********* Sequence *********")
-                .frame(width: 10, height: 542, alignment: .center)
-                .background(Color.black)
-                .foregroundStyle(.white)
-                .padding(.leading, 10)
-                .padding(.trailing, 2)
             VStack {
                 ForEach(0..<numberOfRows, id: \.self) { row in
                     HStack {
@@ -51,19 +46,12 @@ struct SequenceBoardView: View {
                     }
                 }
             }
-            .padding(.top, 20)
-            .padding(.bottom, 20)
-            Text("********* Sequence *********")
-                .frame(width: 10, height: 542, alignment: .center)
-                .background(Color.black)
-                .foregroundStyle(.white)
-                .padding(.trailing, 10)
-                .padding(.leading, 2)
+            .padding(15)
         }
         .edgesIgnoringSafeArea(.bottom)
         .edgesIgnoringSafeArea(.top)
         .border(Color.black, width: 10)
-        .background(.wood)
+        .background(colorScheme == .dark ? Color("woodDark") : Color("wood"))
         .onAppear {
             if !isBoardInitialized {
                 setupBoard()

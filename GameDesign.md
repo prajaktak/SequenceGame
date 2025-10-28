@@ -121,6 +121,82 @@ Sketch or describe the main screens:
 https://officialgamerules.org/game-rules/sequence/
 - Design inspirations or UI reference links
 
+## 12. Game Theme (Visual System)
+
+- Colors
+  - Game screen background: wood texture + subtle radial vignette (black 8% opacity)
+  - Menu background (light): parchment/off‑white (#F7F3E9)
+  - Menu background (dark): felt green (#1A4D2E), invert text to light
+  - Primary accent: deep green (#2F6F3E)
+  - Secondary accent: royal blue (#2A5B9D)
+  - Text: dark graphite (#1F2937) light mode; light gray (#E5E7EB) dark mode
+  - Borders/strokes: warm gray (#D1C7B7) at 60% opacity (1 pt)
+
+- Typography
+  - Titles: SF Rounded, Semibold
+  - Body: SF, Regular
+  - Dynamic Type friendly; suggested sizes: title 20–22, body 15–17, caption 12–13
+
+- Buttons
+  - Shape: rounded rectangle (radius 12–16) or capsule for primary CTA
+  - Primary fill: vertical gradient (#3A7D4D → #2F6F3E)
+  - Outline: 1 pt stroke #113A23 at 20% opacity
+  - Shadow: y=1, blur=3, opacity 0.2
+  - Pressed state: scale to 0.98 and lighten overlay
+  - Secondary: outline style with fill at 10% opacity of accent
+
+- Icons (SF Symbols)
+  - Play: play.fill; Continue: clock.arrow.circlepath; Settings: gearshape.fill
+  - How to Play: book.fill or questionmark.circle.fill
+  - About/Attribution: info.circle.fill; Multiplayer: person.2.fill
+  - Sound: speaker.wave.2.fill; Theme: paintbrush.fill; Stats: chart.bar.doc.horizontal.fill
+
+- Spacing & Layout Tokens
+  - Horizontal padding: 20; Vertical spacing: 12–16; Button height: 44–52
+  - Corner radius: 12 (buttons), 8 (cards/tiles inside menus)
+
+- Motion & Feedback
+  - Button press: spring (response 0.25, damping 0.7)
+  - Chip placement: scale 0.9 → 1.0 + haptic light
+  - Sequence highlight: brief glow/pulse (~800 ms) with sound cue
+
+- Accessibility
+  - Contrast ratio ≥ 4.5:1
+  - Supports large content sizes (buttons grow vertically)
+  - Color‑independent indicators for teams (labels/icons)
+
+- Game Screen Specifics
+  - Board underlay: felt green (#134E4A) at ~85% over wood for contrast
+  - Turn banner: pill with team color background (85% opacity) + white text
+  - Overlays: ultra-thin material or black 40% backdrop
+
+## 13. Main Menu
+
+- Primary Actions
+  - Play (Start Game)
+  - Continue (only if a saved game exists)
+
+- Secondary Actions
+  - How to Play (rules quick start)
+  - Settings
+    - Teams/players configuration
+    - Sounds on/off
+    - Theme: Light / Dark / System
+    - Colorblind mode (swap red/green for blue/orange)
+  - Statistics (optional, later)
+  - About
+    - Version/build
+    - Attributions (LGPL text for vector playing cards)
+
+- Visual Layout
+  - Background: parchment (light) or felt (dark) with subtle vignette and paper grain (2–4%)
+  - Buttons: primary CTA with gradient; secondary outlined
+  - Icons: 18–20 pt leading icon with 8–10 pt text spacing
+
+- Navigation
+  - Use NavigationStack; push Settings, How to Play, About
+  - Hide Continue if no saved state
+
 ---
-**Document version:** 0.1 / _Date updated: 16/10/2025
+**Document version:** 0.2 / _Date updated: 28/10/2025
 
