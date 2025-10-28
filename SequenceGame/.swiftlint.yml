@@ -11,7 +11,7 @@ excluded:
 - SwiftLint/Common/3rdPartyLib
 
 line_length:
-    warning: 120
+    warning: 150
     error: 200
     ignores_function_declarations: true
     ignores_comments: true
