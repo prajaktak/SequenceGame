@@ -22,7 +22,7 @@ enum GameConstants {
     
     // MARK: - Team Configuration
     static let maxTeams = 4
-    static let teamColors: [Color] = [.blue, .green, .red, .yellow]
+    static let teamColors: [Color] = [ThemeColor.teamBlue, ThemeColor.teamGreen, ThemeColor.teamRed]
     
     // MARK: - Cards Per Player (Based on Player Count)
     static func cardsPerPlayer(playerCount: Int) -> Int {

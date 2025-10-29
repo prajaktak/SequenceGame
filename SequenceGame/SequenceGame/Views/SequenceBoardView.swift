@@ -8,9 +8,8 @@
 import SwiftUI
 
 struct SequenceBoardView: View {
+    @EnvironmentObject var gameState: GameState
     @Environment(\.colorScheme) private var colorScheme
-    @State private var boardTiles: [[BoardTile]] = Board().boardTiles
-    @State private var isBoardInitialized: Bool = false
     var numberOfRows: Int = GameConstants.boardRows
     var numberOfColumns: Int = GameConstants.boardColumns
     var cardsPlaced = 0
@@ -23,25 +22,10 @@ struct SequenceBoardView: View {
                 ForEach(0..<numberOfRows, id: \.self) { row in
                     HStack {
                         ForEach(0..<numberOfColumns, id: \.self) { column in
-                            let tile = boardTiles[row][column]
-                            if tile.isEmpty {
-                                TileView(isCard: false, card: nil, color: .blue, isChipVisible: false)
-                            } else if let card = tile.card {
-                                if let chip = tile.chip, chip.isPlaced {
-                                    TileView(card: card, color: chip.color, isChipVisible: true)
-                                } else {
-                                    TileView(card: card, color: .blue, isChipVisible: false)
-                                    .contentShape(Rectangle())
-                                    .onTapGesture {
-                                        if let currentPlayer = currentPlayer {
-                                            let teamColor = currentPlayer.team.color
-                                            let chip = Chip(color: teamColor, positionRow: row, positionColumn: column, isPlaced: true)
-                                            boardTiles[row][column].chip = chip
-                                            boardTiles[row][column].isChipOn = true
-                                        }
-                                    }
-                                }
-                            }
+                            let tile = gameState.boardTiles[row][column]
+                            // Valid position for currently selected card (read-only)
+                            let isValid = gameState.validPositionsForSelectedCard.contains { $0.row == row && $0.col == column }
+                            tileCell(row: row, column: column, tile: tile, isValid: isValid)
                         }
                     }
                 }
@@ -52,36 +36,6 @@ struct SequenceBoardView: View {
         .edgesIgnoringSafeArea(.top)
         .border(Color.black, width: 10)
         .background(colorScheme == .dark ? Color("woodDark") : Color("wood"))
-        .onAppear {
-            if !isBoardInitialized {
-                setupBoard()
-                isBoardInitialized = true
-            }
-        }
-    }
-    func setupBoard() {
-        let tempDeck1 = Deck()
-        let tempDeck2 = Deck()
-        tempDeck1.shuffle()
-        tempDeck2.shuffle()
-        var newTiles: [[BoardTile]] = []
-
-        for row in 0..<numberOfRows {
-            var rowTiles: [BoardTile] = []
-            for column in 0..<numberOfColumns {
-                if isEmptyTile(row, column) {
-                    rowTiles.append(BoardTile(card: nil, isEmpty: true, isChipOn: false))
-                } else if !tempDeck1.cards.isEmpty {
-                    rowTiles.append(BoardTile(card: tempDeck1.drawCard(), isEmpty: false, isChipOn: false, chip: nil))
-                } else if !tempDeck2.cards.isEmpty {
-                    rowTiles.append(BoardTile(card: tempDeck2.drawCard(), isEmpty: false, isChipOn: false, chip: nil))
-                } else {
-                    rowTiles.append(BoardTile(card: nil, isEmpty: true, isChipOn: false))
-                }
-            }
-            newTiles.append(rowTiles)
-        }
-        boardTiles = newTiles
     }
     
     func isEmptyTile(_ row: Int, _ column: Int) -> Bool {
@@ -92,8 +46,67 @@ struct SequenceBoardView: View {
     func placeChip(color: Color) {
         
     }
+    
+    @ViewBuilder
+    private func validHighlight(_ isValid: Bool) -> some View {
+        if isValid {
+            Circle()
+                .fill(ThemeColor.accentGolden.opacity(0.7))
+                .frame(width: 18, height: 18)
+                .shadow(color: ThemeColor.accentGolden.opacity(0.5), radius: 4, y: 1)
+        } else {
+            EmptyView()
+        }
+    }
+    @ViewBuilder
+    private func tileCell(row: Int, column: Int, tile: BoardTile, isValid: Bool) -> some View {
+        if tile.isEmpty {
+            TileView(isCard: false, card: nil, color: .blue, isChipVisible: false)
+        } else if let card = tile.card {
+            if let chip = tile.chip, chip.isPlaced {
+                // Tile with chip: allow tapping if one-eyed jack is selected and this tile is valid
+                TileView(card: card, color: chip.color, isChipVisible: true)
+                    .scaleEffect(chip.isPlaced ? 1.0 : 0.95)
+                    .animation(.spring(response: 0.25, dampingFraction: 0.7), value: chip.isPlaced)
+                    .contentShape(Rectangle())
+                    .overlay {
+                        validHighlight(isValid)
+                            .opacity(isValid ? 1 : 0)
+                            .scaleEffect(isValid ? 1 : 0.92)
+                            .animation(.easeOut(duration: 0.2), value: isValid)
+                    }
+                    .onTapGesture {
+                        guard isValid else { return }
+                        guard let selectedId = gameState.selectedCardId else { return }
+                        defer { gameState.clearSelection() }
+                        withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
+                            gameState.performPlay(atPos: (row, column), using: selectedId)
+                        }
+                    }
+            } else {
+                // Empty tile: allow tapping if card selected and this tile is valid
+                TileView(card: card, color: .blue, isChipVisible: false)
+                    .contentShape(Rectangle())
+                    .overlay {
+                        validHighlight(isValid)
+                            .opacity(isValid ? 1 : 0)
+                            .scaleEffect(isValid ? 1 : 0.92)
+                            .animation(.easeOut(duration: 0.2), value: isValid)
+                    }
+                    .onTapGesture {
+                        guard isValid else { return }
+                        guard let selectedId = gameState.selectedCardId else { return }
+                        defer { gameState.clearSelection() }
+                        withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
+                            gameState.performPlay(atPos: (row, column), using: selectedId)
+                        }
+                    }
+            }
+        }
+    }
 }
 
 #Preview {
     SequenceBoardView(currentPlayer: .constant(nil))
+        .environmentObject(GameState())
 }
