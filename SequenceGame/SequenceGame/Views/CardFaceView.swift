@@ -31,44 +31,53 @@ struct CardFaceView: View {
                         .padding(.vertical, height * 0.02)
                 } else {
                     // Generated layout: draw corner numbers and center pips
-                    VStack(spacing: 0) {
-                        HStack(spacing: 0) {
-                            Text(card.cardFace.displayValue)
-                                .font(.system(size: fontSize, weight: .bold))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.leading, cornerPadding)
-                                .padding(.top, cornerPadding * 0.5)
+                    ZStack {
+                        // Corner numbers layer
+                        VStack(spacing: 0) {
+                            HStack(spacing: 0) {
+                                Text(card.cardFace.displayValue)
+                                    .font(.system(size: fontSize, weight: .bold))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.leading, cornerPadding)
+                                    .padding(.top, cornerPadding * 0.5)
+                                Spacer()
+                                Text(card.cardFace.displayValue)
+                                    .font(.system(size: fontSize, weight: .bold))
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                                    .padding(.trailing, cornerPadding)
+                                    .padding(.top, cornerPadding * 0.5)
+                            }
                             Spacer()
-                            Text(card.cardFace.displayValue)
-                                .font(.system(size: fontSize, weight: .bold))
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                                .padding(.trailing, cornerPadding)
-                                .padding(.top, cornerPadding * 0.5)
+                            HStack(spacing: 0) {
+                                Text(card.cardFace.displayValue)
+                                    .font(.system(size: fontSize, weight: .bold))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.leading, cornerPadding)
+                                    .padding(.bottom, cornerPadding * 0.5)
+                                Spacer()
+                                Text(card.cardFace.displayValue)
+                                    .font(.system(size: fontSize, weight: .bold))
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                                    .padding(.trailing, cornerPadding)
+                                    .padding(.bottom, cornerPadding * 0.5)
+                            }
                         }
-                        Spacer()
-                        HStack(spacing: 0) {
-                            Text(card.cardFace.displayValue)
-                                .font(.system(size: fontSize, weight: .bold))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.leading, cornerPadding)
-                                .padding(.bottom, cornerPadding * 0.5)
-                            Spacer()
-                            Text(card.cardFace.displayValue)
-                                .font(.system(size: fontSize, weight: .bold))
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                                .padding(.trailing, cornerPadding)
-                                .padding(.bottom, cornerPadding * 0.5)
-                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        
+                        // Center pips layer - use padding to create safe area, GeometryReader will see reduced size
+                        let horizontalPadding = fontSize * 0.3
+                        let verticalPadding = fontSize * 0.2
+                        
+                        CardPipsView(pipViewMaxWidth: pipViewMaxWidth, card: card)
+                            .padding(.horizontal, horizontalPadding)
+                            .padding(.vertical, verticalPadding)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-                    
-                    CardPipsView(pipViewMaxWidth: pipViewMaxWidth, card: card)
-                        .padding(.horizontal, fontSize * 0.3)
-                        .padding(.vertical, fontSize * 0.2)
                 }
             }
+            .frame(width: width, height: height)
             .background(.white)
             .foregroundColor(card.suit.color)
-            .frame(width: width, height: height)
             .border(Color.gray, width: 1)
         }
     }
@@ -88,6 +97,7 @@ private func suitName(_ suit: Suit) -> String {
     case .spades: return "spade"
     case .diamonds: return "diamond"
     case .clubs: return "club"
+    case .empty: return ""
     }
 }
 
@@ -106,10 +116,11 @@ private func rankName(_ face: CardFace) -> String {
     case .eight: return "8"
     case .nine: return "9"
     case .ten: return "10"
+    case .empty: return "empty"
     }
 }
 
 #Preview {
-    CardFaceView(card: .init(cardFace: .ten, suit: .diamonds))
+    CardFaceView(card: .init(cardFace: .empty, suit: .empty))
         .frame(width: 28, height: 40)
 }

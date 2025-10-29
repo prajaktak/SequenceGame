@@ -18,4 +18,3 @@ struct ScatterItem: Identifiable {
     let rotation: Angle
     let shadowOpacity: Double
 }
-
