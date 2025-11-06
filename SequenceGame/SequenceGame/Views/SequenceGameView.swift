@@ -16,7 +16,6 @@ struct SequenceGameView: View {
     @State private var players: [Player] = []
     @State private var teams: [Team] = []
     @State private var turn: Turn = .init(player: Player(name: "Player 1", team: Team(color: .blue, numberOfPlayers: 2) ))
-    //    @State private var currentPlayer: Player?
     @State private var team1CoinsPlaced: Int = 0
     @State private var team2CoinsPlaced: Int = 0
     @State private var isOverlayPresent: Bool = false

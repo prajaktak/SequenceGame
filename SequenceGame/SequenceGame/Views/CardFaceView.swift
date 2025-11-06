@@ -121,6 +121,6 @@ private func rankName(_ face: CardFace) -> String {
 }
 
 #Preview {
-    CardFaceView(card: .init(cardFace: .empty, suit: .empty))
+    CardFaceView(card: .init(cardFace: .jack, suit: .diamonds))
         .frame(width: 28, height: 40)
 }
