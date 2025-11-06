@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SequenceBoardView: View {
     @EnvironmentObject var gameState: GameState
+    @EnvironmentObject var gameState: GameState
     @Environment(\.colorScheme) private var colorScheme
     var numberOfRows: Int = GameConstants.boardRows
     var numberOfColumns: Int = GameConstants.boardColumns
@@ -154,5 +155,6 @@ struct SequenceBoardView: View {
 
 #Preview {
     SequenceBoardView(currentPlayer: .constant(nil))
+        .environmentObject(GameState())
         .environmentObject(GameState())
 }
