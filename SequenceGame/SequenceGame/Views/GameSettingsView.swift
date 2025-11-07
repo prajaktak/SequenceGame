@@ -8,15 +8,15 @@
 import SwiftUI
 
 struct GameSettingsView: View {
+    @EnvironmentObject var gameState: GameState
     @State private var playersInTeam = 2 // Start with a default
     @State private var numberOfTeams = 2
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                ThemeColor.backgroundMenu
-                    .ignoresSafeArea(edges: [.bottom])
-                VStack(spacing: 30) {
+        ZStack {
+            ThemeColor.backgroundMenu
+                .ignoresSafeArea(edges: [.bottom])
+            VStack(spacing: 30) {
                     // Title Section
                     VStack(spacing: 8) {
                         Text("Sequence")
@@ -66,7 +66,7 @@ struct GameSettingsView: View {
                                 Spacer()
                             }
                             Picker("Number of Players", selection: $playersInTeam) {
-                                ForEach(2...12, id: \.self) { number in
+                                ForEach(2...6, id: \.self) { number in
                                     Text("\(number)").tag(number)
                                 }
                             }
@@ -81,7 +81,7 @@ struct GameSettingsView: View {
                     .padding(.horizontal, 20)
                     
                     // Start Game Button
-                    NavigationLink(destination: SequenceGameView(numberOfPlayers: playersInTeam, numberOfTeams: numberOfTeams)) {
+                    NavigationLink(destination: GameView(numberOfPlayers: playersInTeam, numberOfTeams: numberOfTeams)) {
                         HStack(spacing: 12) {
                             Image(systemName: "play.fill")
                                 .font(.title3)
@@ -107,6 +107,7 @@ struct GameSettingsView: View {
                         )
                         .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 1)
                     }
+                    .accessibilityIdentifier("startGameButton")
                     .padding(.horizontal, 20)
                     
                     Spacer()
@@ -116,10 +117,10 @@ struct GameSettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(ThemeColor.backgroundMenu, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-        }
     }
 }
 
 #Preview {
     GameSettingsView()
+        .environmentObject(GameState())
 }

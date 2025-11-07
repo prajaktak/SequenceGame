@@ -10,38 +10,39 @@ import SwiftUI
 struct TileView: View {
     var isCard: Bool = true
     var card: Card?
-    @State var color: Color
-    @State var isChipVisible: Bool
+    var color: Color
+    var isChipVisible: Bool
     
     var body: some View {
         if isCard {
             ZStack {
                 CardFaceView(card: card ?? Card(cardFace: .queen, suit: .clubs))
-                    .frame(width: GameConstants.UISizing.tileWidth, height: GameConstants.UISizing.tileHeight)
                 ChipView(color: color)
                     .opacity(isChipVisible ? 1 : 0)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .border(.black, width: 0.25)
             
         } else {
             ZStack {
-                Image(systemName: "circle" )
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 23, height: 38)
-                    .padding(2)
+                CardFaceView(card: Card(cardFace: .empty, suit: .empty))
+                ChipView(color: .secondary)
             }
             .background(.white)
-            .frame(width: 23, height: 38)
-            .foregroundStyle(.secondary)
-            .padding(.horizontal, 3)
+            .border(.black, width: 0.25)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
 
 #Preview {
     TileView(card: Card(cardFace: .ten, suit: .clubs), color: .blue, isChipVisible: true)
+        .frame(width: 32, height: 50)
+
 }
 
 #Preview {
     TileView(isCard: false, card: nil, color: .blue, isChipVisible: false)
+        .frame(width: 32, height: 50)
+
 }

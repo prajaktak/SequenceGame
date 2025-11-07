@@ -18,9 +18,13 @@ enum ThemeColor {
     static let border = Color("Border")
     static let teamBlue = Color("TeamBlue")
     static let teamGreen = Color("TeamGreen")
+    static let teamRed = Color("TeamRed")
     static let accentGolden = Color("AccentGolden")
     static let accentYellowGolden = Color("AccentYellowGolden")
     static let accentTertiary = Color("AccentTertiary")
+    static let overlayTeamGreen = Color("OverlayTeamGreen")
+    static let overlayTeamRed = Color("OverlayTeamRed")
+    static let overlayTeamBlue = Color("OverlayTeamBlue")
 }
 
 #Preview {
@@ -94,6 +98,27 @@ enum ThemeColor {
                 Circle().fill(ThemeColor.teamGreen).frame(width: 50)
                 Text("Green")
             }
+            VStack {
+                Circle().fill(ThemeColor.teamRed).frame(width: 50)
+                Text("Red")
+            }
+
+        }
+        // Team overlay colours
+        HStack(spacing: 15) {
+            VStack {
+                Circle().fill(ThemeColor.overlayTeamBlue).frame(width: 50)
+                Text("Blue")
+            }
+            VStack {
+                Circle().fill(ThemeColor.overlayTeamGreen).frame(width: 50)
+                Text("Green")
+            }
+            VStack {
+                Circle().fill(ThemeColor.overlayTeamRed).frame(width: 50)
+                Text("Red")
+            }
+
         }
     }
     .padding()
