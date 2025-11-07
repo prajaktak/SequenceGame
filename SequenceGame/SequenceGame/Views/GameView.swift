@@ -9,6 +9,7 @@ import SwiftUI
 
 struct GameView: View {
     @EnvironmentObject var gameState: GameState
+    @Environment(\.presentationMode) var presentationMode
     @State private var numberOfPlayers: Int
     @State private var numberOfTeams: Int
     @State private var players: [Player] = []
@@ -68,6 +69,26 @@ struct GameView: View {
                 
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
+            .navigationTitle("Sequence Game")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        // Pop to root (MainMenu) by dismissing twice
+                        // First dismiss GameView, then GameSettingsView
+                        presentationMode.wrappedValue.dismiss()
+                        // Use DispatchQueue to dismiss again after a brief delay
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }, label: {
+                        Image(systemName: "line.3.horizontal")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(ThemeColor.accentPrimary)
+                    })
+                }
+            }
             .onAppear {
                 setupGame()
             }
@@ -81,7 +102,7 @@ struct GameView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: work)
                 }
             }
-            .overlay {
+            .overlay(content: {
                 // Centered overlay for game events
                 if isOverlayPresent, let activePlayer = gameState.currentPlayer {
                     GameOverlayView(
@@ -98,16 +119,16 @@ struct GameView: View {
                     .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isOverlayPresent)
                     .transition(.scale.combined(with: .opacity))
                     .allowsHitTesting(gameState.overlayMode == .deadCard)
-                    .overlay {
+                    .overlay(content: {
                         if gameState.overlayMode == .deadCard {
                             Color.clear
                                 .contentShape(Rectangle())
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .onTapGesture { gameState.replaceCurrentlySelectedDeadCard() }
                         }
-                    }
+                    })
                 }
-            }
+            })
         }
     }
     

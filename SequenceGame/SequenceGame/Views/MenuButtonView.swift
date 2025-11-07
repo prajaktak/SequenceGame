@@ -13,16 +13,19 @@ struct MenuButtonView<Destination: View>: View {
     let iconSystemName: String
     let gradient: [Color]
     let destination: Destination
+    let isEnabled: Bool
 
     init(title: String,
          subtitle: String,
          iconSystemName: String,
          gradient: [Color],
+         isEnabled: Bool = true,
          @ViewBuilder destination: () -> Destination) {
         self.title = title
         self.subtitle = subtitle
         self.iconSystemName = iconSystemName
         self.gradient = gradient
+        self.isEnabled = isEnabled
         self.destination = destination()
     }
 
@@ -53,7 +56,9 @@ struct MenuButtonView<Destination: View>: View {
             .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius).stroke(ThemeColor.border, lineWidth: 1.5))
             .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+            .opacity(isEnabled ? 1.0 : 0.5)
         }
+        .disabled(!isEnabled)
     }
 }
 

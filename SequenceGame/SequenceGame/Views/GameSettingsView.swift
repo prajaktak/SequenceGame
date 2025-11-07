@@ -13,11 +13,10 @@ struct GameSettingsView: View {
     @State private var numberOfTeams = 2
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                ThemeColor.backgroundMenu
-                    .ignoresSafeArea(edges: [.bottom])
-                VStack(spacing: 30) {
+        ZStack {
+            ThemeColor.backgroundMenu
+                .ignoresSafeArea(edges: [.bottom])
+            VStack(spacing: 30) {
                     // Title Section
                     VStack(spacing: 8) {
                         Text("Sequence")
@@ -118,7 +117,6 @@ struct GameSettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(ThemeColor.backgroundMenu, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-        }
     }
 }
 

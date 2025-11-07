@@ -12,7 +12,7 @@ struct SequenceGameApp: App {
     @StateObject var gameState = GameState()
     var body: some Scene {
         WindowGroup {
-            GameSettingsView()
+            MainMenu()
                 .environmentObject(gameState)
         }
     }

@@ -34,7 +34,8 @@ struct MainMenu: View {
                             title: "Resume Game",
                             subtitle: "Continue where you left off",
                             iconSystemName: "arrow.uturn.forward.circle.fill",
-                            gradient: [ThemeColor.accentPrimary, ThemeColor.accentTertiary]
+                            gradient: [ThemeColor.accentPrimary, ThemeColor.accentTertiary],
+                            isEnabled: false
                         ) { SequenceGameView() }
 
                         MenuButtonView(
