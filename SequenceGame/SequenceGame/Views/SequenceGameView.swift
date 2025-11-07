@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SequenceGameView: View {
     @EnvironmentObject var gameState: GameState
+    @EnvironmentObject var gameState: GameState
     @Environment(\.colorScheme) private var colorScheme
     @State var numberOfPlayers: Int
     @State var numberOfTeams: Int
@@ -16,9 +17,13 @@ struct SequenceGameView: View {
     @State private var players: [Player] = []
     @State private var teams: [Team] = []
     @State private var turn: Turn = .init(player: Player(name: "Player 1", team: Team(color: .blue, numberOfPlayers: 2) ))
+    //    @State private var currentPlayer: Player?
+    //    @State private var currentPlayer: Player?
     @State private var team1CoinsPlaced: Int = 0
     @State private var team2CoinsPlaced: Int = 0
     @State private var isOverlayPresent: Bool = false
+    @State private var overlayDismissWork: DispatchWorkItem?
+    @State private var seats: [Seat] = []
     @State private var overlayDismissWork: DispatchWorkItem?
     @State private var seats: [Seat] = []
     let colorNames: [Color] = GameConstants.teamColors
@@ -173,9 +178,33 @@ struct SequenceGameView: View {
         maxCardsPerPlayer = cardsPerPlayer(for: totalPlayers)
         
         // Build local players from team selections (no dealing here)
+        players.removeAll()
+        teams.removeAll()
+        seats.removeAll()
+        
+        let totalPlayers = numberOfTeams * numberOfPlayers
+        maxCardsPerPlayer = cardsPerPlayer(for: totalPlayers)
+        
+        // Build local players from team selections (no dealing here)
         for teamIndex in 0..<numberOfTeams {
             teams.append(Team(color: colorNames[teamIndex], numberOfPlayers: numberOfPlayers))
             for index in 0..<numberOfPlayers {
+                let displayIndex = index + 1
+                let playerName = "T\(teamIndex + 1)-P\(displayIndex)"
+                players.append(Player(name: playerName, team: teams[teamIndex], cards: []))
+            }
+        }
+        
+        // Interleave by team
+        let teamOrder = teams.map { $0.id }
+        players = SeatingRules.interleaveByTeams(players, teamOrder: teamOrder)
+        
+        // Hand off to GameState (shuffles, seeds board, deals, sets current player)
+        gameState.startGame(with: players)
+        
+        // Seats depend only on player count
+        seats = SeatingLayout.computeSeats(for: gameState.players.count)
+        
                 let displayIndex = index + 1
                 let playerName = "T\(teamIndex + 1)-P\(displayIndex)"
                 players.append(Player(name: playerName, team: teams[teamIndex], cards: []))
@@ -206,6 +235,7 @@ struct SequenceGameView: View {
         SequenceGameView()
             .navigationTitle("Sequcence Game")
             .navigationBarTitleDisplayMode(.inline)
+            .environmentObject(GameState())
             .environmentObject(GameState())
     }
 }
