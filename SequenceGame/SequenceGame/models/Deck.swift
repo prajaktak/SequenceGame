@@ -15,10 +15,10 @@ class Deck {
     
     func resetDeck() {
         cards = []
-        // Create double deck (104 cards total for Sequence game)
-        for _ in 0..<2 {
-            for suit in Suit.allCases {
-                for face in CardFace.allCases {
+        // Create standard 52-card deck
+        for suit in Suit.allCases {
+            for face in CardFace.allCases {
+                if suit != .empty && face != .empty {
                     cards.append(Card(cardFace: face, suit: suit))
                 }
             }
@@ -39,13 +39,26 @@ class Deck {
     }
     func drawCardExceptJacks() -> Card? {
         guard !cards.isEmpty else { return nil }
-        if let lastCard = cards.last, lastCard.cardFace == .jack {
-            cards.removeLast()
+        let card = cards.removeLast()
+        if card.cardFace != .jack {
+            return card
+        } else {
+            return drawCardExceptJacks()
         }
-        return cards.removeLast()
     }
     
     func cardsRemaining() -> Int {
         return cards.count
+    }
+    
+    func deal(handCount: Int, to players: inout [Player]) {
+        guard handCount > 0, !players.isEmpty else { return }
+        for _ in 0..<handCount {
+            for playerIndex in players.indices {
+                if let card = drawCard() {
+                    players[playerIndex].cards.append(card)
+                }
+            }
+        }
     }
 }

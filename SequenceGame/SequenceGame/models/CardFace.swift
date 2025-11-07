@@ -7,8 +7,8 @@
 
 import Foundation
 
-public enum CardFace: Equatable, CaseIterable {
-    case ace, two, three, four, five, six, seven, eight, nine, ten, jack, queen, king
+enum CardFace: Equatable, CaseIterable {
+    case ace, two, three, four, five, six, seven, eight, nine, ten, jack, queen, king, empty
     
     var displayValue: String {
         switch self {
@@ -25,6 +25,7 @@ public enum CardFace: Equatable, CaseIterable {
         case .jack: return "J"
         case .queen: return "Q"
         case .king: return "K"
+        case .empty: return "E"
         }
     }
     var imageCount: Int {
@@ -40,6 +41,7 @@ public enum CardFace: Equatable, CaseIterable {
             case .nine: return 9
             case .ten: return 10
             case .jack, .queen, .king: return 0 // Depends on your design
+            case .empty: return 0
             }
         }
 }

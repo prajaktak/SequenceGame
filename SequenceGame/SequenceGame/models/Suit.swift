@@ -7,8 +7,8 @@
 import Foundation
 import SwiftUI
 
-public enum Suit: CaseIterable {
-    case hearts, spades, diamonds, clubs
+enum Suit: CaseIterable {
+    case hearts, spades, diamonds, clubs, empty
     
     var systemImageName: String {
         switch self {
@@ -16,6 +16,7 @@ public enum Suit: CaseIterable {
         case .spades: return "suit.spade.fill"
         case .diamonds: return "suit.diamond.fill"
         case .clubs: return "suit.club.fill"
+        case .empty: return "circle.fill"
         }
     }
     
@@ -25,6 +26,8 @@ public enum Suit: CaseIterable {
             return .red
         case .spades, .clubs:
             return .black
+        case .empty:
+            return .clear
         }
     }
 }

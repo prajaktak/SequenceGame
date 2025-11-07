@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct SequenceGameApp: App {
+    @StateObject var gameState = GameState()
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainMenu()
+                .environmentObject(gameState)
         }
     }
 }
