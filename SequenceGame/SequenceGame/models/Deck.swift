@@ -45,27 +45,10 @@ class Deck {
         } else {
             return drawCardExceptJacks()
         }
-        let card = cards.removeLast()
-        if card.cardFace != .jack {
-            return card
-        } else {
-            return drawCardExceptJacks()
-        }
     }
     
     func cardsRemaining() -> Int {
         return cards.count
-    }
-    
-    func deal(handCount: Int, to players: inout [Player]) {
-        guard handCount > 0, !players.isEmpty else { return }
-        for _ in 0..<handCount {
-            for playerIndex in players.indices {
-                if let card = drawCard() {
-                    players[playerIndex].cards.append(card)
-                }
-            }
-        }
     }
     
     func deal(handCount: Int, to players: inout [Player]) {
