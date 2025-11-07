@@ -165,14 +165,13 @@ struct SequenceGameView: View {
     }
     
     func setupGame() {
-        players.removeAll()
-        teams.removeAll()
-        seats.removeAll()
-        
         let totalPlayers = numberOfTeams * numberOfPlayers
         maxCardsPerPlayer = cardsPerPlayer(for: totalPlayers)
         
         // Build local players from team selections (no dealing here)
+        players.removeAll()
+        teams.removeAll()
+        seats.removeAll()
         for teamIndex in 0..<numberOfTeams {
             teams.append(Team(color: colorNames[teamIndex], numberOfPlayers: numberOfPlayers))
             for index in 0..<numberOfPlayers {
