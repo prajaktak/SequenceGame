@@ -73,7 +73,7 @@ struct MainMenuHeaderView: View {
                 shadowOpacity: 0.28
             )
         }
-        let card1 = ScatterItem(kind: .card(ThemeColor.accentPrimary, "spade.fill", 62),
+        let card1 = ScatterItem(kind: .card(ThemeColor.accentPrimary, "suit.spade.fill", 62),
                                 offset: CGSize(width: -28, height: 8),
                                 rotation: .degrees(38),
                                 shadowOpacity: 0.22)
