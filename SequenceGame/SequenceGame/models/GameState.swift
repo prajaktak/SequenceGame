@@ -16,6 +16,7 @@ final class GameState: ObservableObject {
     @Published var boardTiles: [[BoardTile]] = Board().boardTiles
     @Published var selectedCardId: UUID?
     @Published var sequenceDetector: SequenceDetector = SequenceDetector(board: Board(), currentLocation: (0, 0), forPlayer: Player(name: "no Player", team: Team(color: .blue, numberOfPlayers: 1)))
+    @Published var detectedSequence: [Sequence] = []
     var hasSelection: Bool { selectedCardId != nil }
 
     // Deck for gameplay
