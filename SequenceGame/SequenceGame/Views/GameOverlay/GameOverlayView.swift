@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct GameOverlayView: View {
+    @EnvironmentObject var gameState: GameState  
     let playerName: String
     let teamColor: Color
     let borderColor: Color
@@ -139,16 +140,25 @@ struct GameOverlayView: View {
                 borderColor: borderColor,
                 backgroundColor: backgroundColor
             ) {
-                VStack(spacing: 8) {
-                    ShimmeringNameView(
-                        name: playerName,
-                        baseColor: ThemeColor.textOnAccent,
-                        highlightColor: borderColor
-                    )
-                    GameOverOverlayContent(teamColor: borderColor)
+                VStack(spacing: 12) {
+                    Text("Game Over!")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(ThemeColor.textOnAccent)
+                    
+                    if let winningTeam = gameState.winningTeam {
+                        Text("\(teamName(for: winningTeam)) Wins!")
+                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            .foregroundColor(ThemeColor.textOnAccent)
+                    }
                 }
             }
         }
+    }
+    private func teamName(for color: Color) -> String {
+        if color == ThemeColor.teamBlue { return "Blue Team" }
+        if color == ThemeColor.teamGreen { return "Green Team" }
+        if color == ThemeColor.teamRed { return "Red Team" }
+        return "Team"
     }
 }
 

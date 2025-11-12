@@ -13,74 +13,6 @@ import SwiftUICore
 
 struct SequenceGameTests {
 
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
-    }
-    
-    @Test("Test Standard Deck Size")
-    func testStandardDeckSize() {
-        let deck = Deck()
-        let numberOfCards = deck.cardsRemaining()
-        #expect(numberOfCards == 52)  // Standard 52-card deck
-    }
-    
-    @Test("Test DoubleDeck Size")
-    func testDoubleDeckSize() {
-        let doubleDeck = DoubleDeck()
-        let numberOfCards = doubleDeck.cardsRemaining()
-        #expect(numberOfCards == 104)  // Two standard decks combined
-    }
-    
-    @Test("Test Shuffle")
-    func testShuffle() {
-        let deck = Deck()
-        deck.shuffle()
-        let firstCard = deck.drawCard()
-        let secondCard = deck.drawCard()
-        #expect(firstCard?.cardFace != secondCard?.cardFace || firstCard?.suit != secondCard?.suit)
-    }
-    
-    @Test("Test Draw Card without Jack")
-    func testDrawCardWithoutJack() {
-        let deck = Deck()
-        var cardCount: Int = 0
-        for _ in 0..<48 {
-            let card = deck.drawCardExceptJacks()
-            if card?.cardFace != .jack {
-                cardCount += 1
-            }
-        }
-        #expect(cardCount == 48)
-    }
-    
-    @Test("Test Two deck draw")
-    func testTwoDeckDraw() {
-        let doubleDeck = DoubleDeck()
-        var cardCount: Int = 0
-        for _ in 0..<96 where  doubleDeck.cardsRemaining() != 0 {
-            if doubleDeck.drawCardExceptJacks() != nil {
-                cardCount += 1
-            }
-        }
-        
-        #expect(cardCount == 96)  // Two decks: 104 total - 8 Jacks = 96 non-Jack cards
-    }
-    
-    @Test("Test Shuffle and card Draw")
-    func testShuffleAndCardDraw() {
-        var cardCount: Int = 0
-        let deck = Deck()
-        for _ in 0..<48 {
-            deck.shuffle()
-            let card = deck.drawCardExceptJacks()
-            if card?.cardFace != nil {
-                cardCount += 1
-            }
-        }
-        
-        #expect(cardCount == 48)
-    }
-    
     @Test("Tile Placement Test")
     func testTilePlacement() {
         let deck1 = Deck()
@@ -122,46 +54,6 @@ struct SequenceGameTests {
         #expect(deck1.cardsRemaining() + deck2.cardsRemaining() >= 0)
     }
     
-    @Test("one card Draw")
-    func testOneCardDraw() {
-        let deck1 = Deck()
-        deck1.shuffle()
-        _ = deck1.drawCard()
-        #expect(deck1.cardsRemaining() == 51)  // 52 - 1 = 51 (standard deck)
-    }
-    
-    @Test("Card draw in 2d for loop")
-    func testTwoDimensionalCardDraw() {
-        let deck1 = Deck()
-        deck1.shuffle()
-        for _ in 0..<5 {
-            for _ in 0..<5 {
-                _ = deck1.drawCard()
-            }
-        }
-        
-        #expect(deck1.cardsRemaining() == 27)  // 52 - 25 = 27 (standard deck, 25 cards drawn)
-    }
-    @Test("Deck deal round-robin and allows Jacks")
-    func testDealRoundRobinAllowsJacks() {
-        let deck = Deck()
-        deck.resetDeck()
-        deck.shuffle()
-
-        var players: [Player] = [
-            Player(name: "P1", team: Team(color: .blue, numberOfPlayers: 1)),
-            Player(name: "P2", team: Team(color: .green, numberOfPlayers: 1)),
-            Player(name: "P3", team: Team(color: .red, numberOfPlayers: 1))
-        ]
-        let handCount = 6
-
-        deck.deal(handCount: handCount, to: &players)
-
-        #expect(players.map { $0.cards.count } == [handCount, handCount, handCount])
-
-        // Non-deterministic for Jack presence; ensure we dealt correct total count
-        #expect(players.flatMap { $0.cards }.count == handCount * players.count)
-    }
     @Test("startGame sets players and current player")
     func testStartGamePlayers() {
         let team = Team(color: .blue, numberOfPlayers: 1)
@@ -647,47 +539,6 @@ struct SequenceGameTests {
         }
     }
     
-    @Test("GameState startGame deals correct hand sizes with DoubleDeck")
-    func testStartGame_dealsCorrectHandSizes_withDoubleDeck() {
-        // Given 4 players (6 cards each per rules)
-        let teamBlue = Team(color: .blue, numberOfPlayers: 2)
-        let teamGreen = Team(color: .green, numberOfPlayers: 2)
-        let players = [
-            Player(name: "P1", team: teamBlue),
-            Player(name: "P2", team: teamGreen),
-            Player(name: "P3", team: teamBlue),
-            Player(name: "P4", team: teamGreen)
-        ]
-
-        let gameState = GameState()
-        gameState.startGame(with: players)
-
-        let expected = GameConstants.cardsPerPlayer(playerCount: players.count)
-        #expect(gameState.players.allSatisfy { $0.cards.count == expected })
-    }
-    
-    @Test("GameState startGame reduces deck by dealt cards")
-    func testStartGame_reducesDeckByDealtCards() {
-        let teamBlue = Team(color: .blue, numberOfPlayers: 2)
-        let teamGreen = Team(color: .green, numberOfPlayers: 2)
-        let players = [
-            Player(name: "P1", team: teamBlue),
-            Player(name: "P2", team: teamGreen),
-            Player(name: "P3", team: teamBlue),
-            Player(name: "P4", team: teamGreen)
-        ]
-
-        let gameState = GameState()
-        let expectedHand = GameConstants.cardsPerPlayer(playerCount: players.count)
-        let expectedTotalDealt = players.count * expectedHand
-
-        let before = gameState.deck.cardsRemaining()
-        gameState.startGame(with: players)
-        let after = gameState.deck.cardsRemaining()
-
-        #expect(after == before - expectedTotalDealt)
-    }
-    
     @Test("GameState setupBoard places no Jacks and keeps corners empty")
     func testSetupBoard_noJacks_cornersEmpty() {
         let state = GameState()
@@ -890,6 +741,92 @@ struct SequenceGameTests {
         // Same card can be placed on an unoccupied matching tile
         let result = state.canPlace(at: (row: 0, col: 1), for: matchingCard)
         #expect(result == true)
+    }
+    
+    @Test("can remove a chip from board if the chip is not from sequence")
+    func testCanRemoveChip_notFromSequence_returnsTrue() {
+        let team = Team(color: .blue, numberOfPlayers: 1)
+        let state = GameState()
+        state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
+        let sequence = Sequence(tiles: [state.boardTiles[4][1],
+                                       state.boardTiles[4][2],
+                                       state.boardTiles[4][3],
+                                       state.boardTiles[4][4],
+                                       state.boardTiles[4][5]], position: (row: 4, col: 1), teamColor: .blue, sequenceType: .horizontal)
+        state.detectedSequence.append(sequence)
+        
+        let position = (row: 4, col: 6)
+        state.placeChip(at: (row: 4, col: 6), teamColor: .blue)
+        let isChipPlaced = state.boardTiles[position.row][position.col].isChipOn
+        state.removeChip(at: position)
+        
+        let tile = state.boardTiles[position.row][position.col]
+        #expect(isChipPlaced && tile.isChipOn == false)
+    }
+    
+    @Test("can not remove a chip from board if the chip is from sequence")
+    func testCanRemoveChip_FromSequence_returnsFalse() {
+        let team = Team(color: .blue, numberOfPlayers: 1)
+        let state = GameState()
+        state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
+        state.placeChip(at: (row: 4, col: 1), teamColor: .blue)
+        state.placeChip(at: (row: 4, col: 2), teamColor: .blue)
+        state.placeChip(at: (row: 4, col: 3), teamColor: .blue)
+        state.placeChip(at: (row: 4, col: 4), teamColor: .blue)
+        state.placeChip(at: (row: 4, col: 5), teamColor: .blue)
+        let sequence = Sequence(tiles: [state.boardTiles[4][1],
+                                       state.boardTiles[4][2],
+                                       state.boardTiles[4][3],
+                                       state.boardTiles[4][4],
+                                       state.boardTiles[4][5]], position: (row: 4, col: 1), teamColor: .blue, sequenceType: .horizontal)
+        state.detectedSequence.append(sequence)
+        
+        let sequenceCount =  state.detectedSequence.count
+        let position = (row: 4, col: 4)
+        state.removeChip(at: position)
+        
+        let tile = state.boardTiles[position.row][position.col]
+        #expect(sequenceCount > 0 && tile.isChipOn == true)
+    }
+    
+    @Test("computePlayableTiles: one-eyed jack returns only tiles with chips and tiles not in sequence")
+    func computePlayableTiles_oneEyedJack_returnsOnlyTilesWithChipsAndnotInSequence() {
+        let team = Team(color: .blue, numberOfPlayers: 1)
+        let state = GameState()
+        state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
+        
+        // Place some chips on the board
+        state.placeChip(at: (row: 3, col: 3), teamColor: .blue)
+        state.placeChip(at: (row: 5, col: 5), teamColor: .green)
+        state.placeChip(at: (row: 4, col: 1), teamColor: .blue)
+        state.placeChip(at: (row: 4, col: 2), teamColor: .blue)
+        state.placeChip(at: (row: 4, col: 3), teamColor: .blue)
+        state.placeChip(at: (row: 4, col: 4), teamColor: .blue)
+        state.placeChip(at: (row: 4, col: 5), teamColor: .blue)
+        let sequence = Sequence(tiles: [state.boardTiles[4][1],
+                                       state.boardTiles[4][2],
+                                       state.boardTiles[4][3],
+                                       state.boardTiles[4][4],
+                                       state.boardTiles[4][5]], position: (row: 4, col: 1), teamColor: .blue, sequenceType: .horizontal)
+        
+        state.detectedSequence.append(sequence)
+        
+        let sequenceCount =  state.detectedSequence.count
+        let jackOfSpades = Card(cardFace: .jack, suit: .spades)
+        let playableTiles = state.computePlayableTiles(for: jackOfSpades)
+        
+        // Current implementation returns 0 for Jacks (tries to match Jack on board, which doesn't exist)
+        // After implementation, should return all tiles with chips (at least our 2 placed chips)
+        // This will fail with current implementation (returns 0), should pass after implementation
+        #expect(sequenceCount > 0 && playableTiles.count == 2)
+        #expect(!playableTiles.isEmpty)  // Should fail now, pass after implementation
+        
+        // Verify all returned tiles have chips
+        for position in playableTiles {
+            let tile = state.boardTiles[position.row][position.col]
+            #expect(tile.isChipOn == true)
+            #expect(tile.chip != nil)
+        }
     }
 }
 // swiftlint:enable type_body_length

@@ -11,6 +11,7 @@ struct BoardView: View {
     @EnvironmentObject var gameState: GameState
     @Binding var currentPlayer: Player?
     @Environment(\.colorScheme) private var colorScheme
+    @State private var sequenceAnimationTrigger: Int = 0
     
     var body: some View {
         GeometryReader { geometry in
@@ -47,6 +48,14 @@ struct BoardView: View {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .stroke(ThemeColor.boardFelt, lineWidth: borderThickness)
             )
+            .onChange(of: gameState.detectedSequence.count) { oldValue, newValue in
+                if newValue > oldValue {
+                    // New sequence detected - trigger animation
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
+                        sequenceAnimationTrigger += 1
+                    }
+                }
+            }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             .accessibilityIdentifier("gameBoard")
         }
@@ -73,8 +82,43 @@ struct BoardView: View {
         return (width: tileWidth, height: tileHeight)
     }
     
+    /// Checks if a tile at the given position is part of any detected sequence
+    private func isTileInSequence(row: Int, column: Int) -> Bool {
+        let tile = gameState.boardTiles[row][column]
+        return gameState.detectedSequence.contains { sequence in
+            sequence.tiles.contains { $0.id == tile.id }
+        }
+    }
+    
+    /// Returns the team color for a tile if it's part of a sequence
+    private func teamColorForSequenceTile(row: Int, column: Int) -> Color? {
+        let tile = gameState.boardTiles[row][column]
+        for sequence in gameState.detectedSequence  where sequence.tiles.contains(where: { $0.id == tile.id }) {
+                return sequence.teamColor
+        }
+        return nil
+    }
+    
+    @ViewBuilder
+    private func sequenceHighlight(_ isInSequence: Bool, teamColor: Color) -> some View {
+        if isInSequence {
+            ZStack {
+                // Background to see the highlight better
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(teamColor.opacity(0.4))
+                    .border(teamColor, width: 4)
+                    .shadow(color: teamColor.opacity(0.8), radius: 4)
+            }
+            .modifier(Shimmer(teamColor: teamColor))
+        } else {
+            EmptyView()
+        }
+    }
+    
     @ViewBuilder
     private func tileCell(row: Int, column: Int, tileSize: (width: CGFloat, height: CGFloat)) -> some View {
+        let isInSequence = isTileInSequence(row: row, column: column)
+        let sequenceTeamColor = teamColorForSequenceTile(row: row, column: column) ?? .blue
         let tile = gameState.boardTiles[row][column]
         let isValid = gameState.validPositionsForSelectedCard.contains { $0.row == row && $0.col == column }
         
@@ -122,6 +166,12 @@ struct BoardView: View {
                                 .frame(width: tileSize.width * 0.4, height: tileSize.width * 0.4)
                         )
                 }
+            }
+            .overlay {
+                // Add sequence highlight overlay
+                sequenceHighlight(isInSequence, teamColor: sequenceTeamColor)
+                    .opacity(isInSequence ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.3), value: isInSequence)
             }
             .onTapGesture {
                 guard isValid else { return }

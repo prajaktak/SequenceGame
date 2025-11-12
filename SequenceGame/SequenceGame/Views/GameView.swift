@@ -93,6 +93,11 @@ struct GameView: View {
                 setupGame()
             }
             .onChange(of: gameState.overlayMode) { _, newMode in
+                if newMode == .gameOver {
+                    isOverlayPresent = true
+                    // Don't auto-dismiss game over overlay
+                    return
+                }
                 isOverlayPresent = true
                 overlayDismissWork?.cancel()
                 overlayDismissWork = nil
@@ -118,13 +123,26 @@ struct GameView: View {
                     )
                     .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isOverlayPresent)
                     .transition(.scale.combined(with: .opacity))
-                    .allowsHitTesting(gameState.overlayMode == .deadCard)
+                    .allowsHitTesting(gameState.overlayMode == .deadCard ||  gameState.overlayMode == .gameOver)
                     .overlay(content: {
                         if gameState.overlayMode == .deadCard {
                             Color.clear
                                 .contentShape(Rectangle())
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .onTapGesture { gameState.replaceCurrentlySelectedDeadCard() }
+                        } else if gameState.overlayMode == .gameOver {
+                            // Add tap gesture to dismiss to main menu
+                            Color.clear
+                                .contentShape(Rectangle())
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .onTapGesture {
+                                    // Pop to root (MainMenu) by dismissing twice
+                                    // First dismiss GameView, then GameSettingsView
+                                    presentationMode.wrappedValue.dismiss()
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        presentationMode.wrappedValue.dismiss()
+                                    }
+                                }
                         }
                     })
                 }

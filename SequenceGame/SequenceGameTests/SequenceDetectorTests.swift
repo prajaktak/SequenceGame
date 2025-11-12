@@ -24,7 +24,7 @@ struct SequenceDetectorTests {
         board.boardTiles[1][3] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[1][4] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[1][5] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (1, 5), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (1, 5),
@@ -46,7 +46,7 @@ struct SequenceDetectorTests {
         board.boardTiles[3][1] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][1] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[5][1] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (5, 1), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 1),
@@ -69,7 +69,7 @@ struct SequenceDetectorTests {
         board.boardTiles[3][3] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][4] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[5][5] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (5, 5), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 5),
@@ -90,7 +90,7 @@ struct SequenceDetectorTests {
         board.boardTiles[6][6] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[5][5] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][4] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (5, 5), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 5),
@@ -112,7 +112,7 @@ struct SequenceDetectorTests {
         board.boardTiles[1][3] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[1][4] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .green))
         board.boardTiles[1][5] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .green))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (1, 5), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (1, 5),
@@ -134,7 +134,7 @@ struct SequenceDetectorTests {
         board.boardTiles[3][1] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][1] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .green))
         board.boardTiles[5][1] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .green))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (5, 1), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // Function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 1),
@@ -157,7 +157,7 @@ struct SequenceDetectorTests {
         board.boardTiles[3][3] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][4] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .green))
         board.boardTiles[5][5] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .green))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (5, 5), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 5),
@@ -179,7 +179,7 @@ struct SequenceDetectorTests {
         board.boardTiles[6][6] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[5][5] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][4] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (5, 5), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 5),
@@ -203,7 +203,7 @@ struct SequenceDetectorTests {
         board.boardTiles[3][1] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][1] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[5][1] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (5, 1), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 1),
@@ -230,7 +230,7 @@ struct SequenceDetectorTests {
         board.boardTiles[3][3] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][4] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[5][5] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (5, 5), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 5),
@@ -251,7 +251,7 @@ struct SequenceDetectorTests {
         board.boardTiles[1][3] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[1][4] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[1][5] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (1, 5), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (1, 2),
@@ -273,7 +273,7 @@ struct SequenceDetectorTests {
         board.boardTiles[3][1] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][1] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[5][1] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (3, 1), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (3, 1),
@@ -296,7 +296,7 @@ struct SequenceDetectorTests {
         board.boardTiles[3][3] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][4] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[5][5] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (2, 2), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (2, 2),
@@ -317,7 +317,7 @@ struct SequenceDetectorTests {
         board.boardTiles[6][6] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[5][5] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][4] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (6, 6), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (6, 6),
@@ -339,7 +339,7 @@ struct SequenceDetectorTests {
         board.boardTiles[2][2] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[3][1] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][0] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (4, 0), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (4, 0),
@@ -361,7 +361,7 @@ struct SequenceDetectorTests {
         board.boardTiles[2][2] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[3][1] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][0] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (2, 2), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (2, 2),
@@ -381,7 +381,7 @@ struct SequenceDetectorTests {
         board.boardTiles[0][2] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[0][3] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[0][4] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (0, 0), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (0, 0),
@@ -402,7 +402,7 @@ struct SequenceDetectorTests {
         board.boardTiles[2][0] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[3][0] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][0] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (0, 0), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (0, 0),
@@ -424,7 +424,7 @@ struct SequenceDetectorTests {
         board.boardTiles[2][2] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[3][3] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][4] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (0, 0), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (0, 0),
@@ -444,7 +444,7 @@ struct SequenceDetectorTests {
         board.boardTiles[7][7] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[6][6] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[5][5] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (9, 9), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (9, 9),
@@ -465,7 +465,7 @@ struct SequenceDetectorTests {
         board.boardTiles[2][7] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[3][6] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][5] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (0, 9), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (0, 9),
@@ -486,7 +486,7 @@ struct SequenceDetectorTests {
         board.boardTiles[7][2] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[6][3] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[5][4] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (9, 0), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (9, 0),
@@ -511,7 +511,7 @@ struct SequenceDetectorTests {
         board.boardTiles[3][0] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][0] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[5][0] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (9, 0), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (9, 0), forPlayer: currentPlayer, gameState: gameState)
@@ -535,7 +535,7 @@ struct SequenceDetectorTests {
         board.boardTiles[2][0] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[3][0] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
         board.boardTiles[4][0] = BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: true, chip: Chip(color: .blue))
-        var sequenceDetector = SequenceDetector(board: board, currentLocation: (4, 0), forPlayer: currentPlayer)
+        var sequenceDetector = SequenceDetector(board: board)
         
         // function call
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (4, 0), forPlayer: currentPlayer, gameState: gameState)

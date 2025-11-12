@@ -10,9 +10,8 @@ import SwiftUI
 
 struct SequenceDetector {
     var board: Board
-    var currentLocation: (row: Int, col: Int)
-    var forPlayer: Player
     var numberOfChipsInSequence: Int = 0
+    var teamColor: Color = .clear
     
     func getChipColor(atPosition: (rowIndex: Int, colIndex: Int)) -> Color? {
         if GameConstants.cornerPositions.contains(where: { $0.row == atPosition.rowIndex && $0.col == atPosition.colIndex }) {
@@ -38,6 +37,7 @@ struct SequenceDetector {
         if board.boardTiles[atPosition.rowIndex][atPosition.colIndex].isEmpty && !board.boardTiles[atPosition.rowIndex][atPosition.colIndex].isCornerTile(atPosition: (rowIndex: atPosition.rowIndex, columnIndex: atPosition.colIndex)) {
             return false
         }
+        teamColor = forPlayer.team.color
         // detecting sequence in one row
         isSequenceCompleteHorizontally = detectSequenceHorizontally(atPosition: atPosition, forPlayer: forPlayer, gameState: gameState)
         
@@ -205,7 +205,7 @@ struct SequenceDetector {
         let sequence = Sequence(
             tiles: sequenceTiles,
             position: (row: position.rowIndex, col: position.columnIndex),
-            teamColor: forPlayer.team.color,
+            teamColor: teamColor,
             sequenceType: sequenceType
         )
         gameState.detectedSequence.append(sequence)
