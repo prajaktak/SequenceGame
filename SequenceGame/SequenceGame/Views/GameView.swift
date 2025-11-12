@@ -93,6 +93,11 @@ struct GameView: View {
                 setupGame()
             }
             .onChange(of: gameState.overlayMode) { _, newMode in
+                if newMode == .gameOver {
+                    isOverlayPresent = true
+                    // Don't auto-dismiss game over overlay
+                    return
+                }
                 isOverlayPresent = true
                 overlayDismissWork?.cancel()
                 overlayDismissWork = nil

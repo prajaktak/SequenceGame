@@ -9,8 +9,7 @@ import SwiftUI
 
 struct GameSettingsView: View {
     @EnvironmentObject var gameState: GameState
-    @State private var playersInTeam = 2 // Start with a default
-    @State private var numberOfTeams = 2
+    @State private var settings = GameSettings()
     
     var body: some View {
         ZStack {
@@ -41,13 +40,16 @@ struct GameSettingsView: View {
                                     .foregroundStyle(ThemeColor.textPrimary)
                                 Spacer()
                             }
-                            Picker("Number of Players", selection: $numberOfTeams) {
+                            Picker("Number of teams", selection: $settings.numberOfTeams) {
                                 ForEach(2...3, id: \.self) { number in
                                     Text("\(number)").tag(number)
                                 }
                             }
                             .pickerStyle(.segmented)
                             .tint(ThemeColor.accentPrimary)
+                            .onChange(of: settings.numberOfTeams) { _, _ in
+                                settings.adjustPlayersPerTeamIfNeeded()
+                            }
                         }
                         .padding()
                         .background(ThemeColor.accentPrimary.opacity(0.1))
@@ -65,23 +67,36 @@ struct GameSettingsView: View {
                                     .foregroundStyle(ThemeColor.textPrimary)
                                 Spacer()
                             }
-                            Picker("Number of Players", selection: $playersInTeam) {
-                                ForEach(2...6, id: \.self) { number in
+                            Picker("Number of Players", selection: $settings.playersPerTeam) {
+                                ForEach(settings.validPlayersPerTeamRange, id: \.self) { number in
                                     Text("\(number)").tag(number)
                                 }
                             }
                             .pickerStyle(.wheel)
                             .frame(height: 100)
+                            
+                            Text("Total Players: \(settings.totalPlayers)")
+                                .font(.subheadline)
+                                .foregroundStyle(settings.isValid ? ThemeColor.textPrimary : .red)
+                                .padding(.top, 8)
+
+                            if let message = settings.validationMessage {
+                                Text(message)
+                                    .font(.caption)
+                                    .foregroundStyle(.red)
+                                    .padding(.top, 4)
+                            }
                         }
                         .padding()
                         .background(ThemeColor.accentSecondary.opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                         .overlay(RoundedRectangle(cornerRadius: 12).stroke(ThemeColor.border, lineWidth: 1))
+                        
                     }
                     .padding(.horizontal, 20)
                     
                     // Start Game Button
-                    NavigationLink(destination: GameView(numberOfPlayers: playersInTeam, numberOfTeams: numberOfTeams)) {
+                NavigationLink(destination: GameView(numberOfPlayers: settings.playersPerTeam, numberOfTeams: settings.numberOfTeams)) {
                         HStack(spacing: 12) {
                             Image(systemName: "play.fill")
                                 .font(.title3)
@@ -109,6 +124,8 @@ struct GameSettingsView: View {
                     }
                     .accessibilityIdentifier("startGameButton")
                     .padding(.horizontal, 20)
+                    .disabled(!settings.isValid)
+                    .opacity(settings.isValid ? 1.0 : 0.6)
                     
                     Spacer()
                 }
