@@ -36,7 +36,7 @@ struct MainMenu: View {
                             iconSystemName: "arrow.uturn.forward.circle.fill",
                             gradient: [ThemeColor.accentPrimary, ThemeColor.accentTertiary],
                             isEnabled: false
-                        ) { SequenceGameView() }
+                        ) { }// SequenceGameView() }
 
                         MenuButtonView(
                             title: "How to Play",
