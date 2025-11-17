@@ -47,7 +47,10 @@ jobs:
       - name: Increment build number
         run: |
           BUILD_NUMBER=$(($(date +%s) / 60))  # Unique build number based on timestamp
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" "SequenceGame/Info.plist"
+          
+          # Update build number in project settings
+          agvtool new-version -all $BUILD_NUMBER
+          
           echo "Build number: $BUILD_NUMBER"
       
       - name: Build for distribution
