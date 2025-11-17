@@ -79,6 +79,7 @@ struct SequenceGameView: View {
                             let cardHeight = cardWidth * 1.5
 
                             ForEach(currentPlayer.cards) { handCard in
+                                let accesabilityLabel = (handCard.cardFace.displayValue) + "of" + (handCard.suit.systemImageName)
                                 let isSelected = handCard.id == gameState.selectedCardId
 
                                 ZStack {
@@ -95,9 +96,9 @@ struct SequenceGameView: View {
                                 .shadow(color: .black.opacity(isSelected ? 0.25 : 0.0), radius: 6, y: 3)
                                 .zIndex(isSelected ? 1 : 0)
                                 .modifier(OptionalSpringAnimation(enabled: !UIAccessibility.isReduceMotionEnabled,
-                                    value: gameState.selectedCardId))
+                                                                  value: gameState.selectedCardId))
                                 .accessibilityElement(children: .ignore) // Provide custom label/traits
-                                .accessibilityLabel("\(handCard.cardFace) of \(handCard.suit)")
+                                .accessibilityLabel(accesabilityLabel)
                                 .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : [.isButton])
 //                                .accessibilityAddTraits([.button] + (isSelected ? [.isSelected] : []))
                                 .accessibilityHint(isSelected ? "Tap to deselect" : "Tap to select")

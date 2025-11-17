@@ -15,7 +15,11 @@ public struct Shimmer: ViewModifier {
         content
             .mask {
                 LinearGradient(
-                    gradient: .init(colors: [teamColor.opacity(0.2), teamColor, teamColor.opacity(0.2)]),
+                    gradient: .init(colors: [teamColor.opacity(0.0),
+                                             teamColor.opacity(0.15),
+                                             teamColor.opacity(0.35),
+                                             teamColor.opacity(0.15),
+                                             teamColor.opacity(0.0)]),
                     startPoint: (isInitialState ? .init(x: -0.3, y: -0.3) : .init(x: 1, y: 1)),
                     endPoint: (isInitialState ? .init(x: 0, y: 0) : .init(x: 1.3, y: 1.3))
                 )

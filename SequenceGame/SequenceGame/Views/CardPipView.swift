@@ -128,5 +128,5 @@ struct CardPipsView: View {
 
 #Preview {
     CardPipsView(card: .init(cardFace: .ten, suit: .diamonds))
-        .frame(width: 25, height: 45)
+        .frame(width: 60, height: 95)
 }

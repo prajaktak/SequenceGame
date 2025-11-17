@@ -35,6 +35,11 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		F9C786772ECAEE7100BB94E5 /* nessesary file */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "nessesary file";
+			sourceTree = "<group>";
+		};
 		F9FE2C6D2EA2665F00623663 /* SequenceGame */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = SequenceGame;
@@ -80,6 +85,7 @@
 		F9FE2C622EA2665F00623663 = {
 			isa = PBXGroup;
 			children = (
+				F9C786772ECAEE7100BB94E5 /* nessesary file */,
 				F9FE2CCF2EA7B6AD00623663 /* .swiftlint.yml */,
 				F9FE2C6D2EA2665F00623663 /* SequenceGame */,
 				F9FE2C7B2EA2666100623663 /* SequenceGameTests */,
@@ -115,6 +121,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				F9C786772ECAEE7100BB94E5 /* nessesary file */,
 				F9FE2C6D2EA2665F00623663 /* SequenceGame */,
 			);
 			name = SequenceGame;

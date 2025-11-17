@@ -109,13 +109,17 @@ struct SequenceGameTests {
             #expect(Bool(false), "No suitable tile found"); return
         }
 
-        let targetCard = state.boardTiles[targetPos.row][targetPos.col].card!
+        guard let targetCard = state.boardTiles[targetPos.row][targetPos.col].card else {
+            #expect(Bool(false), "Expected card at target position"); return
+        }
         // Occupy one matching spot (if multiple exist)
         let allMatches = state.computePlayableTiles(for: targetCard)
         #expect(!allMatches.isEmpty)
 
         // Mark first match as occupied
-        let occupy = allMatches.first!
+        guard let occupy = allMatches.first else {
+            #expect(Bool(false), "Expected at least one match (already verified with #expect above)"); return
+        }
         state.boardTiles[occupy.row][occupy.col].isChipOn = true
 
         // When
@@ -207,7 +211,9 @@ struct SequenceGameTests {
         #expect(!state.players[playerIndex].cards.isEmpty)
 
         let originalHandCount = state.players[playerIndex].cards.count
-        let cardToRemove = state.players[playerIndex].cards.first!
+        guard let cardToRemove = state.players[playerIndex].cards.first else {
+            #expect(Bool(false), "Expected at least one card in hand"); return
+        }
         let cardId = cardToRemove.id
 
         // When
@@ -349,7 +355,10 @@ struct SequenceGameTests {
         #expect(!state.players[playerIndex].cards.isEmpty)
 
         let before = state.players[playerIndex].cards.count
-        let deadCardId = state.players[playerIndex].cards.first!.id
+        guard let deadCard = state.players[playerIndex].cards.first else {
+            #expect(Bool(false), "Expected at least one card for dead card test"); return
+        }
+        let deadCardId = deadCard.id
 
         state.replaceDeadCard(deadCardId)
 
@@ -415,7 +424,9 @@ struct SequenceGameTests {
         let state = GameState()
         state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
 
-        let anyCard = state.players[state.currentPlayerIndex].cards.first!
+        guard let anyCard = state.players[state.currentPlayerIndex].cards.first else {
+            #expect(Bool(false), "Expected at least one card in hand"); return
+        }
         state.selectCard(anyCard.id)
         #expect(state.selectedCardId == anyCard.id)
 
@@ -605,7 +616,9 @@ struct SequenceGameTests {
         // Pick a valid board position for that card
         let positions = state.validPositionsForSelectedCard
         #expect(!positions.isEmpty)
-        let pos = positions[0]
+        guard let pos = positions.first else {
+            #expect(Bool(false), "Expected at least one valid position"); return
+        }
 
         state.performPlay(atPos: (pos.row, pos.col), using: cardId)
 
@@ -828,5 +841,16 @@ struct SequenceGameTests {
             #expect(tile.chip != nil)
         }
     }
+    
+    @Test("Get correct team overlay color")
+    func getTeamOverlayColor() {
+        let teamColor = Color.blue
+        
+        let ovelayColor = ThemeColor.getTeamOverlayColor(for: teamColor)
+        
+        #expect(ovelayColor == ThemeColor.overlayTeamBlue)
+
+    }
+    
 }
 // swiftlint:enable type_body_length

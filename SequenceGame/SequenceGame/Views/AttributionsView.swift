@@ -37,8 +37,12 @@ Licensed under: LGPL 3.0 - https://www.gnu.org/licenses/lgpl-3.0.html
                             .cornerRadius(8)
                         
                         VStack(alignment: .leading, spacing: 6) {
-                            Link("Project Homepage", destination: URL(string: "https://totalnonsense.com/open-source-vector-playing-cards/")!)
-                            Link("LGPL 3.0 License", destination: URL(string: "https://www.gnu.org/licenses/lgpl-3.0.html")!)
+                            if let projectURL = URL(string: "https://totalnonsense.com/open-source-vector-playing-cards/") {
+                                Link("Project Homepage", destination: projectURL)
+                            }
+                            if let licenseURL = URL(string: "https://www.gnu.org/licenses/lgpl-3.0.html") {
+                                Link("LGPL 3.0 License", destination: licenseURL)
+                            }
                         }
                         .font(.footnote)
                     }

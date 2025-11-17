@@ -25,6 +25,19 @@ enum ThemeColor {
     static let overlayTeamGreen = Color("OverlayTeamGreen")
     static let overlayTeamRed = Color("OverlayTeamRed")
     static let overlayTeamBlue = Color("OverlayTeamBlue")
+    
+    static func getTeamOverlayColor(for team: Color) -> Color {
+        switch team {
+        case ThemeColor.teamBlue:
+            return Color("OverlayTeamBlue")
+        case ThemeColor.teamGreen:
+            return  Color("OverlayTeamGreen")
+        case ThemeColor.teamRed:
+            return Color("OverlayTeamRed")
+        default:
+            return .clear
+        }
+    }
 }
 
 #Preview {

@@ -30,7 +30,11 @@ struct SequenceDetectorTests {
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (1, 5),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectation
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
    
     }
     
@@ -53,7 +57,11 @@ struct SequenceDetectorTests {
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectation
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
    
     }
     
@@ -75,7 +83,11 @@ struct SequenceDetectorTests {
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 5),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectation
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
     }
     
     @Test("detectSequence returns true for 5 matching chips Antidiagonally")
@@ -97,7 +109,11 @@ struct SequenceDetectorTests {
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectatiom
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
     }
     
     @Test("detectSequence returns false for less than 5 matching chips horizontally")
@@ -210,7 +226,11 @@ struct SequenceDetectorTests {
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectation
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
     }
     
     @Test("detectSequence returns true for 5 matching chips digonally with three matching horizonatally and vertically")
@@ -236,7 +256,11 @@ struct SequenceDetectorTests {
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 5),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectation
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
     }
     
     @Test("detectSequence returns true for 5 matching chips in a row, starting position is in-between")
@@ -257,7 +281,11 @@ struct SequenceDetectorTests {
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (1, 2),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectation
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
    
     }
     
@@ -280,7 +308,11 @@ struct SequenceDetectorTests {
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectation
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
    
     }
     
@@ -302,7 +334,11 @@ struct SequenceDetectorTests {
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (2, 2),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectation
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
     }
     
     @Test("detectSequence returns true for 5 matching chips Antidiagonally, starting position is in-between")
@@ -324,7 +360,11 @@ struct SequenceDetectorTests {
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectatiom
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
     }
     
     @Test("detectSequence returns true for 5 matching chips digonally when col decreases and row increases")
@@ -346,7 +386,11 @@ struct SequenceDetectorTests {
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectatiom
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
     }
     
     @Test("detectSequence returns true for 5 matching chips digonally when col decreases and row increases starting position in between")
@@ -367,7 +411,11 @@ struct SequenceDetectorTests {
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (2, 2),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectatiom
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
     }
     
     @Test("detectSequence returns true for 5 matching chips in a row starting from corner position")
@@ -387,7 +435,11 @@ struct SequenceDetectorTests {
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (0, 0),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectation
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
    
     }
     
@@ -409,7 +461,11 @@ struct SequenceDetectorTests {
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectation
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
    
     }
     
@@ -430,7 +486,11 @@ struct SequenceDetectorTests {
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (0, 0),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectation
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
     }
     
     @Test("detectSequence returns true for 5 matching chips Antidiagonally, starting From right bottom corner")
@@ -451,7 +511,11 @@ struct SequenceDetectorTests {
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectatiom
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
     }
     
     @Test("detectSequence returns true for 5 matching chips digonally starting from right top corner")
@@ -472,7 +536,11 @@ struct SequenceDetectorTests {
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectatiom
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
     }
     
     @Test("detectSequence returns true for 5 matching chips digonally starting from bottom left corner")
@@ -492,7 +560,11 @@ struct SequenceDetectorTests {
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (9, 0),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectatiom
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1 && gameState.detectedSequence[0].teamColor == .blue)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
     }
     
     @Test("detectSequence returns true for 5 matching chips multiple times")
@@ -517,7 +589,16 @@ struct SequenceDetectorTests {
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (9, 0), forPlayer: currentPlayer, gameState: gameState)
         let isSequenceComplete2  = sequenceDetector.detectSequence(atPosition: (1, 0), forPlayer: currentPlayer, gameState: gameState)
         // expectatiom
-        #expect(isSequenceComplete && isSequenceComplete2 && gameState.detectedSequence.count == 2 && gameState.detectedSequence[0].teamColor == .blue && gameState.detectedSequence[1].teamColor == .blue)
+        #expect(isSequenceComplete && isSequenceComplete2 && gameState.detectedSequence.count == 2)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
+        guard let secondSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(secondSequence.teamColor == .blue)
     }
     
     @Test("detectSequence returns true for 5 matching chips multiple times overlapping")
@@ -541,7 +622,16 @@ struct SequenceDetectorTests {
         let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (4, 0), forPlayer: currentPlayer, gameState: gameState)
         let isSequenceComplete2  = sequenceDetector.detectSequence(atPosition: (0, 4), forPlayer: currentPlayer, gameState: gameState)
         // expectatiom
-        #expect(isSequenceComplete && isSequenceComplete2 && gameState.detectedSequence.count == 2 && gameState.detectedSequence[0].teamColor == .blue && gameState.detectedSequence[1].teamColor == .blue)
+        #expect(isSequenceComplete && isSequenceComplete2 && gameState.detectedSequence.count == 2)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        guard let firstSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(firstSequence.teamColor == .blue)
+        guard let secondSequence = gameState.detectedSequence.first else {
+            #expect(Bool(false), "Expected detected sequence"); return
+        }
+        #expect(secondSequence.teamColor == .blue)
     }
 }
 // swiftlint:enable type_body_length

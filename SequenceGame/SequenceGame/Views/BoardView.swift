@@ -147,6 +147,7 @@ struct BoardView: View {
             }
             .opacity(isValid ? 1 : 0.8)
         } else if let card = tile.card {
+            let teamColor = currentPlayer?.team.color ?? .blue
             TileView(
                 card: card,
                 color: tile.chip?.color ?? .blue,
@@ -154,17 +155,22 @@ struct BoardView: View {
             )
             .frame(width: tileSize.width, height: tileSize.height)
             .contentShape(Rectangle())
+            .border(teamColor.opacity(isValid ? 1 : 0), width: 3)
             .overlay {
                 if isValid {
-                    Circle()
-                        .fill(ThemeColor.accentGolden.opacity(0.85))
-                        .frame(width: tileSize.width * 0.4, height: tileSize.width * 0.4)
-                        .shadow(color: ThemeColor.accentGolden.opacity(0.7), radius: 6, y: 2)
-                        .overlay(
-                            Circle()
-                                .stroke(ThemeColor.accentGolden, lineWidth: 2)
-                                .frame(width: tileSize.width * 0.4, height: tileSize.width * 0.4)
-                        )
+                    let shimmerBorderSettings = ShimmerBorderSettings(
+                        teamColor: teamColor,
+                        frameWidth: tileSize.width,
+                        frameHeight: tileSize.height,
+                        dashArray: [tileSize.width, 3*tileSize.height],
+                        dashPhasePositive: CGFloat(3.0*(tileSize.height)+25),
+                        dashPhaseNegative: CGFloat(-(3.0*(tileSize.height)+25)),
+                        animationDuration: 0.1,
+                        borderWidth: 3)
+                    ShimmerBorder(shimmerBorderSetting: shimmerBorderSettings) {
+                        Color.clear
+                            .frame(width: tileSize.width, height: tileSize.height)
+                    }
                 }
             }
             .overlay {

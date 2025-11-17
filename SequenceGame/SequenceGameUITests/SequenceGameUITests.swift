@@ -70,8 +70,8 @@ final class SequenceGameUITests: XCTestCase {
         
         // The board should exist OR we should have navigated away from settings
         let boardExists = gameBoardById.waitForExistence(timeout: 2.0)
-        XCTAssertTrue(boardExists || !stillOnSettings, 
-                     "Game board should be visible OR we should have navigated away from settings screen")
+        XCTAssertTrue(boardExists || !stillOnSettings,
+                      "Game board should be visible OR we should have navigated away from settings screen")
     }
 
     /// Verifies that the player hand is displayed after starting a game
@@ -87,8 +87,8 @@ final class SequenceGameUITests: XCTestCase {
         let stillOnSettings = app.buttons["Start Game"].exists
         let handExists = playerHand.waitForExistence(timeout: 2.0)
         
-        XCTAssertTrue(handExists || !stillOnSettings, 
-                     "Player hand should be visible OR we should have navigated away from settings screen")
+        XCTAssertTrue(handExists || !stillOnSettings,
+                      "Player hand should be visible OR we should have navigated away from settings screen")
     }
     
 }

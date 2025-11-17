@@ -32,6 +32,7 @@ struct HandView: View {
 
                     HStack(spacing: spacing) {
                         ForEach(cards) { handCard in
+                            let accesabilityLable = (handCard.cardFace.displayValue) + "of" + (handCard.suit.systemImageName)
                             let isSelected = handCard.id == gameState.selectedCardId
 
                             ZStack {
@@ -49,7 +50,7 @@ struct HandView: View {
                             .zIndex(isSelected ? 1 : 0)
                             .animation(.spring(response: 0.25, dampingFraction: 0.8), value: gameState.selectedCardId)
                             .accessibilityElement(children: .ignore)
-                            .accessibilityLabel("\(handCard.cardFace) of \(handCard.suit)")
+                            .accessibilityLabel(accesabilityLable)
                             .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : [.isButton])
                             .onTapGesture {
                                 if isSelected {
