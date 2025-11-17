@@ -828,5 +828,15 @@ struct SequenceGameTests {
             #expect(tile.chip != nil)
         }
     }
+    
+    @Test("Get correct team overlay color")
+    func getTeamOverlayColor() {
+        let teamColor = Color.blue
+        
+        let ovelayColor = ThemeColor.getTeamOverlayColor(for: teamColor)
+        
+        #expect(ovelayColor == ThemeColor.overlayTeamBlue)
+    }
+    
 }
 // swiftlint:enable type_body_length
