@@ -9,7 +9,7 @@
 
 import Testing
 @testable import SequenceGame
-import SwiftUICore
+import SwiftUI
 
 struct SequenceGameTests {
 

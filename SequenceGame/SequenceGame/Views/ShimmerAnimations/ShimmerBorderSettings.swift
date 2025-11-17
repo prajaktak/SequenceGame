@@ -18,5 +18,4 @@ public struct ShimmerBorderSettings {
     public var animationDuration: Double = 0.1
     public var borderWidth: CGFloat = 1
     let phasePerSecond: CGFloat = 60
-    
 }
