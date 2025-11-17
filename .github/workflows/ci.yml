@@ -40,26 +40,129 @@ jobs:
             -derivedDataPath DerivedData
       
       - name: Run tests
+        id: run_tests
         run: |
+          set +e  # Don't exit on error, we want to capture the output
+          
           xcodebuild test-without-building \
             -scheme SequenceGame \
             -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
             -derivedDataPath DerivedData \
+            -resultBundlePath TestResults.xcresult \
             -enableCodeCoverage YES \
-            | tee test-output.log \
-            | xcpretty --color --report html --output TestResults.html
+            2>&1 | tee test-output.log
+          
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          echo "exit_code=$TEST_EXIT_CODE" >> $GITHUB_OUTPUT
+          
+          exit $TEST_EXIT_CODE
       
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ github.sha }}
-          path: TestResults.html
+          path: |
+            TestResults.xcresult
+            test-output.log
+          retention-days: 30
       
-      - name: Check for test failures
+      - name: Parse test failures
+        if: failure() && steps.run_tests.outcome == 'failure'
+        id: parse_results
         run: |
-          if grep -q "Test Suite.*failed" test-output.log; then
-            echo "❌ Tests failed"
-            exit 1
-          fi
-          echo "✅ All tests passed"
+          echo "## 🔴 Test Failures Report" > test_report.md
+          echo "" >> test_report.md
+          echo "**Build**: #${{ github.run_number }}" >> test_report.md
+          echo "**Commit**: \`${{ github.sha }}\`" >> test_report.md
+          echo "**Branch**: \`${{ github.ref_name }}\`" >> test_report.md
+          echo "**Triggered by**: @${{ github.actor }}" >> test_report.md
+          echo "" >> test_report.md
+          echo "---" >> test_report.md
+          echo "" >> test_report.md
+          
+          # Extract test failures from log
+          echo "### ❌ Failed Tests:" >> test_report.md
+          echo "" >> test_report.md
+          echo '```' >> test_report.md
+          grep -A 3 "Test Case.*failed" test-output.log | head -100 >> test_report.md || echo "Could not parse specific test failures" >> test_report.md
+          echo '```' >> test_report.md
+          echo "" >> test_report.md
+          
+          # Add error details
+          echo "### 📋 Error Details:" >> test_report.md
+          echo "" >> test_report.md
+          echo '```' >> test_report.md
+          grep -E "(error:|failed|assertion|Fatal error)" test-output.log | head -50 >> test_report.md || echo "No specific errors found in log" >> test_report.md
+          echo '```' >> test_report.md
+          echo "" >> test_report.md
+          
+          # Add action items
+          echo "### 🎯 Action Items:" >> test_report.md
+          echo "" >> test_report.md
+          echo "- [ ] Review failed test cases above" >> test_report.md
+          echo "- [ ] Reproduce failure locally" >> test_report.md
+          echo "- [ ] Fix the failing tests" >> test_report.md
+          echo "- [ ] Verify fix with local testing" >> test_report.md
+          echo "- [ ] Push fix and verify CI passes" >> test_report.md
+          echo "" >> test_report.md
+          
+          # Add links
+          echo "### 📎 Useful Links:" >> test_report.md
+          echo "" >> test_report.md
+          echo "- [Failed Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> test_report.md
+          echo "- [Commit with Failure](https://github.com/${{ github.repository }}/commit/${{ github.sha }})" >> test_report.md
+          echo "- Download artifacts from the workflow run above to get full test results" >> test_report.md
+          echo "" >> test_report.md
+          
+          # Create issue title
+          FAILED_TEST_COUNT=$(grep -c "Test Case.*failed" test-output.log || echo "Unknown")
+          echo "title=🚨 CI Test Failure: $FAILED_TEST_COUNT test(s) failed on ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          
+          cat test_report.md
+      
+      - name: Create GitHub Issue on Test Failure
+        if: failure() && steps.run_tests.outcome == 'failure' && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const issueBody = fs.readFileSync('test_report.md', 'utf8');
+            
+            // Check if an issue already exists for this run
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'ci-failure',
+              per_page: 20
+            });
+            
+            const existingIssue = issues.data.find(issue => 
+              issue.title.includes('CI Test Failure') && 
+              issue.created_at > new Date(Date.now() - 3600000).toISOString() // Within last hour
+            );
+            
+            if (existingIssue) {
+              // Update existing issue with new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: `### 🔄 Test failure occurred again\n\n${issueBody}`
+              });
+              
+              console.log(`Updated existing issue #${existingIssue.number}`);
+            } else {
+              // Create new issue
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '${{ steps.parse_results.outputs.title }}',
+                body: issueBody,
+                labels: ['bug', 'ci-failure', 'priority-1', 'auto-generated']
+              });
+              
+              console.log(`Created issue #${issue.data.number}`);
+            }

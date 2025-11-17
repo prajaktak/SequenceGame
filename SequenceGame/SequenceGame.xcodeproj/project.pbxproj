@@ -7,11 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F9F3BE2C2ECB965700C65753 /* coverage.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BE272ECB965700C65753 /* coverage.yml */; };
-		F9F3BE2D2ECB965700C65753 /* code-review.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BE262ECB965700C65753 /* code-review.yml */; };
-		F9F3BE2E2ECB965700C65753 /* deploy.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BE282ECB965700C65753 /* deploy.yml */; };
-		F9F3BE2F2ECB965700C65753 /* pr-checks.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BE292ECB965700C65753 /* pr-checks.yml */; };
-		F9F3BE302ECB965700C65753 /* ci.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BE252ECB965700C65753 /* ci.yml */; };
+		F9F3BEF42ECC981E00C65753 /* ci.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEF32ECC981E00C65753 /* ci.yml */; };
+		F9F3BEF62ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEF52ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md */; };
+		F9F3BEFB2ECC986400C65753 /* pr-checks.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEFA2ECC986400C65753 /* pr-checks.yml */; };
+		F9F3BEFC2ECC986400C65753 /* code-review.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEF72ECC986400C65753 /* code-review.yml */; };
+		F9F3BEFD2ECC986400C65753 /* deploy.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEF92ECC986400C65753 /* deploy.yml */; };
+		F9F3BEFE2ECC986400C65753 /* coverage.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEF82ECC986400C65753 /* coverage.yml */; };
 		F9FE2CD02EA7B6AD00623663 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9FE2CCF2EA7B6AD00623663 /* .swiftlint.yml */; };
 /* End PBXBuildFile section */
 
@@ -33,11 +34,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		F9F3BE252ECB965700C65753 /* ci.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = ci.yml; sourceTree = "<group>"; };
-		F9F3BE262ECB965700C65753 /* code-review.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "code-review.yml"; sourceTree = "<group>"; };
-		F9F3BE272ECB965700C65753 /* coverage.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = coverage.yml; sourceTree = "<group>"; };
-		F9F3BE282ECB965700C65753 /* deploy.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = deploy.yml; sourceTree = "<group>"; };
-		F9F3BE292ECB965700C65753 /* pr-checks.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "pr-checks.yml"; sourceTree = "<group>"; };
+		F9F3BEF32ECC981E00C65753 /* ci.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = ci.yml; path = ../.github/workflows/ci.yml; sourceTree = SOURCE_ROOT; };
+		F9F3BEF52ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CI_WORKFLOW_VISUAL_GUIDE.md; sourceTree = "<group>"; };
+		F9F3BEF72ECC986400C65753 /* code-review.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = "code-review.yml"; path = "../.github/workflows/code-review.yml"; sourceTree = SOURCE_ROOT; };
+		F9F3BEF82ECC986400C65753 /* coverage.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = coverage.yml; path = ../.github/workflows/coverage.yml; sourceTree = SOURCE_ROOT; };
+		F9F3BEF92ECC986400C65753 /* deploy.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = deploy.yml; path = ../.github/workflows/deploy.yml; sourceTree = SOURCE_ROOT; };
+		F9F3BEFA2ECC986400C65753 /* pr-checks.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = "pr-checks.yml"; path = "../.github/workflows/pr-checks.yml"; sourceTree = SOURCE_ROOT; };
 		F9FE2C6B2EA2665F00623663 /* SequenceGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SequenceGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9FE2C782EA2666100623663 /* SequenceGameTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequenceGameTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9FE2C822EA2666100623663 /* SequenceGameUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequenceGameUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -92,36 +94,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		F9F3BE2A2ECB965700C65753 /* workflows */ = {
-			isa = PBXGroup;
-			children = (
-				F9F3BE252ECB965700C65753 /* ci.yml */,
-				F9F3BE262ECB965700C65753 /* code-review.yml */,
-				F9F3BE272ECB965700C65753 /* coverage.yml */,
-				F9F3BE282ECB965700C65753 /* deploy.yml */,
-				F9F3BE292ECB965700C65753 /* pr-checks.yml */,
-			);
-			path = workflows;
-			sourceTree = "<group>";
-		};
-		F9F3BE2B2ECB965700C65753 /* .github */ = {
-			isa = PBXGroup;
-			children = (
-				F9F3BE2A2ECB965700C65753 /* workflows */,
-			);
-			path = .github;
-			sourceTree = "<group>";
-		};
 		F9FE2C622EA2665F00623663 = {
 			isa = PBXGroup;
 			children = (
-				F9F3BE2B2ECB965700C65753 /* .github */,
+				F9F3BEF72ECC986400C65753 /* code-review.yml */,
+				F9F3BEF82ECC986400C65753 /* coverage.yml */,
+				F9F3BEF92ECC986400C65753 /* deploy.yml */,
+				F9F3BEFA2ECC986400C65753 /* pr-checks.yml */,
+				F9F3BEF32ECC981E00C65753 /* ci.yml */,
 				F9C786772ECAEE7100BB94E5 /* nessesary file */,
 				F9FE2CCF2EA7B6AD00623663 /* .swiftlint.yml */,
 				F9FE2C6D2EA2665F00623663 /* SequenceGame */,
 				F9FE2C7B2EA2666100623663 /* SequenceGameTests */,
 				F9FE2C852EA2666100623663 /* SequenceGameUITests */,
 				F9FE2C6C2EA2665F00623663 /* Products */,
+				F9F3BEF52ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -257,11 +244,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F9F3BE2C2ECB965700C65753 /* coverage.yml in Resources */,
-				F9F3BE2D2ECB965700C65753 /* code-review.yml in Resources */,
-				F9F3BE2E2ECB965700C65753 /* deploy.yml in Resources */,
-				F9F3BE2F2ECB965700C65753 /* pr-checks.yml in Resources */,
-				F9F3BE302ECB965700C65753 /* ci.yml in Resources */,
+				F9F3BEF62ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md in Resources */,
+				F9F3BEF42ECC981E00C65753 /* ci.yml in Resources */,
+				F9F3BEFB2ECC986400C65753 /* pr-checks.yml in Resources */,
+				F9F3BEFC2ECC986400C65753 /* code-review.yml in Resources */,
+				F9F3BEFD2ECC986400C65753 /* deploy.yml in Resources */,
+				F9F3BEFE2ECC986400C65753 /* coverage.yml in Resources */,
 				F9FE2CD02EA7B6AD00623663 /* .swiftlint.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
