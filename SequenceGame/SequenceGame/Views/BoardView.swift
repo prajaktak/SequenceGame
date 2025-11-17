@@ -16,8 +16,13 @@ struct BoardView: View {
     var body: some View {
         GeometryReader { geometry in
             // Single source of truth for sizing
-            let borderThickness: CGFloat = 6
-            let contentInsets = EdgeInsets(top: 2, leading: 0, bottom: 2, trailing: 0)
+            let borderThickness = GameConstants.UISizing.boardBorderThickness
+            let contentInsets = EdgeInsets(
+                top: GameConstants.UISizing.boardContentInsetTop,
+                leading: GameConstants.UISizing.boardContentInsetLeading,
+                bottom: GameConstants.UISizing.boardContentInsetBottom,
+                trailing: GameConstants.UISizing.boardContentInsetTrailing
+            )
             
             // Compute available drawing area by subtracting border and content insets once
             let availableWidth = geometry.size.width - (borderThickness * 2) - (contentInsets.leading + contentInsets.trailing)
@@ -27,14 +32,14 @@ struct BoardView: View {
                 availableWidth: availableWidth,
                 availableHeight: availableHeight
             )
-            let gridWidth = tileSize.width * 10
-            let gridHeight = tileSize.height * 10
+            let gridWidth = tileSize.width * CGFloat(GameConstants.boardColumns)
+            let gridHeight = tileSize.height * CGFloat(GameConstants.boardRows)
             
             // Grid constrained to computed size; container provides background/border
             VStack(spacing: 0) {
-                ForEach(0..<10, id: \.self) { row in
+                ForEach(0..<GameConstants.boardRows, id: \.self) { row in
                     HStack(spacing: 0) {
-                        ForEach(0..<10, id: \.self) { column in
+                        ForEach(0..<GameConstants.boardColumns, id: \.self) { column in
                             tileCell(row: row, column: column, tileSize: tileSize)
                         }
                     }
@@ -43,9 +48,9 @@ struct BoardView: View {
             .frame(width: gridWidth, height: gridHeight)
             .padding(contentInsets)
             .background(colorScheme == .dark ? Color("woodDark") : Color("wood"))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.boardCornerRadius, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                RoundedRectangle(cornerRadius: GameConstants.UISizing.boardCornerRadius, style: .continuous)
                     .stroke(ThemeColor.boardFelt, lineWidth: borderThickness)
             )
             .onChange(of: gameState.detectedSequence.count) { oldValue, newValue in
@@ -61,8 +66,8 @@ struct BoardView: View {
         }
     }
     private func calculateTileSize(availableWidth: CGFloat, availableHeight: CGFloat) -> (width: CGFloat, height: CGFloat) {
-        let numberOfColumns: CGFloat = 10
-        let numberOfRows: CGFloat = 10
+        let numberOfColumns = CGFloat(GameConstants.boardColumns)
+        let numberOfRows = CGFloat(GameConstants.boardRows)
         
         let calculatedTileWidth = availableWidth / numberOfColumns
         let calculatedTileHeight = availableHeight / numberOfRows
@@ -71,12 +76,13 @@ struct BoardView: View {
         let tileWidth: CGFloat
         let tileHeight: CGFloat
         
-        if calculatedTileWidth * 1.6 <= calculatedTileHeight {
+        let aspectRatio = GameConstants.UISizing.cardAspectRatio
+        if calculatedTileWidth * aspectRatio <= calculatedTileHeight {
             tileWidth = calculatedTileWidth
-            tileHeight = calculatedTileWidth * 1.6
+            tileHeight = calculatedTileWidth * aspectRatio
         } else {
             tileHeight = calculatedTileHeight
-            tileWidth = calculatedTileHeight / 1.6
+            tileWidth = calculatedTileHeight / aspectRatio
         }
         
         return (width: tileWidth, height: tileHeight)

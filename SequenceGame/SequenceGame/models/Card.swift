@@ -7,8 +7,12 @@
 
 import Foundation
 
-struct Card: Identifiable {
+struct Card: Identifiable, Equatable {
     let id = UUID()
     let cardFace: CardFace
     let suit: Suit
+    
+    static func == (lhs: Card, rhs: Card) -> Bool {
+        return lhs.cardFace == rhs.cardFace && lhs.suit == rhs.suit
+    }
 }

@@ -13,7 +13,7 @@ struct BoardTile: Identifiable {
     var isChipOn: Bool
     var chip: Chip?
     
-    func isCornerTile(atPosition: (rowIndex: Int, columnIndex: Int)) -> Bool {
-        return GameConstants.cornerPositions.contains { $0.row == atPosition.rowIndex && $0.col == atPosition.columnIndex }
-    }
+//    static func isCornerTile(at position: (row: Int, col: Int)) -> Bool {
+//        return GameConstants.cornerPositions.contains { $0.row == position.row && $0.col == position.col }
+//    }
 }
