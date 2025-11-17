@@ -849,7 +849,10 @@ struct SequenceGameTests {
         let ovelayColor = ThemeColor.getTeamOverlayColor(for: teamColor)
         
         #expect(ovelayColor == ThemeColor.overlayTeamBlue)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8cdcdf39ea1dd8120d5c9c9423e4fa33a6d2599a
     }
     
 }
