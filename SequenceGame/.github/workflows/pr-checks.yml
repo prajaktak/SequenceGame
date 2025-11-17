@@ -1,0 +1,91 @@
+name: PR - Tests, Lint & Build
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    types: [opened, synchronize, reopened]
+
+jobs:
+  test-lint-build:
+    name: PR Checks - Full Build & Tests
+    runs-on: macos-14
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+      
+      - name: Install dependencies
+        run: |
+          brew install swiftlint
+          brew install xcpretty
+      
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: DerivedData
+          key: ${{ runner.os }}-derived-data-${{ hashFiles('**/*.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-derived-data-
+      
+      - name: Run SwiftLint
+        run: |
+          echo "## 🔍 SwiftLint Results" >> $GITHUB_STEP_SUMMARY
+          swiftlint lint --reporter markdown >> $GITHUB_STEP_SUMMARY || true
+          swiftlint lint --strict
+      
+      - name: Build and Test
+        run: |
+          xcodebuild clean build test \
+            -scheme SequenceGame \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
+            -derivedDataPath DerivedData \
+            -enableCodeCoverage YES \
+            -resultBundlePath TestResults.xcresult \
+            | tee build-log.txt \
+            | xcpretty --color
+      
+      - name: Generate coverage report
+        if: success()
+        run: |
+          xcrun xccov view --report --json DerivedData/Logs/Test/*.xcresult > coverage.json
+          echo "## 📊 Test Coverage" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          xcrun xccov view --report DerivedData/Logs/Test/*.xcresult >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-${{ github.sha }}
+          path: |
+            DerivedData/Build/Products/
+            TestResults.xcresult
+      
+      - name: Comment PR with results
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const coverage = fs.readFileSync('coverage.json', 'utf8');
+            const data = JSON.parse(coverage);
+            const lineCoverage = data.lineCoverage * 100;
+            
+            const comment = `## ✅ PR Build Complete
+            
+            **Test Coverage:** ${lineCoverage.toFixed(2)}%
+            **Build Status:** ${{ job.status }}
+            
+            See artifacts for detailed results.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

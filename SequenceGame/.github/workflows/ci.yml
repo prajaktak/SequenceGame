@@ -1,0 +1,65 @@
+name: CI - Tests & Lint
+
+on:
+  push:
+    branches:
+      - '**'  # Run on all branches
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
+jobs:
+  test-and-lint:
+    name: Run Tests & SwiftLint
+    runs-on: macos-14  # Latest macOS with Xcode
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+      
+      - name: Show Xcode version
+        run: xcodebuild -version
+      
+      - name: Install SwiftLint
+        run: brew install swiftlint
+      
+      - name: Run SwiftLint
+        run: |
+          swiftlint lint --reporter github-actions-logging
+          # Fail if there are errors (warnings are allowed)
+          swiftlint lint --strict --quiet
+      
+      - name: Build for testing
+        run: |
+          xcodebuild clean build-for-testing \
+            -scheme SequenceGame \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
+            -derivedDataPath DerivedData
+      
+      - name: Run tests
+        run: |
+          xcodebuild test-without-building \
+            -scheme SequenceGame \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
+            -derivedDataPath DerivedData \
+            -enableCodeCoverage YES \
+            | tee test-output.log \
+            | xcpretty --color --report html --output TestResults.html
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.sha }}
+          path: TestResults.html
+      
+      - name: Check for test failures
+        run: |
+          if grep -q "Test Suite.*failed" test-output.log; then
+            echo "❌ Tests failed"
+            exit 1
+          fi
+          echo "✅ All tests passed"

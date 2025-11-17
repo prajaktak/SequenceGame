@@ -1,0 +1,88 @@
+name: Code Review - Convention Checker
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  convention-check:
+    name: Check Coding Conventions
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Get full history for comparison
+      
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v41
+        with:
+          files: |
+            **/*.swift
+      
+      - name: Review Swift files against conventions
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          echo "## 📋 Coding Convention Review" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          ISSUES=0
+          
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "### Checking: \`$file\`" >> $GITHUB_STEP_SUMMARY
+            
+            # Check 1: One type per file
+            TYPE_COUNT=$(grep -E "^(struct|class|enum|protocol) " "$file" | wc -l | tr -d ' ')
+            if [ "$TYPE_COUNT" -gt 1 ]; then
+              echo "❌ **Multiple types in one file** (found $TYPE_COUNT)" >> $GITHUB_STEP_SUMMARY
+              ISSUES=$((ISSUES+1))
+            else
+              echo "✅ One type per file" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            # Check 2: No short variable names (i, j, x, y)
+            if grep -E '\b(let|var) [ijxy] ' "$file" > /dev/null; then
+              echo "⚠️  **Short variable names detected** (use descriptive names)" >> $GITHUB_STEP_SUMMARY
+              grep -n -E '\b(let|var) [ijxy] ' "$file" | while read line; do
+                echo "  - Line: \`$line\`" >> $GITHUB_STEP_SUMMARY
+              done
+              ISSUES=$((ISSUES+1))
+            fi
+            
+            # Check 3: File length check
+            LINE_COUNT=$(wc -l < "$file" | tr -d ' ')
+            if [ "$LINE_COUNT" -gt 500 ]; then
+              echo "⚠️  **File too long** ($LINE_COUNT lines, recommend < 500)" >> $GITHUB_STEP_SUMMARY
+              ISSUES=$((ISSUES+1))
+            fi
+            
+            # Check 4: Check for magic numbers (excluding test files)
+            if [[ ! "$file" =~ Test ]]; then
+              if grep -E '[^a-zA-Z0-9](10|20|100|0\.[0-9]+)[^0-9]' "$file" > /dev/null; then
+                echo "⚠️  **Possible magic numbers detected** (consider using GameConstants)" >> $GITHUB_STEP_SUMMARY
+                ISSUES=$((ISSUES+1))
+              fi
+            fi
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+          done
+          
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "**Total Issues Found:** $ISSUES" >> $GITHUB_STEP_SUMMARY
+          
+          if [ $ISSUES -eq 0 ]; then
+            echo "🎉 **All conventions followed!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "📖 **Review CODING_CONVENTIONS.md for guidelines**" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Check for CODING_CONVENTIONS.md
+        run: |
+          if [ -f "CODING_CONVENTIONS.md" ]; then
+            echo "✅ Coding conventions document found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️  No CODING_CONVENTIONS.md found" >> $GITHUB_STEP_SUMMARY
+          fi
+
