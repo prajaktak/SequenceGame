@@ -22,13 +22,13 @@ struct GameOverlayView: View {
     var body: some View {
         switch mode {
         case .turnStart:
-            VStack(spacing: 8) {
+            VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
                 HexagonOverlay(
                     borderColor: borderColor,
                     backgroundColor: backgroundColor
                 ) {
                     // Content will go here in next step
-                    VStack(spacing: 8) {
+                    VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
                         // Player name + "Your turn"
                         ShimmeringNameView(
                             name: playerName,
@@ -37,13 +37,13 @@ struct GameOverlayView: View {
                         )
                         // Instruction text
                         Text("Select card to place chip")
-                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                            .font(.system(size: GameConstants.UISizing.overlayInstructionFontSize, weight: .semibold, design: .rounded))
                             .foregroundColor(ThemeColor.textOnAccent.opacity(0.7))
                         
                         // Help button (icon only)
                         Button(action: onHelp) {
                             Image(systemName: "questionmark.circle.fill")
-                                .font(.system(size: 22, weight: .bold))
+                                .font(.system(size: GameConstants.UISizing.overlayHelpIconSize, weight: .bold))
                                 .foregroundColor(borderColor)
                         }
                         .buttonStyle(.plain)
@@ -55,7 +55,7 @@ struct GameOverlayView: View {
                 borderColor: borderColor,
                 backgroundColor: backgroundColor
             ) {
-                VStack(spacing: 8) {
+                VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
                     ShimmeringNameView(
                         name: playerName,
                         baseColor: ThemeColor.textOnAccent,
@@ -70,7 +70,7 @@ struct GameOverlayView: View {
                 borderColor: borderColor,
                 backgroundColor: backgroundColor
             ) {
-                VStack(spacing: 8) {
+                VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
                     ShimmeringNameView(
                         name: playerName,
                         baseColor: ThemeColor.textOnAccent,
@@ -84,7 +84,7 @@ struct GameOverlayView: View {
                 borderColor: borderColor,
                 backgroundColor: backgroundColor
             ) {
-                VStack(spacing: 8) {
+                VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
                     ShimmeringNameView(
                         name: playerName,
                         baseColor: ThemeColor.textOnAccent,
@@ -98,7 +98,7 @@ struct GameOverlayView: View {
                 borderColor: borderColor,
                 backgroundColor: backgroundColor
             ) {
-                VStack(spacing: 8) {
+                VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
                     ShimmeringNameView(
                         name: playerName,
                         baseColor: ThemeColor.textOnAccent,
@@ -112,7 +112,7 @@ struct GameOverlayView: View {
                 borderColor: borderColor,
                 backgroundColor: backgroundColor
             ) {
-                VStack(spacing: 8) {
+                VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
                     ShimmeringNameView(
                         name: playerName,
                         baseColor: ThemeColor.textOnAccent,
@@ -126,7 +126,7 @@ struct GameOverlayView: View {
                 borderColor: borderColor,
                 backgroundColor: backgroundColor
             ) {
-                VStack(spacing: 8) {
+                VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
                     ShimmeringNameView(
                         name: playerName,
                         baseColor: ThemeColor.textOnAccent,
@@ -140,14 +140,14 @@ struct GameOverlayView: View {
                 borderColor: borderColor,
                 backgroundColor: backgroundColor
             ) {
-                VStack(spacing: 12) {
+                VStack(spacing: GameConstants.UISizing.overlayGameOverSpacing) {
                     Text("Game Over!")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .font(.system(size: GameConstants.UISizing.overlayGameOverTitleSize, weight: .bold, design: .rounded))
                         .foregroundColor(ThemeColor.textOnAccent)
                     
                     if let winningTeam = gameState.winningTeam {
                         Text("\(teamName(for: winningTeam)) Wins!")
-                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            .font(.system(size: GameConstants.UISizing.overlayGameOverSubtitleSize, weight: .semibold, design: .rounded))
                             .foregroundColor(ThemeColor.textOnAccent)
                     }
                 }

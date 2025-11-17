@@ -11,12 +11,12 @@ struct HandView: View {
     @EnvironmentObject var gameState: GameState
 
     // Layout configuration (defaults keep call sites simple; can be overridden)
-    var horizontalInsets: CGFloat = 24    // total (both sides combined)
-    var verticalInsets: CGFloat = 8
-    var spacing: CGFloat = 8
-    var minWidth: CGFloat = 44
-    var maxWidth: CGFloat = 54
-    var aspect: CGFloat = 1.5
+    var horizontalInsets: CGFloat = GameConstants.UISizing.handHorizontalInsets
+    var verticalInsets: CGFloat = GameConstants.UISizing.handVerticalInsets
+    var spacing: CGFloat = GameConstants.UISizing.handSpacing
+    var minWidth: CGFloat = GameConstants.UISizing.handMinCardWidth
+    var maxWidth: CGFloat = GameConstants.UISizing.handMaxCardWidth
+    var aspect: CGFloat = GameConstants.UISizing.handCardAspect
 
     var body: some View {
         GeometryReader { geo in
@@ -39,14 +39,16 @@ struct HandView: View {
                                 CardFaceView(card: handCard)
                                     .frame(width: size.width, height: size.height)
 
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(isSelected ? ThemeColor.accentGolden : .clear, lineWidth: 2)
+                                RoundedRectangle(cornerRadius: GameConstants.UISizing.handCardCornerRadius)
+                                    .stroke(isSelected ? ThemeColor.accentGolden : .clear, lineWidth: GameConstants.UISizing.handCardBorderWidth)
                                     .frame(width: size.width, height: size.height)
                             }
                             .contentShape(Rectangle())
-                            .offset(y: isSelected ? -8 : 0)
-                            .scaleEffect(isSelected ? 1.06 : 1.0)
-                            .shadow(color: .black.opacity(isSelected ? 0.25 : 0.0), radius: 6, y: 3)
+                            .offset(y: isSelected ? GameConstants.UISizing.handCardSelectedOffset : 0)
+                            .scaleEffect(isSelected ? GameConstants.UISizing.handCardSelectedScale : 1.0)
+                            .shadow(color: .black.opacity(isSelected ? GameConstants.UISizing.handCardShadowOpacity : 0.0),
+                                    radius: GameConstants.UISizing.handCardShadowRadius,
+                                    y: GameConstants.UISizing.handCardShadowY)
                             .zIndex(isSelected ? 1 : 0)
                             .animation(.spring(response: 0.25, dampingFraction: 0.8), value: gameState.selectedCardId)
                             .accessibilityElement(children: .ignore)

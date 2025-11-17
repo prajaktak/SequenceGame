@@ -157,4 +157,41 @@ struct DeckTests {
         #expect(after == before - expectedTotalDealt)
     }
     
+    @Test("drawCardExceptJacks returns nil when only Jacks remain")
+    func testDrawCardExceptJacks_onlyJacksRemain_returnsNil() {
+        let deck = Deck()
+        
+        // Remove all cards and add only Jacks
+        deck.setCards([
+            Card(cardFace: .jack, suit: .clubs),
+            Card(cardFace: .jack, suit: .diamonds),
+            Card(cardFace: .jack, suit: .hearts),
+            Card(cardFace: .jack, suit: .spades)
+        ])
+        
+        // Should return nil without crashing
+        let result = deck.drawCardExceptJacks()
+        
+        #expect(result == nil)
+        #expect(deck.cardsRemaining() == 0) // All Jacks were drawn and discarded
+    }
+
+    @Test("drawCardExceptJacks skips Jacks and returns non-Jack card")
+    func testDrawCardExceptJacks_mixedDeck_returnsNonJack() {
+        let deck = Deck()
+        
+        // Setup: Only Jacks on top, then a valid card
+        deck.setCards([
+            Card(cardFace: .ace, suit: .hearts),     // Bottom (drawn last)
+            Card(cardFace: .jack, suit: .clubs),     // Middle
+            Card(cardFace: .jack, suit: .diamonds)   // Top (drawn first)
+        ])
+        
+        let result = deck.drawCardExceptJacks()
+        
+        #expect(result != nil)
+        #expect(result?.cardFace == .ace)
+        #expect(result?.suit == .hearts)
+    }
+    
 }

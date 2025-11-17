@@ -6,7 +6,6 @@
 //
 
 class Deck {
-    var cardDrawCount: Int = 0
     private(set) var cards: [Card] = []
     
     init() {
@@ -30,21 +29,26 @@ class Deck {
     }
     
     func drawCard() -> Card? {
-        guard !cards.isEmpty else {
-            return nil
-        }
-        cardDrawCount += 1
-        let card = cards.removeLast()
-        return card// or removeFirst() based on your logic
+        guard !cards.isEmpty else { return nil }
+        return cards.removeLast()
     }
     func drawCardExceptJacks() -> Card? {
-        guard !cards.isEmpty else { return nil }
-        let card = cards.removeLast()
-        if card.cardFace != .jack {
-            return card
-        } else {
-            return drawCardExceptJacks()
+        // Iterate through remaining cards to find a non-Jack
+        var attemptsRemaining = cards.count
+        
+        while attemptsRemaining > 0 {
+            guard let card = drawCard() else { return nil }
+            
+            if card.cardFace != .jack {
+                return card
+            }
+            
+            // Card was a Jack, try again
+            attemptsRemaining -= 1
         }
+        
+        // All remaining cards are Jacks
+        return nil
     }
     
     func cardsRemaining() -> Int {
@@ -61,4 +65,11 @@ class Deck {
             }
         }
     }
+    
+#if DEBUG
+    /// Test helper: Replace deck with custom cards
+    func setCards(_ newCards: [Card]) {
+        self.cards = newCards
+    }
+#endif
 }

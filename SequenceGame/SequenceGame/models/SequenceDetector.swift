@@ -18,7 +18,8 @@ struct SequenceDetector {
             return .clear
         }
         
-        if board.boardTiles[atPosition.rowIndex][atPosition.colIndex].isEmpty && !board.boardTiles[atPosition.rowIndex][atPosition.colIndex].isCornerTile(atPosition: (rowIndex: atPosition.rowIndex, columnIndex: atPosition.colIndex)) {
+        let isCorner = GameConstants.cornerPositions.contains { $0.row == atPosition.rowIndex && $0.col == atPosition.colIndex }
+        if board.boardTiles[atPosition.rowIndex][atPosition.colIndex].isEmpty && !isCorner {
             return nil
         }
         
@@ -34,9 +35,11 @@ struct SequenceDetector {
         var isSequenceCompleteDiagonally: Bool = false
         var isSequenceCompleteAntidiagonally: Bool = false
         
-        if board.boardTiles[atPosition.rowIndex][atPosition.colIndex].isEmpty && !board.boardTiles[atPosition.rowIndex][atPosition.colIndex].isCornerTile(atPosition: (rowIndex: atPosition.rowIndex, columnIndex: atPosition.colIndex)) {
+        let isCorner = GameConstants.cornerPositions.contains { $0.row == atPosition.rowIndex && $0.col == atPosition.colIndex }
+        if board.boardTiles[atPosition.rowIndex][atPosition.colIndex].isEmpty && !isCorner {
             return false
         }
+        
         teamColor = forPlayer.team.color
         // detecting sequence in one row
         isSequenceCompleteHorizontally = detectSequenceHorizontally(atPosition: atPosition, forPlayer: forPlayer, gameState: gameState)

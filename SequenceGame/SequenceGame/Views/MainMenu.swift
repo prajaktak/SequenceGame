@@ -64,7 +64,7 @@ struct MainMenu: View {
                     Text("v1.0") // Footer
                         .font(.caption)
                         .foregroundStyle(ThemeColor.textPrimary.opacity(0.5))
-                        .padding(.bottom, 20)
+                        .padding(.bottom, GameConstants.UISizing.footerBottomPadding)
                 }
             }
             .navigationTitle("")

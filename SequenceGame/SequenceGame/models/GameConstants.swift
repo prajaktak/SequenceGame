@@ -78,6 +78,68 @@ enum GameConstants {
         static let boardPadding: CGFloat = 12
         static let boardTopPadding: CGFloat = 20
         static let boardBottomPadding: CGFloat = 20
+        
+        // Board View Specific
+        static let boardBorderThickness: CGFloat = 6
+        static let boardCornerRadius: CGFloat = 12
+        static let cardAspectRatio: CGFloat = 1.6
+        static let boardContentInsetTop: CGFloat = 2
+        static let boardContentInsetBottom: CGFloat = 2
+        static let boardContentInsetLeading: CGFloat = 0
+        static let boardContentInsetTrailing: CGFloat = 0
+        
+        // Chip Indicators
+        static let validPositionIndicatorScale: CGFloat = 0.4
+        static let validPositionShadowRadius: CGFloat = 6
+        static let validPositionShadowY: CGFloat = 2
+        static let validPositionBorderWidth: CGFloat = 2
+        
+        // Overlay Spacing
+        static let overlayContentSpacing: CGFloat = 8
+        static let overlayGameOverSpacing: CGFloat = 12
+        
+        // Font Sizes
+        static let overlayInstructionFontSize: CGFloat = 13
+        static let overlayHelpIconSize: CGFloat = 22
+        static let overlayGameOverTitleSize: CGFloat = 24
+        static let overlayGameOverSubtitleSize: CGFloat = 18
+        
+        // Hand View
+        static let handHorizontalInsets: CGFloat = 24
+        static let handVerticalInsets: CGFloat = 8
+        static let handSpacing: CGFloat = 8
+        static let handMinCardWidth: CGFloat = 44
+        static let handMaxCardWidth: CGFloat = 54
+        static let handCardAspect: CGFloat = 1.5
+        static let handCardCornerRadius: CGFloat = 6
+        static let handCardBorderWidth: CGFloat = 2
+        static let handCardSelectedOffset: CGFloat = -8
+        static let handCardSelectedScale: CGFloat = 1.06
+        static let handCardShadowRadius: CGFloat = 6
+        static let handCardShadowY: CGFloat = 3
+        static let handCardShadowOpacity: Double = 0.25
+        
+        // Footer/Misc
+        static let footerBottomPadding: CGFloat = 20
+    }
+    
+    // MARK: - Animation Timing
+    struct Animation {
+        static let shimmerDuration: Double = 0.1
+        static let sequenceHighlightDuration: Double = 0.3
+        static let cardSelectionDuration: Double = 0.15
+        static let playSpringResponse: Double = 0.25
+        static let playSpringDamping: Double = 0.7
+        static let sequenceSpringResponse: Double = 0.5
+        static let sequenceSpringDamping: Double = 0.6
+        
+        // Overlay
+        static let overlayAutoDismissDelay: Double = 2.0
+        static let overlaySpringResponse: Double = 0.35
+        static let overlaySpringDamping: Double = 0.8
+        
+        // Navigation
+        static let navigationDismissDelay: Double = 0.1  // Add this
     }
     
     // MARK: - Star Arch Constants

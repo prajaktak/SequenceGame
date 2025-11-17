@@ -13,7 +13,13 @@ final class GameState: ObservableObject {
     @Published var currentPlayerIndex: Int = 0
     @Published var overlayMode: GameOverlayMode = .turnStart
     @Published var board = Board()
-    @Published var boardTiles: [[BoardTile]] = Board().boardTiles
+    @Published var boardTiles: [[BoardTile]] = Board().boardTiles {
+        didSet {
+            // Auto-sync board and sequenceDetector whenever boardTiles changes
+            board.boardTiles = boardTiles
+            sequenceDetector.board = board
+        }
+    }
     @Published var selectedCardId: UUID?
     @Published var sequenceDetector: SequenceDetector = SequenceDetector(board: Board())
     @Published var detectedSequence: [Sequence] = []
@@ -22,6 +28,7 @@ final class GameState: ObservableObject {
 
     // Deck for gameplay
     private(set) var deck: DoubleDeck = .init()
+    private let boardManager = BoardManager()
     
     // Derived
     var currentPlayer: Player? {
@@ -65,29 +72,10 @@ final class GameState: ObservableObject {
     }
     
     func setupBoard() {
-        var newTiles: [[BoardTile]] = []
-        
-        let seedDeck = DoubleDeck()
-        seedDeck.shuffle()
-        
-        for row in 0..<GameConstants.boardRows {
-            var rowTiles: [BoardTile] = []
-            for col in 0..<GameConstants.boardColumns {
-                if GameConstants.cornerPositions.contains(where: { $0.row == row && $0.col == col }) {
-                    rowTiles.append(BoardTile(card: nil, isEmpty: true, isChipOn: false, chip: nil))
-                } else if let card = seedDeck.drawCardExceptJacks() {
-                    rowTiles.append(BoardTile(card: card, isEmpty: false, isChipOn: false, chip: nil))
-                } else {
-                    rowTiles.append(BoardTile(card: nil, isEmpty: true, isChipOn: false, chip: nil))
-                }
-            }
-            newTiles.append(rowTiles)
-        }
-        boardTiles = newTiles
+        boardTiles = boardManager.setupBoard()
         board = Board(row: 10, col: 10)
-        board.boardTiles = boardTiles
     }
-
+    
     // Turn control
     func advanceTurn() {
         guard !players.isEmpty else { return }
@@ -107,9 +95,7 @@ final class GameState: ObservableObject {
     }
     
     var validPositionsForSelectedCard: [(row: Int, col: Int)] {
-        guard let selectedId = selectedCardId,
-              let playerIndex = players.firstIndex(where: { $0.id == currentPlayer?.id }),
-              let card = players[playerIndex].cards.first(where: { $0.id == selectedId }) else { return [] }
+        guard let card = selectedCard else { return [] }
         return computePlayableTiles(for: card)
     }
     
@@ -139,136 +125,81 @@ final class GameState: ObservableObject {
     // MARK: - Placement API (stubs)
     
     /// Helper function to detect protected tiles in sequence.
-    func isPartOfCompletedSequence(position: (row: Int, col: Int)) -> Bool {
-        let tile = boardTiles[position.row][position.col]
+    private func isPartOfCompletedSequence(position: (row: Int, col: Int)) -> Bool {
+        let pos = Position(row: position.row, col: position.col)
+        guard pos.isValid(rows: boardTiles.count, cols: boardTiles[0].count) else { return false }
+        let tile = boardTiles[pos.row][pos.col]
         return detectedSequence.contains { sequence in
             sequence.tiles.contains { $0.id == tile.id }
         }
     }
-
-    /// Return all playable board positions for a given card.
+    
     func computePlayableTiles(for card: Card) -> [(row: Int, col: Int)] {
-        // Handle Jack cards with special rules
-        if let jackRule = classifyJack(card) {
-            switch jackRule {
-            case .placeAnywhere:
-                return computePlayableTilesForTwoEyedJack()
-            case .removeChip:
-                return computePlayableTilesForOneEyedJack()
-            }
-        }
-        
-        // Regular card matching: match by cardFace and suit
-        var positions: [(row: Int, col: Int)] = []
-        for rowIndex in boardTiles.indices {
-            for colIndex in boardTiles[rowIndex].indices {
-                let tile = boardTiles[rowIndex][colIndex]
-                guard tile.isChipOn == false,
-                      let tileCard = tile.card else { continue }
-                if tileCard.cardFace == card.cardFace && tileCard.suit == card.suit {
-                    positions.append((row: rowIndex, col: colIndex))
-                }
-            }
-        }
-        return positions
+        let validator = CardPlayValidator(boardTiles: boardTiles, detectedSequences: detectedSequence)
+        return validator.computePlayableTiles(for: card).map { (row: $0.row, col: $0.col) }
     }
-    
-    /// Return all empty, non-corner tiles for two-eyed jack placement.
-    private func computePlayableTilesForTwoEyedJack() -> [(row: Int, col: Int)] {
-        var positions: [(row: Int, col: Int)] = []
-        for rowIndex in boardTiles.indices {
-            for colIndex in boardTiles[rowIndex].indices {
-                let isCorner = GameConstants.cornerPositions.contains { $0.row == rowIndex && $0.col == colIndex }
-                let tile = boardTiles[rowIndex][colIndex]
-                if !isCorner && !tile.isChipOn && tile.chip == nil {
-                    positions.append((row: rowIndex, col: colIndex))
-                }
-            }
-        }
-        return positions
-    }
-    
-    /// Return all tiles with chips for one-eyed jack removal.
-    /// Excludes corner positions (corners cannot have chips removed).
-    private func computePlayableTilesForOneEyedJack() -> [(row: Int, col: Int)] {
-        var positions: [(row: Int, col: Int)] = []
-        for rowIndex in boardTiles.indices {
-            for colIndex in boardTiles[rowIndex].indices {
-                let isCorner = GameConstants.cornerPositions.contains { $0.row == rowIndex && $0.col == colIndex }
-                let tile = boardTiles[rowIndex][colIndex]
-                if !isCorner && tile.isChipOn && tile.chip != nil && !isPartOfCompletedSequence(position: (row: rowIndex, col: colIndex)) {
-                    positions.append((row: rowIndex, col: colIndex))
-                }
-            }
-        }
-        return positions
-    }
-    /// Validate if position is playable for this card.
+
     func canPlace(at position: (row: Int, col: Int), for card: Card) -> Bool {
-        computePlayableTiles(for: card).contains { $0 == position }
+        let validator = CardPlayValidator(boardTiles: boardTiles, detectedSequences: detectedSequence)
+        let pos = Position(row: position.row, col: position.col)
+        return validator.canPlace(at: pos, for: card)
     }
     // Sets a chip at the given position. No hand/turn changes.
     func placeChip(at position: (row: Int, col: Int), teamColor: Color) {
-        let row = position.row
-        let col = position.col
-        guard boardTiles.indices.contains(row),
-              boardTiles[row].indices.contains(col) else { return }
-
-        boardTiles[row][col].isChipOn = true
-        boardTiles[row][col].chip = Chip(
-            color: teamColor,
-            positionRow: row,
-            positionColumn: col,
-            isPlaced: true
-        )
-        // to sync the board to check sequence.
-        board.boardTiles = boardTiles
+        let pos = Position(row: position.row, col: position.col)
+        boardManager.placeChip(at: pos, teamColor: teamColor, tiles: &boardTiles)
     }
     
     /// Removes a chip from the given position. No hand/turn changes.
     func removeChip(at position: (row: Int, col: Int)) {
-        let row = position.row
-        let col = position.col
-        guard boardTiles.indices.contains(row),
-              boardTiles[row].indices.contains(col) else { return }
-        if GameConstants.cornerPositions.contains(where: { $0.row == row && $0.col == col }) { return }
-        if isPartOfCompletedSequence(position: (row, col)) { return }
-        
-        boardTiles[row][col].isChipOn = false
-        boardTiles[row][col].chip = nil
-        board.boardTiles = boardTiles
+        let pos = Position(row: position.row, col: position.col)
+        _ = boardManager.removeChip(at: pos, tiles: &boardTiles, detectedSequences: detectedSequence)
     }
  
     //  Remove card from current players hand
-    func removeCardFromHand(cardId: UUID) -> Card? {
-        guard let playerIndex = players.firstIndex(where: { $0.id == currentPlayer?.id }),
-              let handIndex = players[playerIndex].cards.firstIndex(where: { $0.id == cardId }) else { return nil }
+    private func removeCardFromHand(cardId: UUID) -> Card? {
+        let playerIndex = currentPlayerIndex
+        guard let handIndex = players[playerIndex].cards.firstIndex(where: { $0.id == cardId }) else { return nil }
         return players[playerIndex].cards.remove(at: handIndex)
     }
     
     // Draw card for current playes hand
-    func drawReplacementForHand() {
+    private func drawReplacementForHand() {
         guard let playerIndex = players.firstIndex(where: { $0.id == currentPlayer?.id }),
               let drawn = deck.drawCard() else { return }
         players[playerIndex].cards.append(drawn)
     }
+
+    #if DEBUG
+    // Test helpers (only in debug builds)
+    func testRemoveCardFromHand(cardId: UUID) -> Card? {
+        return removeCardFromHand(cardId: cardId)
+    }
+
+    func testDrawReplacementForHand() {
+        drawReplacementForHand()
+    }
+    #endif
     
     // performPlay
     func performPlay(atPos position: (row: Int, col: Int), using cardId: UUID) {
         guard overlayMode != .gameOver else { return }
         
+        // Create validator once
+        let validator = CardPlayValidator(boardTiles: boardTiles, detectedSequences: detectedSequence)
+        
         // 1) Remove the card from current player's hand
         guard let playedCard = removeCardFromHand(cardId: cardId) else { return }
 
         // 2) Validate placement for the played card
-        guard canPlace(at: position, for: playedCard) else {
-            // Put card back if invalid (keeps function side-effect safe)
+        let pos = Position(row: position.row, col: position.col)
+        guard validator.canPlace(at: pos, for: playedCard) else {
             players[currentPlayerIndex].cards.append(playedCard)
             return
         }
 
         // 3) Check if this is a one-eyed jack (remove chip) or regular/two-eyed jack (place chip)
-        if let jackRule = classifyJack(playedCard), jackRule == .removeChip {
+        if let jackRule = validator.classifyJack(playedCard), jackRule == .removeChip {
             // One-eyed jack: remove chip
             removeChip(at: position)
         } else {
@@ -281,13 +212,7 @@ final class GameState: ObservableObject {
         }
         
         // 3.1) Check if sequence is completed && check winning condition
-        if !(classifyJack(playedCard) == .removeChip) {
-            // Only check sequences after chip placement (not removal)
-            // Sync board state before detection
-            board.boardTiles = boardTiles
-            
-            // Update sequence detector state
-            sequenceDetector.board = board
+        if !(validator.classifyJack(playedCard) == .removeChip) {            // Only check sequences after chip placement (not removal)
             
             // Detect sequences at the placed position
             var detector = sequenceDetector
@@ -330,20 +255,6 @@ final class GameState: ObservableObject {
         selectedCardId = nil
     }
     
-    func classifyJack(_ card: Card) -> JackRule? {
-        guard card.cardFace == .jack else { return nil }
-        switch card.suit {
-            
-        case .clubs, .diamonds:
-            return .placeAnywhere   // two‑eyed
-            
-        case .spades, .hearts:
-            return .removeChip      // one‑eyed
-        case .empty:
-            return .removeChip
-        }
-    }
-    
     /// Returns the number of sequences completed by a specific team
     func sequencesForTeam(teamColor: Color) -> Int {
         detectedSequence.filter { $0.teamColor == teamColor }.count
@@ -367,5 +278,5 @@ final class GameState: ObservableObject {
         winningTeam = nil
         return .ongoing
     }
-    
+        
 }

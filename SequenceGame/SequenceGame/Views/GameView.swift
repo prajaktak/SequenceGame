@@ -55,7 +55,7 @@ struct GameView: View {
                         )
                         .allowsHitTesting(false)
                         .opacity(gameState.hasSelection ? 0 : 1)
-                        .animation(.easeInOut(duration: 0.15), value: gameState.hasSelection)
+                        .animation(.easeInOut(duration: GameConstants.Animation.cardSelectionDuration), value: gameState.hasSelection)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -79,7 +79,7 @@ struct GameView: View {
                         // First dismiss GameView, then GameSettingsView
                         presentationMode.wrappedValue.dismiss()
                         // Use DispatchQueue to dismiss again after a brief delay
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.Animation.navigationDismissDelay) {
                             presentationMode.wrappedValue.dismiss()
                         }
                     }, label: {
@@ -104,7 +104,7 @@ struct GameView: View {
                 if newMode != .deadCard {
                     let work = DispatchWorkItem { isOverlayPresent = false }
                     overlayDismissWork = work
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: work)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.Animation.overlayAutoDismissDelay, execute: work)
                 }
             }
             .overlay(content: {
@@ -139,7 +139,7 @@ struct GameView: View {
                                     // Pop to root (MainMenu) by dismissing twice
                                     // First dismiss GameView, then GameSettingsView
                                     presentationMode.wrappedValue.dismiss()
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.Animation.navigationDismissDelay) {
                                         presentationMode.wrappedValue.dismiss()
                                     }
                                 }

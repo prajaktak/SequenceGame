@@ -217,7 +217,7 @@ struct SequenceGameTests {
         let cardId = cardToRemove.id
 
         // When
-        let removed = state.removeCardFromHand(cardId: cardId)
+        let removed = state.testRemoveCardFromHand(cardId: cardId)
 
         // Then
         #expect(removed?.id == cardId)
@@ -234,7 +234,7 @@ struct SequenceGameTests {
         let index = state.currentPlayerIndex
         let before = state.players[index].cards.count
 
-        state.drawReplacementForHand()
+        state.testDrawReplacementForHand()
 
         #expect(state.players[index].cards.count == before + 1)
     }
@@ -459,30 +459,30 @@ struct SequenceGameTests {
     
     @Test("Jack classification: clubs → placeAnywhere")
     func jackClassification_clubs_returnsPlaceAnywhere() {
-        let gameState = GameState()
         let jackOfClubs = Card(cardFace: .jack, suit: .clubs)
-        #expect(gameState.classifyJack(jackOfClubs) == .placeAnywhere)
+        let validator = CardPlayValidator(boardTiles: [], detectedSequences: [])
+        #expect(validator.classifyJack(jackOfClubs) == .placeAnywhere)
     }
 
     @Test("Jack classification: diamonds → placeAnywhere")
     func jackClassification_diamonds_returnsPlaceAnywhere() {
-        let gameState = GameState()
         let jackOfDiamonds = Card(cardFace: .jack, suit: .diamonds)
-        #expect(gameState.classifyJack(jackOfDiamonds) == .placeAnywhere)
+        let validator = CardPlayValidator(boardTiles: [], detectedSequences: [])
+        #expect(validator.classifyJack(jackOfDiamonds) == .placeAnywhere)
     }
 
     @Test("Jack classification: spades → removeChip")
     func jackClassification_spades_returnsRemoveChip() {
-        let gameState = GameState()
         let jackOfSpades = Card(cardFace: .jack, suit: .spades)
-        #expect(gameState.classifyJack(jackOfSpades) == .removeChip)
+        let validator = CardPlayValidator(boardTiles: [], detectedSequences: [])
+        #expect(validator.classifyJack(jackOfSpades) == .removeChip)
     }
 
     @Test("Jack classification: hearts → removeChip")
     func jackClassification_hearts_returnsRemoveChip() {
-        let gameState = GameState()
         let jackOfHearts = Card(cardFace: .jack, suit: .hearts)
-        #expect(gameState.classifyJack(jackOfHearts) == .removeChip)
+        let validator = CardPlayValidator(boardTiles: [], detectedSequences: [])
+        #expect(validator.classifyJack(jackOfHearts) == .removeChip)
     }
 
     @Test("computePlayableTiles: two-eyed jack returns all empty non-corner tiles")
