@@ -7,7 +7,7 @@
 // swiftlint:disable type_body_length
 import Testing
 @testable import SequenceGame
-import SwiftUICore
+import SwiftUI
 
 struct SequenceDetectorTests {
 
@@ -590,7 +590,7 @@ struct SequenceDetectorTests {
         let isSequenceComplete2  = sequenceDetector.detectSequence(atPosition: (1, 0), forPlayer: currentPlayer, gameState: gameState)
         // expectatiom
         #expect(isSequenceComplete && isSequenceComplete2 && gameState.detectedSequence.count == 2)
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 2)
         guard let firstSequence = gameState.detectedSequence.first else {
             #expect(Bool(false), "Expected detected sequence"); return
         }
@@ -623,7 +623,7 @@ struct SequenceDetectorTests {
         let isSequenceComplete2  = sequenceDetector.detectSequence(atPosition: (0, 4), forPlayer: currentPlayer, gameState: gameState)
         // expectatiom
         #expect(isSequenceComplete && isSequenceComplete2 && gameState.detectedSequence.count == 2)
-        #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
+        #expect(isSequenceComplete && gameState.detectedSequence.count == 2)
         guard let firstSequence = gameState.detectedSequence.first else {
             #expect(Bool(false), "Expected detected sequence"); return
         }

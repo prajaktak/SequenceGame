@@ -844,15 +844,11 @@ struct SequenceGameTests {
     
     @Test("Get correct team overlay color")
     func getTeamOverlayColor() {
-        let teamColor = Color.blue
+        let teamColor = ThemeColor.teamBlue
         
         let ovelayColor = ThemeColor.getTeamOverlayColor(for: teamColor)
         
         #expect(ovelayColor == ThemeColor.overlayTeamBlue)
-<<<<<<< HEAD
-
-=======
->>>>>>> 8cdcdf39ea1dd8120d5c9c9423e4fa33a6d2599a
     }
     
 }
