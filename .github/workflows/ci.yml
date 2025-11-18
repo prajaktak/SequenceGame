@@ -147,17 +147,33 @@ jobs:
           echo "=== All Available Devices ==="
           xcrun simctl list devices available | head -20
           
-          # Find first available iPhone simulator (simplest approach)
-          SIMULATOR_NAME=$(xcrun simctl list devices available | grep -i "iPhone" | head -1 | awk -F'(' '{print $1}' | xargs)
+          # Find first available iPhone simulator and extract name + OS version
+          SIMULATOR_LINE=$(xcrun simctl list devices available | grep -i "iPhone" | head -1)
           
-          if [ -z "$SIMULATOR_NAME" ]; then
+          if [ -z "$SIMULATOR_LINE" ]; then
             echo "❌ No iPhone simulators found!"
             echo "Available devices:"
             xcrun simctl list devices available
             exit 1
           fi
           
+          # Extract simulator name (everything before the first parenthesis)
+          SIMULATOR_NAME=$(echo "$SIMULATOR_LINE" | awk -F'(' '{print $1}' | xargs)
+          
+          # Extract OS version (look for iOS X.X pattern in parentheses)
+          OS_VERSION=$(echo "$SIMULATOR_LINE" | grep -oE 'iOS [0-9.]+' | head -1)
+          
+          if [ -z "$OS_VERSION" ]; then
+            # Fallback: try to get OS from runtime
+            RUNTIME_INFO=$(echo "$SIMULATOR_LINE" | grep -oE 'com\.apple\.CoreSimulator\.SimRuntime\.iOS-[0-9.]+' | head -1)
+            if [ -n "$RUNTIME_INFO" ]; then
+              OS_VERSION=$(echo "$RUNTIME_INFO" | grep -oE '[0-9.]+$')
+              OS_VERSION="iOS $OS_VERSION"
+            fi
+          fi
+          
           echo "📱 Found simulator: '$SIMULATOR_NAME'"
+          echo "📱 OS Version: '$OS_VERSION'"
           
           # Boot the simulator (idempotent)
           echo "📱 Booting '$SIMULATOR_NAME'..."
@@ -171,12 +187,21 @@ jobs:
           BOOT_STATUS=$(xcrun simctl list devices | grep "$SIMULATOR_NAME" | grep -oE "\([^)]+\)" | head -1)
           echo "📱 Simulator status: $BOOT_STATUS"
           
+          # Set destination format
+          if [ -n "$OS_VERSION" ]; then
+            DESTINATION="platform=iOS Simulator,name=$SIMULATOR_NAME,OS=$OS_VERSION"
+          else
+            DESTINATION="platform=iOS Simulator,name=$SIMULATOR_NAME"
+          fi
+          
           echo "simulator_name=$SIMULATOR_NAME" >> $GITHUB_OUTPUT
-          echo "✅ Using simulator: '$SIMULATOR_NAME'"
+          echo "simulator_os=$OS_VERSION" >> $GITHUB_OUTPUT
+          echo "simulator_destination=$DESTINATION" >> $GITHUB_OUTPUT
+          echo "✅ Using destination: $DESTINATION"
       
       - name: Run Unit Tests
         run: |
-          DESTINATION="platform=iOS Simulator,name=${{ steps.simulator.outputs.simulator_name }}"
+          DESTINATION="${{ steps.simulator.outputs.simulator_destination }}"
           echo "Using destination: $DESTINATION"
           set -o pipefail
           
@@ -236,7 +261,7 @@ jobs:
       
       - name: Run UI Tests
         run: |
-          DESTINATION="platform=iOS Simulator,name=${{ steps.simulator.outputs.simulator_name }}"
+          DESTINATION="${{ steps.simulator.outputs.simulator_destination }}"
           echo "Using destination: $DESTINATION"
           set -o pipefail
           xcodebuild clean build test \
