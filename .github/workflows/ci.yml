@@ -98,10 +98,6 @@ jobs:
           -project SequenceGame/SequenceGame.xcodeproj \
           -scheme SequenceGame \
           -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
-          -derivedDataPath DerivedData \
-          CODE_SIGNING_ALLOWED=NO \
-          CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO
       
       - name: Run tests
         id: run_tests
