@@ -95,7 +95,6 @@ jobs:
       - name: Build for testing
         run: |
           xcodebuild clean build \
-          -project SequenceGame/SequenceGame.xcodeproj \
           -scheme SequenceGame \
           -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
       
