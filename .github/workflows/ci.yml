@@ -43,27 +43,19 @@ jobs:
           echo "📥 iOS 18 runtime not found, downloading..."
           echo "⚠️ This may take 10-20 minutes and download 10+ GB"
           
-          # Download with timeout and progress monitoring
-          timeout 25m sudo xcodebuild -downloadPlatform iOS || {
-            EXIT_CODE=$?
-            if [ $EXIT_CODE -eq 124 ]; then
-              echo "❌ Download timed out after 25 minutes"
-              echo "This usually means network issues or the download is stuck"
-            else
-              echo "❌ Download failed with exit code: $EXIT_CODE"
-            fi
-            
-            echo "🔍 Checking what runtimes are available..."
-            xcrun simctl list runtimes
-            exit $EXIT_CODE
-          }
+          # Download iOS runtime - NO TIMEOUT, let it finish
+          sudo xcodebuild -downloadPlatform iOS
           
           echo "✅ iOS runtime download completed!"
           
           # Verify installation
           echo "🔍 Verifying installed runtimes..."
           xcrun simctl list runtimes | grep iOS
-        timeout-minutes: 30
+          
+          # List available devices after install
+          echo "🔍 Available devices after install..."
+          xcrun simctl list devices available iOS
+        timeout-minutes: 45
       
       - name: Show Available Simulators (After)
         run: |
@@ -118,7 +110,7 @@ jobs:
           xcodebuild clean build-for-testing \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=any iOS Simulator' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             | xcpretty || cat xcodebuild.log
@@ -130,7 +122,7 @@ jobs:
           xcodebuild test-without-building \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=any iOS Simulator' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
             -only-testing:SequenceGameTests \
             -resultBundlePath TestResults.xcresult \
             -enableCodeCoverage YES \
@@ -145,7 +137,7 @@ jobs:
           xcodebuild test-without-building \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=any iOS Simulator' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
             -only-testing:SequenceGameUITests \
             -resultBundlePath UITestResults.xcresult \
             CODE_SIGN_IDENTITY="" \
