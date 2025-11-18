@@ -93,11 +93,25 @@ jobs:
           echo "SIMULATOR_NAME=$SIMULATOR" >> $GITHUB_ENV
       
       - name: Build for testing
-        run: sequenceGame build
+        run: |
+          xcodebuild clean build-for-testing \
+            xcodebuild \
+            -project SequenceGame/SequenceGame.xcodeproj \
+            -scheme SequenceGame \
+            -configuration Release \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
+            CODE_SIGNING_ALLOWED=NO \
+            clean build
       
       - name: Run tests
         id: run_tests
-        run: sequenceGame test
+        run: |
+          xcodebuild test \
+          -project SequenceGame/SequenceGame.xcodeproj \
+          -scheme SequenceGame \
+          -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
+          CODE_SIGNING_ALLOWED=NO \
+          -enableCodeCoverage YES
       
       - name: Upload test results
         if: always()
