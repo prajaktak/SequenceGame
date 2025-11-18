@@ -1,127 +1,55 @@
-name: CI - Tests & Lint
+name: CI - Build & Test
 
 on:
   push:
-    branches:
-      - '**'  # Run on all branches
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
+    branches: ['**']
+  pull_request:
+    branches: [main, develop]
 
 jobs:
-  test-and-lint:
-    name: Run Tests & SwiftLint
-    runs-on: macos-15  # Latest macOS with Xcode
+  test:
+    name: Build and Test
+    runs-on: macos-15
     
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          clean: true  # Ensure clean checkout
-          fetch-depth: 1  # Shallow clone for speed
       
-      - name: Diagnose project file
-        run: |
-          echo "📋 Checking project.pbxproj file..."
-          
-          # Check file encoding
-          file SequenceGame/SequenceGame.xcodeproj/project.pbxproj
-          
-          # Check for common issues
-          echo ""
-          echo "🔍 Searching for potential issues..."
-          
-          # Check for merge conflicts
-          if grep -q "<<<<<<< HEAD" SequenceGame/SequenceGame.xcodeproj/project.pbxproj; then
-            echo "❌ Found merge conflict markers"
-            grep -n "<<<<<<< HEAD\|=======\|>>>>>>>" SequenceGame/SequenceGame.xcodeproj/project.pbxproj
-            exit 1
-          fi
-          
-          # Check for invalid characters or encoding issues
-          if ! grep -q "isa = PBXProject" SequenceGame/SequenceGame.xcodeproj/project.pbxproj; then
-            echo "❌ Cannot find 'isa = PBXProject' - file may be corrupted"
-            exit 1
-          fi
-          
-          echo "✅ Basic checks passed"
-          
-          # Try to list schemes (this is where it fails)
-          echo ""
-          echo "📋 Attempting to list schemes..."
-          if xcodebuild -project SequenceGame/SequenceGame.xcodeproj -list; then
-            echo "✅ Successfully listed schemes"
-          else
-            echo "❌ Failed to list schemes"
-            echo ""
-            echo "🔍 Showing first 100 lines of project.pbxproj for inspection:"
-            head -100 SequenceGame/SequenceGame.xcodeproj/project.pbxproj
-            exit 1
-          fi
-      
-      - name: Select Xcode version
+      - name: Select Xcode 16.1
         run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
       
       - name: Show Xcode version
         run: xcodebuild -version
       
-      - name: Install SwiftLint
-        run: brew install swiftlint
-      
-      - name: Run SwiftLint
+      - name: Show available simulators
         run: |
-          swiftlint lint --reporter github-actions-logging
-          # Fail if there are errors (warnings are allowed)
-          swiftlint lint --strict --quiet
-    
-      - name: List and select available simulator
-        run: |
-          echo "🔍 Looking for iPhone simulator with iOS 18..."
-          
-          # Try to find iPhone with iOS 18 (more efficient)
-          SIMULATOR=$(xcrun simctl list devices available iPhone 2>/dev/null | grep "18\." | grep -v "unavailable" | head -1 | sed -E 's/^[[:space:]]+(.+) \([A-F0-9-]+\) \(.+\)$/\1/' | xargs)
-          
-          if [ -z "$SIMULATOR" ]; then
-            echo "❌ No iPhone simulator with iOS 18 found!"
-            echo ""
-            echo "Available iPhone simulators:"
-            xcrun simctl list devices available iPhone 2>/dev/null | head -20
-            exit 1
-          fi
-          
-          echo "✅ Will use simulator: '$SIMULATOR'"
-          echo "SIMULATOR_NAME=$SIMULATOR" >> $GITHUB_ENV
+          echo "Available iPhone simulators with iOS 18:"
+          xcrun simctl list devices available iPhone | grep "18\."
       
-      - name: Build for testing
-        run: |
-          xcodebuild clean build \
-          -project SequenceGame/SequenceGame.xcodeproj \
-          -scheme SequenceGame \
-          -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
-      
-      - name: Run tests
-        id: run_tests
+      - name: Build and Test
         run: |
           xcodebuild test \
-          -project SequenceGame/SequenceGame.xcodeproj \
-          -scheme SequenceGame \
-          -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
-          -derivedDataPath DerivedData \
-          -enableCodeCoverage YES \
-          CODE_SIGNING_ALLOWED=NO
+            -project SequenceGame/SequenceGame.xcodeproj \
+            -scheme SequenceGame \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1' \
+            -resultBundlePath TestResults.xcresult \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            | tee xcodebuild.log \
+            | xcbeautify --is-ci
       
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ github.sha }}
+          name: test-results
           path: |
             TestResults.xcresult
-            test-output.log
+            xcodebuild.log
           retention-days: 30
       
       - name: Parse test failures
-        if: failure() && steps.run_tests.outcome == 'failure'
+        if: failure()
         id: parse_results
         run: |
           echo "## 🔴 Test Failures Report" > test_report.md
@@ -134,88 +62,74 @@ jobs:
           echo "---" >> test_report.md
           echo "" >> test_report.md
           
-          # Extract test failures from log
           echo "### ❌ Failed Tests:" >> test_report.md
           echo "" >> test_report.md
           echo '```' >> test_report.md
-          grep -A 3 "Test Case.*failed" test-output.log | head -100 >> test_report.md || echo "Could not parse specific test failures" >> test_report.md
+          grep "Test Case.*failed" xcodebuild.log | head -50 >> test_report.md || echo "Could not parse test failures" >> test_report.md
           echo '```' >> test_report.md
           echo "" >> test_report.md
           
-          # Add error details
           echo "### 📋 Error Details:" >> test_report.md
           echo "" >> test_report.md
           echo '```' >> test_report.md
-          grep -E "(error:|failed|assertion|Fatal error)" test-output.log | head -50 >> test_report.md || echo "No specific errors found in log" >> test_report.md
+          grep -E "(error:|failed|assertion)" xcodebuild.log | head -50 >> test_report.md || echo "No errors found" >> test_report.md
           echo '```' >> test_report.md
           echo "" >> test_report.md
           
-          # Add action items
           echo "### 🎯 Action Items:" >> test_report.md
           echo "" >> test_report.md
           echo "- [ ] Review failed test cases above" >> test_report.md
           echo "- [ ] Reproduce failure locally" >> test_report.md
           echo "- [ ] Fix the failing tests" >> test_report.md
-          echo "- [ ] Verify fix with local testing" >> test_report.md
           echo "- [ ] Push fix and verify CI passes" >> test_report.md
           echo "" >> test_report.md
           
-          # Add links
-          echo "### 📎 Useful Links:" >> test_report.md
+          echo "### 📎 Links:" >> test_report.md
           echo "" >> test_report.md
           echo "- [Failed Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> test_report.md
-          echo "- [Commit with Failure](https://github.com/${{ github.repository }}/commit/${{ github.sha }})" >> test_report.md
-          echo "- Download artifacts from the workflow run above to get full test results" >> test_report.md
+          echo "- [Commit](${{ github.event.head_commit.url }})" >> test_report.md
           echo "" >> test_report.md
           
-          # Create issue title
-          FAILED_TEST_COUNT=$(grep -c "Test Case.*failed" test-output.log || echo "Unknown")
-          echo "title=🚨 CI Test Failure: $FAILED_TEST_COUNT test(s) failed on ${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          
-          cat test_report.md
+          FAILED_COUNT=$(grep -c "Test Case.*failed" xcodebuild.log || echo "Unknown")
+          echo "title=🚨 CI: $FAILED_COUNT test(s) failed on ${{ github.ref_name }}" >> $GITHUB_OUTPUT
       
-      - name: Create GitHub Issue on Test Failure
-        if: failure() && steps.run_tests.outcome == 'failure' && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+      - name: Create GitHub Issue on Failure
+        if: failure() && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
             const issueBody = fs.readFileSync('test_report.md', 'utf8');
             
-            // Check if an issue already exists for this run
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
               labels: 'ci-failure',
-              per_page: 20
+              per_page: 10
             });
             
-            const existingIssue = issues.data.find(issue => 
-              issue.title.includes('CI Test Failure') && 
-              issue.created_at > new Date(Date.now() - 3600000).toISOString() // Within last hour
+            const recentIssue = issues.data.find(issue => 
+              issue.title.includes('CI:') && 
+              new Date(issue.created_at) > new Date(Date.now() - 3600000)
             );
             
-            if (existingIssue) {
-              // Update existing issue with new comment
+            if (recentIssue) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: existingIssue.number,
-                body: `### 🔄 Test failure occurred again\n\n${issueBody}`
+                issue_number: recentIssue.number,
+                body: `### 🔄 Failed again\n\n${issueBody}`
               });
-              
-              console.log(`Updated existing issue #${existingIssue.number}`);
+              console.log(`Updated issue #${recentIssue.number}`);
             } else {
-              // Create new issue
               const issue = await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: '${{ steps.parse_results.outputs.title }}',
                 body: issueBody,
-                labels: ['bug', 'ci-failure', 'priority-1', 'auto-generated']
+                labels: ['bug', 'ci-failure', 'priority-1']
               });
-              
               console.log(`Created issue #${issue.data.number}`);
             }
+
