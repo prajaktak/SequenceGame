@@ -170,31 +170,52 @@ jobs:
           DESTINATION="platform=iOS Simulator,name=${{ steps.simulator.outputs.simulator_name }}"
           echo "Using destination: $DESTINATION"
           set -o pipefail
-          # Build test bundle first
-          xcodebuild clean build-for-testing \
-            -project SequenceGame/SequenceGame.xcodeproj \
-            -scheme SequenceGame \
-            -destination "$DESTINATION" \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            2>&1 | tee build.log
           
-          # Run tests using test-without-building (more reliable for Swift Testing)
-          xcodebuild test-without-building \
+          # Try build-for-testing + test-without-building first (more reliable for Swift Testing)
+          echo "Building test bundle..."
+          if xcodebuild clean build-for-testing \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
             -destination "$DESTINATION" \
-            -only-testing:SequenceGameTests \
-            -resultBundlePath TestResults.xcresult \
-            -enableCodeCoverage YES \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            2>&1 | tee test.log || {
-              echo "❌ Unit tests failed"
-              echo "Last 50 lines of test.log:"
-              tail -50 test.log
-              exit 1
-            }
+            2>&1 | tee build.log; then
+            
+            echo "Running tests..."
+            xcodebuild test-without-building \
+              -project SequenceGame/SequenceGame.xcodeproj \
+              -scheme SequenceGame \
+              -destination "$DESTINATION" \
+              -only-testing:SequenceGameTests \
+              -resultBundlePath TestResults.xcresult \
+              -enableCodeCoverage YES \
+              CODE_SIGN_IDENTITY="" \
+              CODE_SIGNING_REQUIRED=NO \
+              2>&1 | tee test.log || {
+                echo "❌ Unit tests failed"
+                echo "Last 50 lines of test.log:"
+                tail -50 test.log
+                exit 1
+              }
+          else
+            echo "⚠️ build-for-testing failed, trying simple 'test' command (per GitHub docs approach)..."
+            # Fallback: simple approach per https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
+            xcodebuild clean build test \
+              -project SequenceGame/SequenceGame.xcodeproj \
+              -scheme SequenceGame \
+              -destination "$DESTINATION" \
+              -only-testing:SequenceGameTests \
+              -resultBundlePath TestResults.xcresult \
+              -enableCodeCoverage YES \
+              CODE_SIGN_IDENTITY="" \
+              CODE_SIGNING_REQUIRED=NO \
+              2>&1 | tee test.log || {
+                echo "❌ Unit tests failed with fallback method too"
+                echo "Last 50 lines of test.log:"
+                tail -50 test.log
+                exit 1
+              }
+          fi
         timeout-minutes: 15
       
       - name: Run UI Tests
