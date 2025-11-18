@@ -94,14 +94,14 @@ jobs:
       
       - name: Build for testing
         run: |
-          xcodebuild clean build-for-testing \
-            xcodebuild \
-            -project SequenceGame/SequenceGame.xcodeproj \
-            -scheme SequenceGame \
-            -configuration Release \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
-            CODE_SIGNING_ALLOWED=NO \
-            clean build
+          xcodebuild clean build \
+          -project SequenceGame/SequenceGame.xcodeproj \
+          -scheme SequenceGame \
+          -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
+          -derivedDataPath DerivedData \
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO
       
       - name: Run tests
         id: run_tests
@@ -110,8 +110,9 @@ jobs:
           -project SequenceGame/SequenceGame.xcodeproj \
           -scheme SequenceGame \
           -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
-          CODE_SIGNING_ALLOWED=NO \
-          -enableCodeCoverage YES
+          -derivedDataPath DerivedData \
+          -enableCodeCoverage YES \
+          CODE_SIGNING_ALLOWED=NO
       
       - name: Upload test results
         if: always()
