@@ -16,6 +16,7 @@
 		F9F3BF002ECCA75300C65753 /* .gitattributes in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEFF2ECCA75300C65753 /* .gitattributes */; };
 		F9F3BF022ECCA77300C65753 /* CI_TROUBLESHOOTING.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF012ECCA77300C65753 /* CI_TROUBLESHOOTING.md */; };
 		F9F3BF062ECCD98C00C65753 /* ci-simple.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF052ECCD98C00C65753 /* ci-simple.yml */; };
+		F9F3BF082ECCDD8600C65753 /* ci-final.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF072ECCDD8600C65753 /* ci-final.yml */; };
 		F9FE2CD02EA7B6AD00623663 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9FE2CCF2EA7B6AD00623663 /* .swiftlint.yml */; };
 /* End PBXBuildFile section */
 
@@ -46,6 +47,7 @@
 		F9F3BEFF2ECCA75300C65753 /* .gitattributes */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitattributes; sourceTree = "<group>"; };
 		F9F3BF012ECCA77300C65753 /* CI_TROUBLESHOOTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CI_TROUBLESHOOTING.md; sourceTree = "<group>"; };
 		F9F3BF052ECCD98C00C65753 /* ci-simple.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "ci-simple.yml"; sourceTree = "<group>"; };
+		F9F3BF072ECCDD8600C65753 /* ci-final.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "ci-final.yml"; sourceTree = "<group>"; };
 		F9FE2C6B2EA2665F00623663 /* SequenceGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SequenceGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9FE2C782EA2666100623663 /* SequenceGameTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequenceGameTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9FE2C822EA2666100623663 /* SequenceGameUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequenceGameUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -118,6 +120,7 @@
 				F9F3BEFF2ECCA75300C65753 /* .gitattributes */,
 				F9F3BF012ECCA77300C65753 /* CI_TROUBLESHOOTING.md */,
 				F9F3BF052ECCD98C00C65753 /* ci-simple.yml */,
+				F9F3BF072ECCDD8600C65753 /* ci-final.yml */,
 			);
 			sourceTree = "<group>";
 		};
@@ -260,6 +263,7 @@
 				F9F3BEFD2ECC986400C65753 /* deploy.yml in Resources */,
 				F9F3BEFE2ECC986400C65753 /* coverage.yml in Resources */,
 				F9F3BF062ECCD98C00C65753 /* ci-simple.yml in Resources */,
+				F9F3BF082ECCDD8600C65753 /* ci-final.yml in Resources */,
 				F9F3BF002ECCA75300C65753 /* .gitattributes in Resources */,
 				F9FE2CD02EA7B6AD00623663 /* .swiftlint.yml in Resources */,
 				F9F3BF022ECCA77300C65753 /* CI_TROUBLESHOOTING.md in Resources */,
@@ -524,7 +528,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = AAS.SequenceGameTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -542,7 +546,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = AAS.SequenceGameTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
