@@ -28,3 +28,44 @@ jobs:
           echo ""
           echo "=== All Devices (including booted) ==="
           xcrun simctl list devices | grep -i "iPhone" | head -10
+      
+      - name: Step 2 - Boot Simulator Using UDID
+        id: simulator
+        run: |
+          echo "=== Step 2: Boot Simulator ==="
+          
+          # Get first iPhone 16 Pro UDID
+          SIMULATOR_UDID=$(xcrun simctl list devices available | grep -i "iPhone 16 Pro" | head -1 | grep -oE '[A-F0-9-]{36}' | head -1)
+          
+          if [ -z "$SIMULATOR_UDID" ]; then
+            echo "❌ No iPhone 16 Pro found, trying any iPhone..."
+            SIMULATOR_UDID=$(xcrun simctl list devices available | grep -i "iPhone" | head -1 | grep -oE '[A-F0-9-]{36}' | head -1)
+          fi
+          
+          if [ -z "$SIMULATOR_UDID" ]; then
+            echo "❌ No iPhone simulators found!"
+            exit 1
+          fi
+          
+          echo "📱 Found simulator UDID: $SIMULATOR_UDID"
+          
+          # Boot the simulator
+          echo "📱 Booting simulator..."
+          xcrun simctl boot "$SIMULATOR_UDID" 2>&1 || echo "Simulator may already be booted"
+          
+          # Wait a moment
+          sleep 3
+          
+          # Verify it's booted
+          STATUS=$(xcrun simctl list devices | grep "$SIMULATOR_UDID")
+          echo "📱 Simulator status: $STATUS"
+          
+          if echo "$STATUS" | grep -q "Booted"; then
+            echo "✅ Simulator is booted!"
+          else
+            echo "⚠️ Simulator may not be fully booted, but continuing..."
+          fi
+          
+          # Store UDID for next step
+          echo "simulator_udid=$SIMULATOR_UDID" >> $GITHUB_OUTPUT
+          echo "✅ Ready for Step 3"
