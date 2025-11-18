@@ -93,35 +93,11 @@ jobs:
           echo "SIMULATOR_NAME=$SIMULATOR" >> $GITHUB_ENV
       
       - name: Build for testing
-        run: |
-          xcodebuild clean build-for-testing \
-            -project SequenceGame/SequenceGame.xcodeproj \
-            -scheme SequenceGame \
-            -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME }}" \
-            -derivedDataPath DerivedData \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO
+        run: swift build
       
       - name: Run tests
         id: run_tests
-        run: |
-          set +e  # Don't exit on error, we want to capture the output
-          
-          xcodebuild test-without-building \
-            -project SequenceGame/SequenceGame.xcodeproj \
-            -scheme SequenceGame \
-            -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME }}" \
-            -derivedDataPath DerivedData \
-            -resultBundlePath TestResults.xcresult \
-            -enableCodeCoverage YES \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            2>&1 | tee test-output.log
-          
-          TEST_EXIT_CODE=${PIPESTATUS[0]}
-          echo "exit_code=$TEST_EXIT_CODE" >> $GITHUB_OUTPUT
-          
-          exit $TEST_EXIT_CODE
+        run: swift test
       
       - name: Upload test results
         if: always()
