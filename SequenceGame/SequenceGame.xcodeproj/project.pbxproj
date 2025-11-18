@@ -15,6 +15,7 @@
 		F9F3BEFE2ECC986400C65753 /* coverage.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEF82ECC986400C65753 /* coverage.yml */; };
 		F9F3BF002ECCA75300C65753 /* .gitattributes in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEFF2ECCA75300C65753 /* .gitattributes */; };
 		F9F3BF022ECCA77300C65753 /* CI_TROUBLESHOOTING.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF012ECCA77300C65753 /* CI_TROUBLESHOOTING.md */; };
+		F9F3BF062ECCD98C00C65753 /* ci-simple.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF052ECCD98C00C65753 /* ci-simple.yml */; };
 		F9FE2CD02EA7B6AD00623663 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9FE2CCF2EA7B6AD00623663 /* .swiftlint.yml */; };
 /* End PBXBuildFile section */
 
@@ -44,6 +45,7 @@
 		F9F3BEFA2ECC986400C65753 /* pr-checks.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = "pr-checks.yml"; path = "../.github/workflows/pr-checks.yml"; sourceTree = SOURCE_ROOT; };
 		F9F3BEFF2ECCA75300C65753 /* .gitattributes */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitattributes; sourceTree = "<group>"; };
 		F9F3BF012ECCA77300C65753 /* CI_TROUBLESHOOTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CI_TROUBLESHOOTING.md; sourceTree = "<group>"; };
+		F9F3BF052ECCD98C00C65753 /* ci-simple.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "ci-simple.yml"; sourceTree = "<group>"; };
 		F9FE2C6B2EA2665F00623663 /* SequenceGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SequenceGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9FE2C782EA2666100623663 /* SequenceGameTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequenceGameTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9FE2C822EA2666100623663 /* SequenceGameUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequenceGameUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -115,6 +117,7 @@
 				F9F3BEF52ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md */,
 				F9F3BEFF2ECCA75300C65753 /* .gitattributes */,
 				F9F3BF012ECCA77300C65753 /* CI_TROUBLESHOOTING.md */,
+				F9F3BF052ECCD98C00C65753 /* ci-simple.yml */,
 			);
 			sourceTree = "<group>";
 		};
@@ -256,6 +259,7 @@
 				F9F3BEFC2ECC986400C65753 /* code-review.yml in Resources */,
 				F9F3BEFD2ECC986400C65753 /* deploy.yml in Resources */,
 				F9F3BEFE2ECC986400C65753 /* coverage.yml in Resources */,
+				F9F3BF062ECCD98C00C65753 /* ci-simple.yml in Resources */,
 				F9F3BF002ECCA75300C65753 /* .gitattributes in Resources */,
 				F9FE2CD02EA7B6AD00623663 /* .swiftlint.yml in Resources */,
 				F9F3BF022ECCA77300C65753 /* CI_TROUBLESHOOTING.md in Resources */,
