@@ -14,13 +14,19 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
       
+      - name: Install iOS 18 Runtime
+        run: |
+          echo "Installing iOS 18.4 runtime..."
+          sudo xcodebuild -downloadPlatform iOS
+          echo "Runtime installed!"
+      
       - name: Test
         run: |
           set -o pipefail
           xcodebuild test \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,id=dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO | tee test.log
       
