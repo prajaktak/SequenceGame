@@ -143,6 +143,10 @@ jobs:
         run: |
           echo "=== Finding and booting iOS Simulator ==="
           
+          # Debug: Show all available devices
+          echo "=== All Available Devices ==="
+          xcrun simctl list devices available | head -20
+          
           # Find first available iPhone simulator (simplest approach)
           SIMULATOR_NAME=$(xcrun simctl list devices available | grep -i "iPhone" | head -1 | awk -F'(' '{print $1}' | xargs)
           
@@ -153,17 +157,22 @@ jobs:
             exit 1
           fi
           
-          echo "📱 Found simulator: $SIMULATOR_NAME"
+          echo "📱 Found simulator: '$SIMULATOR_NAME'"
           
           # Boot the simulator (idempotent)
-          echo "📱 Booting $SIMULATOR_NAME..."
-          xcrun simctl boot "$SIMULATOR_NAME" 2>&1 || echo "Simulator may already be booted"
+          echo "📱 Booting '$SIMULATOR_NAME'..."
+          BOOT_OUTPUT=$(xcrun simctl boot "$SIMULATOR_NAME" 2>&1) || echo "Boot output: $BOOT_OUTPUT"
           
-          # Wait briefly for boot
+          # Wait for boot and verify
+          echo "⏳ Waiting for simulator to be ready..."
           sleep 5
           
+          # Verify simulator is booted
+          BOOT_STATUS=$(xcrun simctl list devices | grep "$SIMULATOR_NAME" | grep -oE "\([^)]+\)" | head -1)
+          echo "📱 Simulator status: $BOOT_STATUS"
+          
           echo "simulator_name=$SIMULATOR_NAME" >> $GITHUB_OUTPUT
-          echo "✅ Using simulator: $SIMULATOR_NAME"
+          echo "✅ Using simulator: '$SIMULATOR_NAME'"
       
       - name: Run Unit Tests
         run: |
@@ -173,15 +182,18 @@ jobs:
           
           # Try build-for-testing + test-without-building first (more reliable for Swift Testing)
           echo "Building test bundle..."
-          if xcodebuild clean build-for-testing \
+          xcodebuild clean build-for-testing \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
             -destination "$DESTINATION" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            2>&1 | tee build.log; then
-            
-            echo "Running tests..."
+            2>&1 | tee build.log
+          
+          BUILD_EXIT_CODE=${PIPESTATUS[0]}
+          
+          if [ $BUILD_EXIT_CODE -eq 0 ]; then
+            echo "✅ Build successful, running tests..."
             xcodebuild test-without-building \
               -project SequenceGame/SequenceGame.xcodeproj \
               -scheme SequenceGame \
@@ -198,7 +210,11 @@ jobs:
                 exit 1
               }
           else
-            echo "⚠️ build-for-testing failed, trying simple 'test' command (per GitHub docs approach)..."
+            echo "⚠️ build-for-testing failed (exit code: $BUILD_EXIT_CODE), trying simple 'test' command..."
+            echo "Build log (last 30 lines):"
+            tail -30 build.log
+            echo ""
+            echo "Trying fallback: clean build test (per GitHub docs)..."
             # Fallback: simple approach per https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
             xcodebuild clean build test \
               -project SequenceGame/SequenceGame.xcodeproj \
