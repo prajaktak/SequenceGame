@@ -29,27 +29,42 @@ jobs:
           echo "=== All Devices (including booted) ==="
           xcrun simctl list devices | grep -i "iPhone" | head -10
       
-      - name: Step 2 - Boot Simulator Using UDID
+      - name: Step 2 - Find Valid Simulator Using xcodebuild
         id: simulator
         run: |
-          echo "=== Step 2: Boot Simulator ==="
+          echo "=== Step 2: Find Valid Simulator (xcodebuild compatible) ==="
           
-          # Get first iPhone 16 Pro UDID
-          SIMULATOR_UDID=$(xcrun simctl list devices available | grep -i "iPhone 16 Pro" | head -1 | grep -oE '[A-F0-9-]{36}' | head -1)
+          # Use xcodebuild to show destinations - these are the ones xcodebuild can actually use
+          echo "=== Getting valid destinations from xcodebuild ==="
+          xcodebuild -project SequenceGame/SequenceGame.xcodeproj \
+            -scheme SequenceGame \
+            -showdestinations 2>&1 | grep -i "platform:iOS Simulator.*iPhone 16 Pro" | head -1 > destinations.txt || true
+          
+          # Extract UDID from xcodebuild output
+          # Format: { platform:iOS Simulator, id:UDID, OS:X.X, name:iPhone 16 Pro }
+          SIMULATOR_UDID=$(grep -oE 'id:[A-F0-9-]{36}' destinations.txt | head -1 | cut -d: -f2)
           
           if [ -z "$SIMULATOR_UDID" ]; then
-            echo "❌ No iPhone 16 Pro found, trying any iPhone..."
-            SIMULATOR_UDID=$(xcrun simctl list devices available | grep -i "iPhone" | head -1 | grep -oE '[A-F0-9-]{36}' | head -1)
+            echo "⚠️ iPhone 16 Pro not found, trying any iPhone..."
+            xcodebuild -project SequenceGame/SequenceGame.xcodeproj \
+              -scheme SequenceGame \
+              -showdestinations 2>&1 | grep -i "platform:iOS Simulator.*iPhone" | head -1 > destinations.txt || true
+            SIMULATOR_UDID=$(grep -oE 'id:[A-F0-9-]{36}' destinations.txt | head -1 | cut -d: -f2)
           fi
           
           if [ -z "$SIMULATOR_UDID" ]; then
-            echo "❌ No iPhone simulators found!"
+            echo "❌ No valid iPhone simulators found in xcodebuild destinations!"
+            echo "Available iOS Simulator destinations:"
+            xcodebuild -project SequenceGame/SequenceGame.xcodeproj \
+              -scheme SequenceGame \
+              -showdestinations 2>&1 | grep -i "platform:iOS Simulator.*iPhone" | head -5
             exit 1
           fi
           
-          echo "📱 Found simulator UDID: $SIMULATOR_UDID"
+          echo "📱 Found valid simulator UDID: $SIMULATOR_UDID"
+          echo "📱 Destination line: $(cat destinations.txt)"
           
-          # Boot the simulator
+          # Boot the simulator using simctl
           echo "📱 Booting simulator..."
           xcrun simctl boot "$SIMULATOR_UDID" 2>&1 || echo "Simulator may already be booted"
           
