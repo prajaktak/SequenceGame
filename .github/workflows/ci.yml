@@ -164,43 +164,39 @@ jobs:
       
       - name: Build for Testing
         run: |
-          set -o pipefail
           xcodebuild clean build \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
             CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            | xcpretty
+            CODE_SIGNING_REQUIRED=NO
         timeout-minutes: 10
       
       - name: Run Unit Tests
         run: |
-          set -o pipefail
           xcodebuild test \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
             -only-testing:SequenceGameTests \
             -resultBundlePath TestResults.xcresult \
             -enableCodeCoverage YES \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            | tee test.log | xcpretty
+            2>&1 | tee test.log
         timeout-minutes: 10
       
       - name: Run UI Tests
         run: |
-          set -o pipefail
           xcodebuild test \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
             -only-testing:SequenceGameUITests \
             -resultBundlePath UITestResults.xcresult \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            | tee ui_test.log | xcpretty
+            2>&1 | tee ui_test.log
         timeout-minutes: 15
         continue-on-error: true  # UI tests can be flaky in CI
       
