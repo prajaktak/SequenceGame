@@ -100,7 +100,7 @@ jobs:
           xcodebuild clean build-for-testing \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination "platform=iOS,id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder,name=${{ env.SIMULATOR_NAME }}" \
+            -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME }}" \
             -derivedDataPath DerivedData \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO
