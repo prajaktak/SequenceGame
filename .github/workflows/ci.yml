@@ -17,16 +17,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: 🔍 DEBUG - Show project structure  # ADD THIS
+      - name: Check for merge conflicts in project file  # ADD THIS
         run: |
-          echo "=== Repository Structure ==="
-          ls -la
-          echo ""
-          echo "=== Looking for .xcodeproj files ==="
-          find . -name "*.xcodeproj" -maxdepth 3
-          echo ""
-          echo "=== Looking for .xcworkspace files ==="
-          find . -name "*.xcworkspace" -maxdepth 3
+          if grep -r "<<<<<<< HEAD" SequenceGame/SequenceGame.xcodeproj/project.pbxproj; then
+            echo "❌ ERROR: Found merge conflict markers in project.pbxproj"
+            echo "Please resolve merge conflicts in your Xcode project file"
+            exit 1
+          fi
+          if grep -r "=======" SequenceGame/SequenceGame.xcodeproj/project.pbxproj; then
+            echo "❌ ERROR: Found merge conflict markers in project.pbxproj"
+            exit 1
+          fi
+          echo "✅ No merge conflicts detected"
       
       - name: Select Xcode version
         run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
