@@ -73,8 +73,8 @@ jobs:
           swiftlint lint --reporter github-actions-logging
           # Fail if there are errors (warnings are allowed)
           swiftlint lint --strict --quiet
-    
-     - name: List and select available simulator
+      
+      - name: List and select available simulator
         run: |
           echo "📱 Available simulators:"
           xcrun simctl list devices available
