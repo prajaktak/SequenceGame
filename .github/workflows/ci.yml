@@ -17,19 +17,18 @@ jobs:
       
       - name: Select Xcode 16.1
         run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
-      
-      - name: Install iOS 18.1 Simulator Runtime
+              - name: Install iOS 18 Simulator Runtime
         run: |
-          echo "📱 Checking available runtimes..."
+          echo "📱 Available runtimes:"
           xcrun simctl runtime list
           
           echo ""
-          echo "📥 Installing iOS 18.1 simulator runtime..."
-          sudo xcrun simctl runtime add "iOS 18.1"
+          echo "📥 Installing iOS 18.4 simulator runtime..."
+          sudo xcrun simctl runtime add "iOS 18.4"
           
           echo ""
           echo "✅ Available simulators after installation:"
-          xcrun simctl list devices available iPhone
+          xcrun simctl list devices available iPhone | grep "18\."
       
       - name: Show Xcode version
         run: xcodebuild -version
