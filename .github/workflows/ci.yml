@@ -74,21 +74,19 @@ jobs:
           # Fail if there are errors (warnings are allowed)
           swiftlint lint --strict --quiet
     
-      - name: List and select available simulator
+     - name: List and select available simulator
         run: |
           echo "📱 Available simulators:"
           xcrun simctl list devices available
           
           echo ""
-          echo "🔍 Looking for iPhone simulator with iOS 18..."
+          echo "🔍 Looking for iPhone simulator..."
           
-          # Try to find iPhone with iOS 18
-          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | grep "18\." | grep -v "unavailable" | head -1 | sed -E 's/^[[:space:]]+(.+) \([A-F0-9-]+\) \(.+\)$/\1/' | xargs)
+          # Try to find iPhone 15, 16, or any iPhone and extract the name properly
+          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | grep -v "unavailable" | head -1 | sed -E 's/^[[:space:]]+(.+) \([A-F0-9-]+\) \(.+\)$/\1/' | xargs)
           
           if [ -z "$SIMULATOR" ]; then
-            echo "❌ No iPhone simulator with iOS 18 found!"
-            echo "Available devices:"
-            xcrun simctl list devices available | grep "iPhone"
+            echo "❌ No iPhone simulator found!"
             exit 1
           fi
           
