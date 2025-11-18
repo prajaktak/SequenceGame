@@ -162,19 +162,9 @@ jobs:
           
           echo "✅ Simulator ready!"
       
-      - name: Build for Testing
-        run: |
-          xcodebuild clean build \
-            -project SequenceGame/SequenceGame.xcodeproj \
-            -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO
-        timeout-minutes: 10
-      
       - name: Run Unit Tests
         run: |
-          xcodebuild test \
+          xcodebuild clean build test \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
@@ -184,11 +174,11 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             2>&1 | tee test.log
-        timeout-minutes: 10
+        timeout-minutes: 15
       
       - name: Run UI Tests
         run: |
-          xcodebuild test \
+          xcodebuild clean build test \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
@@ -197,7 +187,7 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             2>&1 | tee ui_test.log
-        timeout-minutes: 15
+        timeout-minutes: 20
         continue-on-error: true  # UI tests can be flaky in CI
       
       - name: Parse Test Results
