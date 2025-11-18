@@ -1,0 +1,30 @@
+# Xcode project files should be treated as text with LF line endings
+*.pbxproj text eol=lf merge=union
+
+# But these should remain binary
+*.xcworkspacedata binary
+*.xcscheme text eol=lf
+*.xcuserstate binary
+
+# Swift and other source files
+*.swift text eol=lf diff=swift
+*.h text eol=lf
+*.m text eol=lf
+*.mm text eol=lf
+*.c text eol=lf
+*.cpp text eol=lf
+
+# Documentation
+*.md text eol=lf
+*.txt text eol=lf
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+
+# Fonts
+*.ttf binary
+*.otf binary
