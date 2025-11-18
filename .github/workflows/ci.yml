@@ -31,31 +31,89 @@ jobs:
       
       - name: Install iOS 18 Runtime
         run: |
-          echo "🔍 Checking for iOS 18 runtime..."
+          set -x  # Verbose logging
+          echo "🔍 Checking current runtimes..."
+          xcrun simctl list runtimes
+          
+          echo ""
+          echo "🔍 Checking available devices BEFORE install..."
+          xcrun simctl list devices available
           
           # Check if iOS 18 runtime already exists
           if xcrun simctl list runtimes | grep -q "iOS 18"; then
             echo "✅ iOS 18 runtime already installed!"
-            xcrun simctl list runtimes | grep "iOS 18"
-            exit 0
+            
+            # Verify iPhone 16 Pro is available
+            if xcrun simctl list devices available | grep -q "iPhone 16 Pro"; then
+              echo "✅ iPhone 16 Pro simulator already available!"
+              exit 0
+            fi
           fi
           
-          echo "📥 iOS 18 runtime not found, downloading..."
-          echo "⚠️ This may take 10-20 minutes and download 10+ GB"
+          echo ""
+          echo "📥 iOS 18 runtime not found, installing..."
+          echo "⚠️ This may take 20-40 minutes and download 10+ GB"
+          echo "⏰ Started at: $(date)"
           
-          # Download iOS runtime - NO TIMEOUT, let it finish
-          sudo xcodebuild -downloadPlatform iOS
+          # Method 1: Run first launch (sets up Xcode fully)
+          echo "Step 1: Running Xcode first launch setup..."
+          sudo xcodebuild -runFirstLaunch
           
-          echo "✅ iOS runtime download completed!"
+          # Method 2: Download platform explicitly
+          echo "Step 2: Downloading iOS platform..."
+          sudo xcodebuild -downloadPlatform iOS 2>&1 | tee download.log
           
-          # Verify installation
-          echo "🔍 Verifying installed runtimes..."
-          xcrun simctl list runtimes | grep iOS
+          # Method 3: Install available simulators
+          echo "Step 3: Installing all available simulators..."
+          sudo xcodebuild -downloadAllPlatforms 2>&1 | tee download_all.log || echo "downloadAllPlatforms not available"
           
-          # List available devices after install
-          echo "🔍 Available devices after install..."
-          xcrun simctl list devices available iOS
-        timeout-minutes: 45
+          echo ""
+          echo "⏰ Finished at: $(date)"
+          
+          echo ""
+          echo "🔍 Verifying runtimes AFTER install..."
+          xcrun simctl list runtimes
+          
+          echo ""
+          echo "🔍 Checking devices AFTER install..."
+          xcrun simctl list devices available
+          
+          # Verify iOS 18 is installed
+          if ! xcrun simctl list runtimes | grep -q "iOS 18"; then
+            echo "❌ iOS 18 runtime STILL not found after all attempts!"
+            echo ""
+            echo "Available runtimes:"
+            xcrun simctl list runtimes
+            echo ""
+            echo "Download log contents:"
+            cat download.log || echo "No download.log"
+            exit 1
+          fi
+          
+          # Verify iPhone 16 Pro exists
+          if ! xcrun simctl list devices available | grep -q "iPhone 16 Pro"; then
+            echo "⚠️ iPhone 16 Pro not found, but iOS 18 runtime exists"
+            echo "Creating iPhone 16 Pro device..."
+            
+            # Get iOS 18 runtime identifier
+            IOS_18_RUNTIME=$(xcrun simctl list runtimes | grep "iOS 18" | head -1 | grep -oE 'com\.apple\.CoreSimulator\.SimRuntime\.[^ ]+')
+            echo "Using runtime: $IOS_18_RUNTIME"
+            
+            # Create iPhone 16 Pro device
+            xcrun simctl create "iPhone 16 Pro" "com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro" "$IOS_18_RUNTIME" || echo "Failed to create device"
+          fi
+          
+          echo ""
+          echo "🔍 Final device list:"
+          xcrun simctl list devices available | grep "iPhone 16 Pro" || {
+            echo "❌ Still no iPhone 16 Pro available!"
+            echo "Available iPhones:"
+            xcrun simctl list devices available | grep "iPhone"
+            exit 1
+          }
+          
+          echo "✅ iOS 18 runtime and iPhone 16 Pro verified!"
+        timeout-minutes: 60
       
       - name: Show Available Simulators (After)
         run: |
@@ -110,7 +168,7 @@ jobs:
           xcodebuild clean build-for-testing \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -destination 'platform=iOS Simulator,name=any iOS Simulator' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             | xcpretty || cat xcodebuild.log
@@ -122,7 +180,7 @@ jobs:
           xcodebuild test-without-building \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -destination 'platform=iOS Simulator,name=any iOS Simulator' \
             -only-testing:SequenceGameTests \
             -resultBundlePath TestResults.xcresult \
             -enableCodeCoverage YES \
@@ -137,7 +195,7 @@ jobs:
           xcodebuild test-without-building \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -destination 'platform=iOS Simulator,name=any iOS Simulator' \
             -only-testing:SequenceGameUITests \
             -resultBundlePath UITestResults.xcresult \
             CODE_SIGN_IDENTITY="" \
