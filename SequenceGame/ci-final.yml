@@ -7,6 +7,7 @@ on:
 jobs:
   test:
     runs-on: macos-15
+    timeout-minutes: 60  # Kill job after 60 minutes
     
     steps:
       - uses: actions/checkout@v4
@@ -21,14 +22,16 @@ jobs:
           echo "Runtime installed!"
       
       - name: Test
+        timeout-minutes: 30
         run: |
           set -o pipefail
           xcodebuild test \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -derivedDataPath DerivedData \
             CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO | tee test.log
+            CODE_SIGNING_REQUIRED=NO 2>&1 | tee test.log
       
       - name: Upload Results
         if: always()
