@@ -33,11 +33,11 @@ jobs:
         run: |
           echo "=== Step 2: Simple Build Test ==="
           
-          # Use simple destination format - let xcodebuild find any available simulator
+          # Use generic destination - let xcodebuild pick any available iOS Simulator
           xcodebuild clean build \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -destination 'generic/platform=iOS Simulator' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO
           
