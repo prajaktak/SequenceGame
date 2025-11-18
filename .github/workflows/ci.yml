@@ -141,46 +141,33 @@ jobs:
       - name: Boot Simulator and Set Destination
         id: simulator
         run: |
-          # Find an available iPhone simulator (prefer iPhone 16 Pro if available)
-          SIMULATOR_UDID=$(xcrun simctl list devices available | grep -E "iPhone 16 Pro \(" | head -1 | grep -oE '\([A-F0-9-]+\)' | tr -d '()')
-          SIMULATOR_NAME="iPhone 16 Pro"
+          echo "=== Finding and booting iOS Simulator ==="
           
-          if [ -z "$SIMULATOR_UDID" ]; then
-            echo "iPhone 16 Pro not found, using any available iPhone..."
-            SIMULATOR_LINE=$(xcrun simctl list devices available | grep "iPhone" | head -1)
-            SIMULATOR_UDID=$(echo "$SIMULATOR_LINE" | grep -oE '\([A-F0-9-]+\)' | tr -d '()')
-            SIMULATOR_NAME=$(echo "$SIMULATOR_LINE" | sed 's/ (.*//' | xargs)
-          fi
+          # Find first available iPhone simulator (simplest approach)
+          SIMULATOR_NAME=$(xcrun simctl list devices available | grep -i "iPhone" | head -1 | awk -F'(' '{print $1}' | xargs)
           
-          if [ -z "$SIMULATOR_UDID" ]; then
+          if [ -z "$SIMULATOR_NAME" ]; then
             echo "❌ No iPhone simulators found!"
+            echo "Available devices:"
+            xcrun simctl list devices available
             exit 1
           fi
           
-          echo "📱 Found simulator: $SIMULATOR_NAME ($SIMULATOR_UDID)"
-          echo "simulator_udid=$SIMULATOR_UDID" >> $GITHUB_OUTPUT
+          echo "📱 Found simulator: $SIMULATOR_NAME"
+          
+          # Boot the simulator (idempotent)
+          echo "📱 Booting $SIMULATOR_NAME..."
+          xcrun simctl boot "$SIMULATOR_NAME" 2>&1 || echo "Simulator may already be booted"
+          
+          # Wait briefly for boot
+          sleep 5
+          
           echo "simulator_name=$SIMULATOR_NAME" >> $GITHUB_OUTPUT
-          
-          # Boot the simulator
-          echo "📱 Booting simulator: $SIMULATOR_UDID"
-          xcrun simctl boot "$SIMULATOR_UDID" 2>&1 || echo "Simulator already booted or boot failed, continuing..."
-          
-          # Wait for simulator to be fully booted
-          echo "⏳ Waiting for simulator to boot..."
-          for i in {1..30}; do
-            if xcrun simctl bootstatus "$SIMULATOR_UDID" -b 2>&1 | grep -q "Booted"; then
-              echo "✅ Simulator booted successfully!"
-              break
-            fi
-            echo "Waiting... ($i/30)"
-            sleep 2
-          done
-          
-          echo "✅ Simulator ready!"
+          echo "✅ Using simulator: $SIMULATOR_NAME"
       
       - name: Run Unit Tests
         run: |
-          DESTINATION="platform=iOS Simulator,id=${{ steps.simulator.outputs.simulator_udid }}"
+          DESTINATION="platform=iOS Simulator,name=${{ steps.simulator.outputs.simulator_name }}"
           echo "Using destination: $DESTINATION"
           set -o pipefail
           # Build test bundle first
@@ -212,7 +199,7 @@ jobs:
       
       - name: Run UI Tests
         run: |
-          DESTINATION="platform=iOS Simulator,id=${{ steps.simulator.outputs.simulator_udid }}"
+          DESTINATION="platform=iOS Simulator,name=${{ steps.simulator.outputs.simulator_name }}"
           echo "Using destination: $DESTINATION"
           set -o pipefail
           xcodebuild clean build test \
