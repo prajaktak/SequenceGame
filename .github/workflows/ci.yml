@@ -45,16 +45,8 @@ jobs:
       
       - name: Build for testing
         run: |
-          # Find the .xcodeproj file
-          PROJECT_PATH=$(find . -name "*.xcodeproj" -maxdepth 2 | head -1)
-          if [ -z "$PROJECT_PATH" ]; then
-            echo "Error: No Xcode project found"
-            exit 1
-          fi
-          echo "Found project at: $PROJECT_PATH"
-          
           xcodebuild clean build-for-testing \
-            -project "$PROJECT_PATH" \
+            -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
             -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
             -derivedDataPath DerivedData
@@ -64,11 +56,8 @@ jobs:
         run: |
           set +e  # Don't exit on error, we want to capture the output
           
-          # Find the .xcodeproj file
-          PROJECT_PATH=$(find . -name "*.xcodeproj" -maxdepth 2 | head -1)
-          
           xcodebuild test-without-building \
-            -project "$PROJECT_PATH" \
+            -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
             -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
             -derivedDataPath DerivedData \
