@@ -73,20 +73,22 @@ jobs:
           swiftlint lint --reporter github-actions-logging
           # Fail if there are errors (warnings are allowed)
           swiftlint lint --strict --quiet
-      
+    
       - name: List and select available simulator
         run: |
           echo "📱 Available simulators:"
           xcrun simctl list devices available
           
           echo ""
-          echo "🔍 Looking for iPhone simulator..."
+          echo "🔍 Looking for iPhone simulator with iOS 18..."
           
-          # Try to find iPhone 15, 16, or any iPhone and extract the name properly
-          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | grep -v "unavailable" | head -1 | sed -E 's/^[[:space:]]+(.+) \([A-F0-9-]+\) \(.+\)$/\1/' | xargs)
+          # Try to find iPhone with iOS 18
+          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | grep "18\." | grep -v "unavailable" | head -1 | sed -E 's/^[[:space:]]+(.+) \([A-F0-9-]+\) \(.+\)$/\1/' | xargs)
           
           if [ -z "$SIMULATOR" ]; then
-            echo "❌ No iPhone simulator found!"
+            echo "❌ No iPhone simulator with iOS 18 found!"
+            echo "Available devices:"
+            xcrun simctl list devices available | grep "iPhone"
             exit 1
           fi
           
@@ -98,7 +100,7 @@ jobs:
           xcodebuild clean build-for-testing \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4" \
+            -destination "platform=iOS,id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder,name=${{ env.SIMULATOR_NAME }}" \
             -derivedDataPath DerivedData \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO
@@ -111,7 +113,7 @@ jobs:
           xcodebuild test-without-building \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4" \
+            -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME }}" \
             -derivedDataPath DerivedData \
             -resultBundlePath TestResults.xcresult \
             -enableCodeCoverage YES \
