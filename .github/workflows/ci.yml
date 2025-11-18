@@ -69,3 +69,20 @@ jobs:
           # Store UDID for next step
           echo "simulator_udid=$SIMULATOR_UDID" >> $GITHUB_OUTPUT
           echo "✅ Ready for Step 3"
+      
+      - name: Step 3 - Simple Build Test
+        run: |
+          echo "=== Step 3: Simple Build Test ==="
+          
+          DESTINATION="platform=iOS Simulator,id=${{ steps.simulator.outputs.simulator_udid }}"
+          echo "Using destination: $DESTINATION"
+          
+          # Try a simple clean build (no tests yet)
+          xcodebuild clean build \
+            -project SequenceGame/SequenceGame.xcodeproj \
+            -scheme SequenceGame \
+            -destination "$DESTINATION" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO
+          
+          echo "✅ Build successful!"
