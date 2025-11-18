@@ -73,13 +73,32 @@ jobs:
           swiftlint lint --reporter github-actions-logging
           # Fail if there are errors (warnings are allowed)
           swiftlint lint --strict --quiet
+    
+     - name: List and select available simulator
+        run: |
+          echo "📱 Available simulators:"
+          xcrun simctl list devices available
+          
+          echo ""
+          echo "🔍 Looking for iPhone simulator..."
+          
+          # Try to find iPhone 15, 16, or any iPhone
+          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | grep -v "unavailable" | head -1 | sed -E 's/(.+) \(([A-F0-9-]+)\) \(([^)]+)\)/\1/')
+          
+          if [ -z "$SIMULATOR" ]; then
+            echo "❌ No iPhone simulator found!"
+            exit 1
+          fi
+          
+          echo "✅ Will use simulator: $SIMULATOR"
+          echo "SIMULATOR_NAME=$SIMULATOR" >> $GITHUB_ENV
       
       - name: Build for testing
         run: |
           xcodebuild clean build-for-testing \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME }}" \
             -derivedDataPath DerivedData \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO
@@ -92,7 +111,7 @@ jobs:
           xcodebuild test-without-building \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME }}" \
             -derivedDataPath DerivedData \
             -resultBundlePath TestResults.xcresult \
             -enableCodeCoverage YES \
