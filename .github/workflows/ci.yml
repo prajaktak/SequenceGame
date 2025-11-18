@@ -38,31 +38,40 @@ jobs:
           echo "=== Getting valid destinations from xcodebuild ==="
           xcodebuild -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -showdestinations 2>&1 | grep -i "platform:iOS Simulator.*iPhone 16 Pro" | head -1 > destinations.txt || true
+            -showdestinations 2>&1 > all_destinations.txt
           
-          # Extract UDID from xcodebuild output
-          # Format: { platform:iOS Simulator, id:UDID, OS:X.X, name:iPhone 16 Pro }
-          SIMULATOR_UDID=$(grep -oE 'id:[A-F0-9-]{36}' destinations.txt | head -1 | cut -d: -f2)
+          # Show what we got for debugging
+          echo "=== All destinations (first 20 lines) ==="
+          head -20 all_destinations.txt
           
-          if [ -z "$SIMULATOR_UDID" ]; then
+          # Look for iPhone 16 Pro in iOS Simulator destinations
+          # Format can be: { platform:iOS Simulator, id:UDID, OS:X.X, name:iPhone 16 Pro }
+          SIMULATOR_LINE=$(grep -i "iPhone 16 Pro" all_destinations.txt | grep -i "iOS Simulator" | head -1)
+          
+          if [ -z "$SIMULATOR_LINE" ]; then
             echo "⚠️ iPhone 16 Pro not found, trying any iPhone..."
-            xcodebuild -project SequenceGame/SequenceGame.xcodeproj \
-              -scheme SequenceGame \
-              -showdestinations 2>&1 | grep -i "platform:iOS Simulator.*iPhone" | head -1 > destinations.txt || true
-            SIMULATOR_UDID=$(grep -oE 'id:[A-F0-9-]{36}' destinations.txt | head -1 | cut -d: -f2)
+            SIMULATOR_LINE=$(grep -i "iPhone" all_destinations.txt | grep -i "iOS Simulator" | head -1)
           fi
           
-          if [ -z "$SIMULATOR_UDID" ]; then
+          if [ -z "$SIMULATOR_LINE" ]; then
             echo "❌ No valid iPhone simulators found in xcodebuild destinations!"
-            echo "Available iOS Simulator destinations:"
-            xcodebuild -project SequenceGame/SequenceGame.xcodeproj \
-              -scheme SequenceGame \
-              -showdestinations 2>&1 | grep -i "platform:iOS Simulator.*iPhone" | head -5
+            echo "=== All iOS Simulator destinations ==="
+            grep -i "iOS Simulator" all_destinations.txt | head -10
+            exit 1
+          fi
+          
+          echo "📱 Found destination line: $SIMULATOR_LINE"
+          
+          # Extract UDID from the line
+          # Format: { platform:iOS Simulator, id:UDID, OS:X.X, name:iPhone 16 Pro }
+          SIMULATOR_UDID=$(echo "$SIMULATOR_LINE" | grep -oE 'id:[A-F0-9-]{36}' | head -1 | cut -d: -f2)
+          
+          if [ -z "$SIMULATOR_UDID" ]; then
+            echo "❌ Could not extract UDID from: $SIMULATOR_LINE"
             exit 1
           fi
           
           echo "📱 Found valid simulator UDID: $SIMULATOR_UDID"
-          echo "📱 Destination line: $(cat destinations.txt)"
           
           # Boot the simulator using simctl
           echo "📱 Booting simulator..."
