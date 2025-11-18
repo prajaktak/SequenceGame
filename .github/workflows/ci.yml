@@ -93,11 +93,11 @@ jobs:
           echo "SIMULATOR_NAME=$SIMULATOR" >> $GITHUB_ENV
       
       - name: Build for testing
-        run: swift build
+        run: sequenceGame build
       
       - name: Run tests
         id: run_tests
-        run: swift test
+        run: sequenceGame test
       
       - name: Upload test results
         if: always()
