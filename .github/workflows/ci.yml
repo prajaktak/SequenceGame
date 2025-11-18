@@ -11,7 +11,7 @@ on:
 jobs:
   test-and-lint:
     name: Run Tests & SwiftLint
-    runs-on: macos-14  # Latest macOS with Xcode
+    runs-on: macos-15  # Latest macOS with Xcode
     
     steps:
       - name: Checkout code
@@ -60,7 +60,7 @@ jobs:
           fi
       
       - name: Select Xcode version
-        run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+        run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
       
       - name: Show Xcode version
         run: xcodebuild -version
