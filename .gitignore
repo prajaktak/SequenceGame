@@ -3,3 +3,12 @@ UserInterfaceState.xcuserstate
 temp/
 *.log
 **/project.xcworkspace/contents.xcworkspacedata
+
+# Xcode build artifacts
+DerivedData/
+**/DerivedData/
+*.xcuserstate
+*.xcuserdatad
+
+# Xcode workspace (auto-generated)
+**/project.xcworkspace/
