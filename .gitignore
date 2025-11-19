@@ -12,3 +12,9 @@ DerivedData/
 
 # Xcode workspace (auto-generated)
 **/project.xcworkspace/
+
+# Temporary research/comparison documentation
+CI_CD_RESEARCH_EVIDENCE.md
+CI_COMPARISON.md
+CLAUDE_VERIFICATION.md
+RESEARCH_COMPARISON.md
