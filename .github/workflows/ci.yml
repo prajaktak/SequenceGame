@@ -24,7 +24,7 @@ jobs:
           xcodebuild clean test \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,id:CA6FAF56-5960-44BF-97D7-FF85199A5B19,name=iPhone 16,OS=18.5' \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5,id:CA6FAF56-5960-44BF-97D7-FF85199A5B19' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             -derivedDataPath DerivedData
