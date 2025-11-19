@@ -16,49 +16,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         
-      - name: Select Xcode
+      - name: Select Xcode 16.1
         run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
-        
-      - name: Verify Xcode Version
-        run: |
-          echo "=== Xcode Version ==="
-          xcodebuild -version
-          echo ""
-          echo "=== Xcode Path ==="
-          xcode-select -p
-      
-      - name: List Available Simulators
-        run: |
-          echo "=== All Available iOS Simulators ==="
-          xcrun simctl list devices available iOS
-          echo ""
-          echo "=== iOS Runtimes ==="
-          xcrun simctl list runtimes iOS
       
       - name: Build and Test
         run: |
-          echo "=== Building and Testing ==="
           xcodebuild clean test \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
             -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            -derivedDataPath DerivedData \
-            -enableCodeCoverage YES \
-            -resultBundlePath TestResults.xcresult \
-            | tee test-output.log
-          
-          echo "✅ Build and test completed!"
-      
-      - name: Check Test Results
-        if: always()
-        run: |
-          if grep -q "Test Suite.*failed" test-output.log; then
-            echo "❌ Tests failed"
-            exit 1
-          fi
-          echo "✅ All tests passed"
+            -derivedDataPath DerivedData
       
       - name: Upload Test Results
         if: always()
@@ -67,5 +36,4 @@ jobs:
           name: test-results-${{ github.sha }}
           path: |
             TestResults.xcresult
-            test-output.log
             DerivedData/Logs/Test/*.xcresult
