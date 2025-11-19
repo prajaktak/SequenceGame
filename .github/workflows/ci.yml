@@ -36,19 +36,91 @@ jobs:
           xcrun simctl list runtimes iOS
       
       - name: Show Valid Destinations
+        id: destinations
         run: |
           echo "=== Valid xcodebuild Destinations ==="
           xcodebuild -showdestinations \
             -project SequenceGame/SequenceGame.xcodeproj \
-            -scheme SequenceGame | grep -i "iOS Simulator" || echo "No iOS Simulator destinations found"
+            -scheme SequenceGame 2>&1 | tee destinations.log
+          echo ""
+          echo "=== iOS Simulator Destinations ==="
+          grep -i "iOS Simulator" destinations.log || echo "No iOS Simulator destinations found"
+      
+      - name: Discover and Select Simulator
+        id: simulator
+        run: |
+          echo "=== Finding Best Available Simulator ==="
+          
+          # First, try to get a valid destination from -showdestinations output
+          if [ -f destinations.log ]; then
+            # Extract first iOS Simulator destination
+            DEST_LINE=$(grep -i "iOS Simulator" destinations.log | head -n 1)
+            
+            if [ -n "$DEST_LINE" ]; then
+              # Try to extract name and OS from the destination line
+              # Format: { platform:iOS Simulator, id:..., OS:..., name:... }
+              SIM_NAME=$(echo "$DEST_LINE" | grep -oE 'name:[^,}]+' | head -1 | sed 's/name://' | xargs)
+              OS_VER=$(echo "$DEST_LINE" | grep -oE 'OS:[^,}]+' | head -1 | sed 's/OS://' | xargs)
+              
+              if [ -n "$SIM_NAME" ] && [ -n "$OS_VER" ]; then
+                DESTINATION="platform=iOS Simulator,name=$SIM_NAME,OS=$OS_VER"
+                echo "✅ Found destination from -showdestinations: $DESTINATION"
+                echo "destination=$DESTINATION" >> $GITHUB_OUTPUT
+                exit 0
+              fi
+            fi
+          fi
+          
+          # Fallback: Use simctl to find available iPhone simulators
+          echo "Using simctl fallback method..."
+          
+          # Try iPhone 16 (any variant)
+          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone 16" | head -n 1 | sed -E 's/^[[:space:]]+(iPhone 16[^ ]*).*/\1/' | xargs)
+          
+          if [ -z "$SIMULATOR" ]; then
+            # Try iPhone 15
+            SIMULATOR=$(xcrun simctl list devices available | grep "iPhone 15" | head -n 1 | sed -E 's/^[[:space:]]+(iPhone 15[^ ]*).*/\1/' | xargs)
+          fi
+          
+          if [ -z "$SIMULATOR" ]; then
+            # Try iPhone 14
+            SIMULATOR=$(xcrun simctl list devices available | grep "iPhone 14" | head -n 1 | sed -E 's/^[[:space:]]+(iPhone 14[^ ]*).*/\1/' | xargs)
+          fi
+          
+          if [ -z "$SIMULATOR" ]; then
+            # Try any iPhone
+            SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | sed -E 's/^[[:space:]]+(iPhone [^ ]+).*/\1/' | xargs)
+          fi
+          
+          if [ -z "$SIMULATOR" ]; then
+            echo "❌ ERROR: No iPhone simulator found!"
+            echo "Available devices:"
+            xcrun simctl list devices available
+            exit 1
+          fi
+          
+          # Get the OS version for this simulator
+          OS_VERSION=$(xcrun simctl list devices available | grep "$SIMULATOR" | grep -oE '\([0-9]+\.[0-9]+\)' | head -1 | tr -d '()')
+          
+          if [ -n "$OS_VERSION" ]; then
+            DESTINATION="platform=iOS Simulator,name=$SIMULATOR,OS=$OS_VERSION"
+          else
+            # Use without OS version - let xcodebuild pick default
+            DESTINATION="platform=iOS Simulator,name=$SIMULATOR"
+          fi
+          
+          echo "✅ Selected Simulator: $SIMULATOR"
+          echo "✅ Using Destination: $DESTINATION"
+          echo "destination=$DESTINATION" >> $GITHUB_OUTPUT
       
       - name: Build Project
         run: |
           echo "=== Building Project ==="
+          echo "Using destination: ${{ steps.simulator.outputs.destination }}"
           xcodebuild clean build \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.1' \
+            -destination '${{ steps.simulator.outputs.destination }}' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             -derivedDataPath DerivedData
@@ -58,10 +130,11 @@ jobs:
       - name: Run Tests
         run: |
           echo "=== Running Tests ==="
+          echo "Using destination: ${{ steps.simulator.outputs.destination }}"
           xcodebuild test \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.1' \
+            -destination '${{ steps.simulator.outputs.destination }}' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             -derivedDataPath DerivedData \
