@@ -17,6 +17,13 @@
 		F9F3BF022ECCA77300C65753 /* CI_TROUBLESHOOTING.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF012ECCA77300C65753 /* CI_TROUBLESHOOTING.md */; };
 		F9F3BF062ECCD98C00C65753 /* ci-simple.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF052ECCD98C00C65753 /* ci-simple.yml */; };
 		F9F3BF082ECCDD8600C65753 /* ci-final.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF072ECCDD8600C65753 /* ci-final.yml */; };
+		F9F3BF0C2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF0B2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md */; };
+		F9F3BF0E2ECD484400C65753 /* ci_claude.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF0D2ECD484400C65753 /* ci_claude.yml */; };
+		F9F3BF102ECD491600C65753 /* XCODE_PROJECT_SETTINGS_FOR_CI.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF0F2ECD491600C65753 /* XCODE_PROJECT_SETTINGS_FOR_CI.md */; };
+		F9F3BF122ECD495500C65753 /* ci_composer.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF112ECD495500C65753 /* ci_composer.yml */; };
+		F9F3BF142ECD4AD500C65753 /* CI_COMPARISON_ANALYSIS.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF132ECD4AD500C65753 /* CI_COMPARISON_ANALYSIS.md */; };
+		F9F3BF162ECD4BC000C65753 /* ALIGNMENT_CHECK.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF152ECD4BC000C65753 /* ALIGNMENT_CHECK.md */; };
+		F9F3BFCA2ECD633C00C65753 /* projectGist.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BFC92ECD633C00C65753 /* projectGist.md */; };
 		F9FE2CD02EA7B6AD00623663 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9FE2CCF2EA7B6AD00623663 /* .swiftlint.yml */; };
 /* End PBXBuildFile section */
 
@@ -48,6 +55,13 @@
 		F9F3BF012ECCA77300C65753 /* CI_TROUBLESHOOTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CI_TROUBLESHOOTING.md; sourceTree = "<group>"; };
 		F9F3BF052ECCD98C00C65753 /* ci-simple.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "ci-simple.yml"; sourceTree = "<group>"; };
 		F9F3BF072ECCDD8600C65753 /* ci-final.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "ci-final.yml"; sourceTree = "<group>"; };
+		F9F3BF0B2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = GITHUB_ACTIONS_CI_RESEARCH.md; sourceTree = "<group>"; };
+		F9F3BF0D2ECD484400C65753 /* ci_claude.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = ci_claude.yml; sourceTree = "<group>"; };
+		F9F3BF0F2ECD491600C65753 /* XCODE_PROJECT_SETTINGS_FOR_CI.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = XCODE_PROJECT_SETTINGS_FOR_CI.md; sourceTree = "<group>"; };
+		F9F3BF112ECD495500C65753 /* ci_composer.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = ci_composer.yml; path = ../.github/workflows/ci_composer.yml; sourceTree = SOURCE_ROOT; };
+		F9F3BF132ECD4AD500C65753 /* CI_COMPARISON_ANALYSIS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CI_COMPARISON_ANALYSIS.md; sourceTree = "<group>"; };
+		F9F3BF152ECD4BC000C65753 /* ALIGNMENT_CHECK.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ALIGNMENT_CHECK.md; sourceTree = "<group>"; };
+		F9F3BFC92ECD633C00C65753 /* projectGist.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = projectGist.md; sourceTree = "<group>"; };
 		F9FE2C6B2EA2665F00623663 /* SequenceGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SequenceGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9FE2C782EA2666100623663 /* SequenceGameTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequenceGameTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9FE2C822EA2666100623663 /* SequenceGameUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequenceGameUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -105,6 +119,7 @@
 		F9FE2C622EA2665F00623663 = {
 			isa = PBXGroup;
 			children = (
+				F9F3BF112ECD495500C65753 /* ci_composer.yml */,
 				F9F3BEF72ECC986400C65753 /* code-review.yml */,
 				F9F3BEF82ECC986400C65753 /* coverage.yml */,
 				F9F3BEF92ECC986400C65753 /* deploy.yml */,
@@ -121,6 +136,12 @@
 				F9F3BF012ECCA77300C65753 /* CI_TROUBLESHOOTING.md */,
 				F9F3BF052ECCD98C00C65753 /* ci-simple.yml */,
 				F9F3BF072ECCDD8600C65753 /* ci-final.yml */,
+				F9F3BF0B2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md */,
+				F9F3BF0D2ECD484400C65753 /* ci_claude.yml */,
+				F9F3BF0F2ECD491600C65753 /* XCODE_PROJECT_SETTINGS_FOR_CI.md */,
+				F9F3BF132ECD4AD500C65753 /* CI_COMPARISON_ANALYSIS.md */,
+				F9F3BF152ECD4BC000C65753 /* ALIGNMENT_CHECK.md */,
+				F9F3BFC92ECD633C00C65753 /* projectGist.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -259,14 +280,21 @@
 				F9F3BEF62ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md in Resources */,
 				F9F3BEF42ECC981E00C65753 /* ci.yml in Resources */,
 				F9F3BEFB2ECC986400C65753 /* pr-checks.yml in Resources */,
+				F9F3BF122ECD495500C65753 /* ci_composer.yml in Resources */,
 				F9F3BEFC2ECC986400C65753 /* code-review.yml in Resources */,
 				F9F3BEFD2ECC986400C65753 /* deploy.yml in Resources */,
+				F9F3BF0C2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md in Resources */,
 				F9F3BEFE2ECC986400C65753 /* coverage.yml in Resources */,
+				F9F3BF162ECD4BC000C65753 /* ALIGNMENT_CHECK.md in Resources */,
+				F9F3BF142ECD4AD500C65753 /* CI_COMPARISON_ANALYSIS.md in Resources */,
+				F9F3BFCA2ECD633C00C65753 /* projectGist.md in Resources */,
 				F9F3BF062ECCD98C00C65753 /* ci-simple.yml in Resources */,
 				F9F3BF082ECCDD8600C65753 /* ci-final.yml in Resources */,
+				F9F3BF102ECD491600C65753 /* XCODE_PROJECT_SETTINGS_FOR_CI.md in Resources */,
 				F9F3BF002ECCA75300C65753 /* .gitattributes in Resources */,
 				F9FE2CD02EA7B6AD00623663 /* .swiftlint.yml in Resources */,
 				F9F3BF022ECCA77300C65753 /* CI_TROUBLESHOOTING.md in Resources */,
+				F9F3BF0E2ECD484400C65753 /* ci_claude.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -290,7 +318,7 @@
 		F9FE2CC62EA7B61800623663 /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
+			buildActionMask = 8;
 			files = (
 			);
 			inputFileListPaths = (
@@ -302,7 +330,7 @@
 			);
 			outputPaths = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
 			shellScript = "if command -v swiftlint >/dev/null 2>&1\nthen\n    swiftlint\nelse\n    echo \"warning: `swiftlint` command not found - See https://github.com/realm/SwiftLint#installation for installation instructions.\"\nfi\n";
 		};
@@ -398,7 +426,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -456,7 +484,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -528,7 +556,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = AAS.SequenceGameTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -546,7 +574,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = AAS.SequenceGameTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
