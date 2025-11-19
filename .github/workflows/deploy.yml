@@ -8,17 +8,22 @@ jobs:
   deploy-testflight:
     name: Build and Deploy to TestFlight
     if: github.event.review.state == 'approved' && github.event.pull_request.base.ref == 'main'
-    runs-on: macos-14
+    runs-on: macos-latest
+    timeout-minutes: 90
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+      - name: Show runner Xcode and simulators (debug)
+        run: |
+          sw_vers
+          ls /Applications | grep Xcode || true
+          xcodebuild -version || true
       
       - name: Install dependencies
-        run: brew install xcpretty
+        run: |
+          brew install xcpretty || echo "xcpretty already installed or brew not available"
       
       - name: Setup signing
         env:
@@ -27,58 +32,99 @@ jobs:
           PROVISIONING_PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
+          set -o pipefail
           # Create keychain
-          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain || true
           security default-keychain -s build.keychain
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security set-keychain-settings -t 3600 -u build.keychain
           
           # Import certificate
-          echo -n "$CERTIFICATE_BASE64" | base64 --decode -o certificate.p12
-          security import certificate.p12 -k build.keychain -P "$P12_PASSWORD" -T /usr/bin/codesign
+          echo -n "$CERTIFICATE_BASE64" | base64 --decode -o certificate.p12 || {
+            echo "❌ Failed to decode certificate"
+            exit 1
+          }
+          security import certificate.p12 -k build.keychain -P "$P12_PASSWORD" -T /usr/bin/codesign || {
+            echo "❌ Failed to import certificate"
+            exit 1
+          }
           
           # Import provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode -o ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+          echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode -o ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision || {
+            echo "❌ Failed to decode provisioning profile"
+            exit 1
+          }
           
           # Allow codesign to use keychain
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" build.keychain
       
       - name: Increment build number
         run: |
+          set -o pipefail
           BUILD_NUMBER=$(($(date +%s) / 60))  # Unique build number based on timestamp
           
           # Update build number in project settings
-          agvtool new-version -all $BUILD_NUMBER
+          if command -v agvtool >/dev/null 2>&1; then
+            agvtool new-version -all $BUILD_NUMBER || echo "⚠️ agvtool not available, skipping build number update"
+          else
+            echo "⚠️ agvtool not found, skipping build number update"
+          fi
           
           echo "Build number: $BUILD_NUMBER"
       
       - name: Build for distribution
         run: |
+          set -o pipefail
           xcodebuild clean archive \
+            -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
             -destination 'generic/platform=iOS' \
             -archivePath SequenceGame.xcarchive \
             -configuration Release \
             CODE_SIGN_STYLE=Manual \
-            | xcpretty
+            2>&1 | tee archive.log | xcpretty || {
+            echo "❌ Archive failed, showing log:"
+            cat archive.log
+            exit 1
+          }
       
       - name: Export IPA
         run: |
+          set -o pipefail
+          if [ ! -f "ExportOptions.plist" ]; then
+            echo "❌ ExportOptions.plist not found"
+            exit 1
+          fi
+          
           xcodebuild -exportArchive \
             -archivePath SequenceGame.xcarchive \
             -exportPath Export \
-            -exportOptionsPlist ExportOptions.plist
+            -exportOptionsPlist ExportOptions.plist \
+            2>&1 | tee export.log || {
+            echo "❌ Export failed, showing log:"
+            cat export.log
+            exit 1
+          }
       
       - name: Upload to TestFlight
         env:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
         run: |
+          set -o pipefail
+          if [ ! -f "Export/SequenceGame.ipa" ]; then
+            echo "❌ IPA file not found at Export/SequenceGame.ipa"
+            exit 1
+          fi
+          
           xcrun altool --upload-app \
             --type ios \
             --file Export/SequenceGame.ipa \
             --apiKey $APP_STORE_CONNECT_API_KEY \
-            --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+            --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} || {
+            echo "❌ Failed to upload to TestFlight"
+            exit 1
+          }
       
       - name: Comment on PR
         uses: actions/github-script@v7
