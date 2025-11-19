@@ -1,0 +1,174 @@
+name: CI - Claude's Recommended Configuration
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Select Xcode 16.1
+        run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
+      
+      - name: Display Environment Info
+        run: |
+          echo "=== Xcode Version ==="
+          xcodebuild -version
+          echo ""
+          echo "=== macOS Version ==="
+          sw_vers
+          echo ""
+          echo "=== Available Schemes ==="
+          xcodebuild -list -project SequenceGame/SequenceGame.xcodeproj
+      
+      - name: List Available Simulators
+        run: |
+          echo "=== All Available iOS Simulators ==="
+          xcrun simctl list devices available iOS
+          echo ""
+          echo "=== iOS Runtimes ==="
+          xcrun simctl list runtimes iOS
+      
+      - name: Discover and Select Simulator
+        id: simulator
+        run: |
+          echo "=== Finding Best Simulator ==="
+          
+          # Try to find iPhone 16 with iOS 18.1 (default for Xcode 16.1)
+          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone 16 (" | grep -v "Pro" | head -n 1 | sed -E 's/^[[:space:]]+(.+) \([A-F0-9-]+\) \(.+\)$/\1/' | xargs)
+          
+          if [ -z "$SIMULATOR" ]; then
+            # Fallback to iPhone 15
+            echo "iPhone 16 not found, trying iPhone 15..."
+            SIMULATOR=$(xcrun simctl list devices available | grep "iPhone 15 (" | grep -v "Pro" | head -n 1 | sed -E 's/^[[:space:]]+(.+) \([A-F0-9-]+\) \(.+\)$/\1/' | xargs)
+          fi
+          
+          if [ -z "$SIMULATOR" ]; then
+            # Fallback to any iPhone
+            echo "iPhone 15 not found, trying any iPhone..."
+            SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | sed -E 's/^[[:space:]]+(.+) \([A-F0-9-]+\) \(.+\)$/\1/' | xargs)
+          fi
+          
+          if [ -z "$SIMULATOR" ]; then
+            echo "❌ ERROR: No iPhone simulator found!"
+            exit 1
+          fi
+          
+          echo "✅ Selected Simulator: $SIMULATOR"
+          echo "name=$SIMULATOR" >> $GITHUB_OUTPUT
+      
+      - name: Pre-boot Simulator
+        run: |
+          echo "=== Pre-booting Simulator: ${{ steps.simulator.outputs.name }} ==="
+          
+          # Get simulator UUID
+          SIMULATOR_UUID=$(xcrun simctl list devices | grep "${{ steps.simulator.outputs.name }}" | grep -o '\([A-F0-9-]*\)' | head -1 | tr -d '()')
+          
+          echo "Simulator UUID: $SIMULATOR_UUID"
+          
+          # Boot simulator if not already booted
+          xcrun simctl boot "$SIMULATOR_UUID" 2>/dev/null || echo "Simulator already booted or boot not needed"
+          
+          # Wait a moment for simulator to be ready
+          sleep 5
+          
+          echo "✅ Simulator ready"
+      
+      - name: Build Project
+        run: |
+          echo "=== Building SequenceGame ==="
+          
+          xcodebuild clean build \
+            -project SequenceGame/SequenceGame.xcodeproj \
+            -scheme SequenceGame \
+            -destination "platform=iOS Simulator,name=${{ steps.simulator.outputs.name }}" \
+            -derivedDataPath .build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            | xcpretty --simple --color || xcodebuild clean build \
+            -project SequenceGame/SequenceGame.xcodeproj \
+            -scheme SequenceGame \
+            -destination "platform=iOS Simulator,name=${{ steps.simulator.outputs.name }}" \
+            -derivedDataPath .build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO
+          
+          echo "✅ Build successful!"
+      
+      - name: Run Tests
+        run: |
+          echo "=== Running Tests on ${{ steps.simulator.outputs.name }} ==="
+          
+          xcodebuild test \
+            -project SequenceGame/SequenceGame.xcodeproj \
+            -scheme SequenceGame \
+            -destination "platform=iOS Simulator,name=${{ steps.simulator.outputs.name }}" \
+            -derivedDataPath .build \
+            -resultBundlePath TestResults \
+            -enableCodeCoverage YES \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            | xcpretty --simple --color || xcodebuild test \
+            -project SequenceGame/SequenceGame.xcodeproj \
+            -scheme SequenceGame \
+            -destination "platform=iOS Simulator,name=${{ steps.simulator.outputs.name }}" \
+            -derivedDataPath .build \
+            -resultBundlePath TestResults \
+            -enableCodeCoverage YES \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO
+          
+          echo "✅ Tests completed!"
+      
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults.xcresult
+          retention-days: 30
+      
+      - name: Display Test Summary
+        if: always()
+        run: |
+          echo "=== Test Summary ==="
+          if [ -d "TestResults.xcresult" ]; then
+            xcrun xcresulttool get --format human --path TestResults.xcresult || echo "Could not parse test results"
+          else
+            echo "No test results found"
+          fi
+
+  # Alternative job using the simpler explicit destination approach (Solution 1 from research)
+  build-and-test-simple:
+    runs-on: macos-15
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Select Xcode 16.1
+        run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
+      
+      - name: Build and Test (Simple Approach)
+        run: |
+          echo "=== Using Explicit Destination: iPhone 16, iOS 18.1 ==="
+          
+          # This is Solution 1 from the research doc - simplest and most reliable
+          xcodebuild test \
+            -project SequenceGame/SequenceGame.xcodeproj \
+            -scheme SequenceGame \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.1' \
+            -enableCodeCoverage YES \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO
+          
+          echo "✅ Build and Test successful!"

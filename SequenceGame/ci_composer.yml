@@ -1,4 +1,4 @@
-name: CI - Build & Test
+name: CI - Build & Test (Composer)
 
 on:
   push:
@@ -89,3 +89,4 @@ jobs:
             TestResults.xcresult
             test-output.log
             DerivedData/Logs/Test/*.xcresult
+
