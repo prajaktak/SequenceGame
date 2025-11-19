@@ -57,7 +57,6 @@
 		F9F3BF0B2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = GITHUB_ACTIONS_CI_RESEARCH.md; sourceTree = "<group>"; };
 		F9F3BF0D2ECD484400C65753 /* ci_claude.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = ci_claude.yml; sourceTree = "<group>"; };
 		F9F3BF0F2ECD491600C65753 /* XCODE_PROJECT_SETTINGS_FOR_CI.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = XCODE_PROJECT_SETTINGS_FOR_CI.md; sourceTree = "<group>"; };
-		F9F3BF112ECD495500C65753 /* ci_composer.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = ci_composer.yml; path = ../.github/workflows/ci_composer.yml; sourceTree = SOURCE_ROOT; };
 		F9F3BF132ECD4AD500C65753 /* CI_COMPARISON_ANALYSIS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CI_COMPARISON_ANALYSIS.md; sourceTree = "<group>"; };
 		F9F3BF152ECD4BC000C65753 /* ALIGNMENT_CHECK.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ALIGNMENT_CHECK.md; sourceTree = "<group>"; };
 		F9F3BFC92ECD633C00C65753 /* projectGist.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = projectGist.md; sourceTree = "<group>"; };
@@ -120,7 +119,6 @@
 			isa = PBXGroup;
 			children = (
 				F9F3BFCB2ECD76BC00C65753 /* SequenceGame.xctestplan */,
-				F9F3BF112ECD495500C65753 /* ci_composer.yml */,
 				F9F3BEF72ECC986400C65753 /* code-review.yml */,
 				F9F3BEF82ECC986400C65753 /* coverage.yml */,
 				F9F3BEF92ECC986400C65753 /* deploy.yml */,
