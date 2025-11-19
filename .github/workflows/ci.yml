@@ -96,6 +96,7 @@ jobs:
           xcodebuild clean build \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
+            -sdk iphonesimulator \
             -destination '${{ steps.simulator.outputs.destination }}' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
@@ -110,6 +111,7 @@ jobs:
           xcodebuild test \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
+            -sdk iphonesimulator \
             -destination '${{ steps.simulator.outputs.destination }}' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
