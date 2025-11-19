@@ -35,84 +35,13 @@ jobs:
           echo "=== iOS Runtimes ==="
           xcrun simctl list runtimes iOS
       
-      - name: Boot Simulator and Get UUID
-        id: simulator
+      - name: Build and Test
         run: |
-          echo "=== Finding and Booting Simulator ==="
-          
-          # Get simctl output
-          SIMCTL_OUTPUT=$(xcrun simctl list devices available iOS)
-          
-          # Find first iPhone 16 (non-Pro) with iOS 18.4+
-          DEVICE_LINE=$(echo "$SIMCTL_OUTPUT" | grep -A 20 "-- iOS 18.4 --" | grep "iPhone 16" | grep -v "Pro\|Plus\|Max\|e" | head -n 1)
-          
-          if [ -z "$DEVICE_LINE" ]; then
-            # Try any iPhone 16
-            DEVICE_LINE=$(echo "$SIMCTL_OUTPUT" | grep "iPhone 16" | head -n 1)
-          fi
-          
-          if [ -z "$DEVICE_LINE" ]; then
-            # Try iPhone 15
-            DEVICE_LINE=$(echo "$SIMCTL_OUTPUT" | grep "iPhone 15" | head -n 1)
-          fi
-          
-          if [ -z "$DEVICE_LINE" ]; then
-            echo "❌ ERROR: No iPhone simulator found!"
-            exit 1
-          fi
-          
-          # Extract UUID
-          SIMULATOR_UUID=$(echo "$DEVICE_LINE" | grep -oE '[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}' | head -1)
-          
-          if [ -z "$SIMULATOR_UUID" ]; then
-            echo "❌ ERROR: Could not extract simulator UUID"
-            exit 1
-          fi
-          
-          echo "✅ Found Simulator UUID: $SIMULATOR_UUID"
-          
-          # Boot the simulator
-          echo "Booting simulator..."
-          xcrun simctl boot "$SIMULATOR_UUID" 2>&1 || echo "Simulator may already be booted"
-          
-          # Wait for simulator to be ready
-          sleep 10
-          
-          # Verify it's booted
-          BOOT_STATUS=$(xcrun simctl list devices | grep "$SIMULATOR_UUID" | grep -o "(Booted)" || echo "")
-          if [ -n "$BOOT_STATUS" ]; then
-            echo "✅ Simulator is booted and ready"
-          else
-            echo "⚠️  Simulator boot status unclear, continuing anyway"
-          fi
-          
-          echo "uuid=$SIMULATOR_UUID" >> $GITHUB_OUTPUT
-          echo "destination=platform=iOS Simulator,id=$SIMULATOR_UUID" >> $GITHUB_OUTPUT
-      
-      - name: Build Project
-        run: |
-          echo "=== Building Project ==="
-          echo "Using destination: ${{ steps.simulator.outputs.destination }}"
-          xcodebuild clean build \
+          echo "=== Building and Testing ==="
+          xcodebuild clean test \
             -project SequenceGame/SequenceGame.xcodeproj \
             -scheme SequenceGame \
-            -sdk iphonesimulator \
-            -destination '${{ steps.simulator.outputs.destination }}' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            -derivedDataPath DerivedData
-          
-          echo "✅ Build successful!"
-      
-      - name: Run Tests
-        run: |
-          echo "=== Running Tests ==="
-          echo "Using destination: ${{ steps.simulator.outputs.destination }}"
-          xcodebuild test \
-            -project SequenceGame/SequenceGame.xcodeproj \
-            -scheme SequenceGame \
-            -sdk iphonesimulator \
-            -destination '${{ steps.simulator.outputs.destination }}' \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=26.1' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             -derivedDataPath DerivedData \
@@ -120,7 +49,7 @@ jobs:
             -resultBundlePath TestResults.xcresult \
             | tee test-output.log
           
-          echo "✅ Tests completed!"
+          echo "✅ Build and test completed!"
       
       - name: Check Test Results
         if: always()
