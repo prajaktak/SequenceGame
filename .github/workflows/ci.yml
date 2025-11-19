@@ -35,54 +35,20 @@ jobs:
           echo "=== iOS Runtimes ==="
           xcrun simctl list runtimes iOS
       
-      - name: Show Valid Destinations
-        id: destinations
-        run: |
-          echo "=== Valid xcodebuild Destinations ==="
-          xcodebuild -showdestinations \
-            -project SequenceGame/SequenceGame.xcodeproj \
-            -scheme SequenceGame 2>&1 | tee destinations.log
-          echo ""
-          echo "=== iOS Simulator Destinations ==="
-          grep -i "iOS Simulator" destinations.log || echo "No iOS Simulator destinations found"
-      
-      - name: Discover and Select Simulator
+      - name: Boot Simulator and Get UUID
         id: simulator
         run: |
-          echo "=== Finding Best Available Simulator ==="
+          echo "=== Finding and Booting Simulator ==="
           
-          # Get full simctl output for parsing
+          # Get simctl output
           SIMCTL_OUTPUT=$(xcrun simctl list devices available iOS)
           
-          # First, try to get a valid destination from -showdestinations output
-          if [ -f destinations.log ]; then
-            # Extract first iOS Simulator destination
-            DEST_LINE=$(grep -i "iOS Simulator" destinations.log | head -n 1)
-            
-            if [ -n "$DEST_LINE" ]; then
-              # Try to extract name and OS from the destination line
-              # Format: { platform:iOS Simulator, id:..., OS:..., name:... }
-              SIM_NAME=$(echo "$DEST_LINE" | grep -oE 'name:[^,}]+' | head -1 | sed 's/name://' | xargs)
-              OS_VER=$(echo "$DEST_LINE" | grep -oE 'OS:[^,}]+' | head -1 | sed 's/OS://' | xargs)
-              
-              if [ -n "$SIM_NAME" ] && [ -n "$OS_VER" ]; then
-                DESTINATION="platform=iOS Simulator,name=$SIM_NAME,OS=$OS_VER"
-                echo "✅ Found destination from -showdestinations: $DESTINATION"
-                echo "destination=$DESTINATION" >> $GITHUB_OUTPUT
-                exit 0
-              fi
-            fi
-          fi
-          
-          # Fallback: Use simctl to find available iPhone simulators
-          echo "Using simctl fallback method..."
-          
-          # Try iPhone 16 (any variant) - get the first match
-          DEVICE_LINE=$(echo "$SIMCTL_OUTPUT" | grep "iPhone 16" | grep -v "Pro\|Plus\|Max\|e" | head -n 1)
+          # Find first iPhone 16 (non-Pro) with iOS 18.4+
+          DEVICE_LINE=$(echo "$SIMCTL_OUTPUT" | grep -A 20 "-- iOS 18.4 --" | grep "iPhone 16" | grep -v "Pro\|Plus\|Max\|e" | head -n 1)
           
           if [ -z "$DEVICE_LINE" ]; then
-            # Try iPhone 16 Pro
-            DEVICE_LINE=$(echo "$SIMCTL_OUTPUT" | grep "iPhone 16 Pro" | head -n 1)
+            # Try any iPhone 16
+            DEVICE_LINE=$(echo "$SIMCTL_OUTPUT" | grep "iPhone 16" | head -n 1)
           fi
           
           if [ -z "$DEVICE_LINE" ]; then
@@ -91,51 +57,37 @@ jobs:
           fi
           
           if [ -z "$DEVICE_LINE" ]; then
-            # Try iPhone 14
-            DEVICE_LINE=$(echo "$SIMCTL_OUTPUT" | grep "iPhone 14" | head -n 1)
-          fi
-          
-          if [ -z "$DEVICE_LINE" ]; then
-            # Try any iPhone
-            DEVICE_LINE=$(echo "$SIMCTL_OUTPUT" | grep "iPhone" | head -n 1)
-          fi
-          
-          if [ -z "$DEVICE_LINE" ]; then
             echo "❌ ERROR: No iPhone simulator found!"
-            echo "Available devices:"
-            echo "$SIMCTL_OUTPUT"
             exit 1
           fi
           
-          # Extract device name (e.g., "iPhone 16")
-          SIMULATOR=$(echo "$DEVICE_LINE" | sed -E 's/^[[:space:]]+(iPhone [^ ]+).*/\1/' | xargs)
+          # Extract UUID
+          SIMULATOR_UUID=$(echo "$DEVICE_LINE" | grep -oE '[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}' | head -1)
           
-          # Extract UUID from device line (format: iPhone 16 (UUID) (Shutdown))
-          SIMULATOR_UUID=$(echo "$DEVICE_LINE" | grep -oE '\([A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}\)' | head -1 | tr -d '()')
-          
-          # Find the OS version by looking backwards from the device line
-          # The format is: "-- iOS 18.4 --" followed by device listings
-          # Find the line number of the device
-          DEVICE_LINE_NUM=$(echo "$SIMCTL_OUTPUT" | grep -n "$DEVICE_LINE" | head -1 | cut -d: -f1)
-          
-          # Get all lines before the device line, find the last iOS version header
-          OS_VERSION=$(echo "$SIMCTL_OUTPUT" | head -n "$DEVICE_LINE_NUM" | grep -E '^-- iOS [0-9]+\.[0-9]+ --' | tail -1 | sed -E 's/-- iOS ([0-9]+\.[0-9]+) --/\1/')
-          
-          if [ -z "$OS_VERSION" ]; then
-            echo "⚠️  Warning: Could not extract OS version from simctl, trying runtimes"
-            # Get first available iOS runtime version as fallback
-            OS_VERSION=$(xcrun simctl list runtimes iOS | grep "iOS" | head -1 | sed -E 's/.*iOS ([0-9]+\.[0-9]+).*/\1/')
+          if [ -z "$SIMULATOR_UUID" ]; then
+            echo "❌ ERROR: Could not extract simulator UUID"
+            exit 1
           fi
           
-          # Use device name only - let xcodebuild pick the OS version automatically
-          # This is more reliable when -showdestinations doesn't return valid destinations
-          DESTINATION="platform=iOS Simulator,name=$SIMULATOR"
+          echo "✅ Found Simulator UUID: $SIMULATOR_UUID"
           
-          echo "✅ Selected Simulator: $SIMULATOR"
-          echo "✅ Selected UUID: $SIMULATOR_UUID (for reference)"
-          echo "✅ Selected OS Version: $OS_VERSION (for reference)"
-          echo "✅ Using Destination: $DESTINATION (xcodebuild will pick compatible OS)"
-          echo "destination=$DESTINATION" >> $GITHUB_OUTPUT
+          # Boot the simulator
+          echo "Booting simulator..."
+          xcrun simctl boot "$SIMULATOR_UUID" 2>&1 || echo "Simulator may already be booted"
+          
+          # Wait for simulator to be ready
+          sleep 10
+          
+          # Verify it's booted
+          BOOT_STATUS=$(xcrun simctl list devices | grep "$SIMULATOR_UUID" | grep -o "(Booted)" || echo "")
+          if [ -n "$BOOT_STATUS" ]; then
+            echo "✅ Simulator is booted and ready"
+          else
+            echo "⚠️  Simulator boot status unclear, continuing anyway"
+          fi
+          
+          echo "uuid=$SIMULATOR_UUID" >> $GITHUB_OUTPUT
+          echo "destination=platform=iOS Simulator,id=$SIMULATOR_UUID" >> $GITHUB_OUTPUT
       
       - name: Build Project
         run: |
