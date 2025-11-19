@@ -6,16 +6,16 @@
 //
 
 import Foundation
-import SwiftUI
+//import SwiftUI
 
 struct SequenceDetector {
     var board: Board
     var numberOfChipsInSequence: Int = 0
-    var teamColor: Color = .clear
+    var teamColor: TeamColor = .noTeam
     
-    func getChipColor(atPosition: (rowIndex: Int, colIndex: Int)) -> Color? {
+    func getChipColor(atPosition: (rowIndex: Int, colIndex: Int)) -> TeamColor? {
         if GameConstants.cornerPositions.contains(where: { $0.row == atPosition.rowIndex && $0.col == atPosition.colIndex }) {
-            return .clear
+            return .noTeam
         }
         
         let isCorner = GameConstants.cornerPositions.contains { $0.row == atPosition.rowIndex && $0.col == atPosition.colIndex }
@@ -40,7 +40,7 @@ struct SequenceDetector {
             return false
         }
         
-        teamColor = forPlayer.team.color
+        teamColor =  forPlayer.team.color 
         // detecting sequence in one row
         isSequenceCompleteHorizontally = detectSequenceHorizontally(atPosition: atPosition, forPlayer: forPlayer, gameState: gameState)
         
@@ -68,7 +68,7 @@ struct SequenceDetector {
         var aColumnIndex = atPosition.colIndex - 1
     
         // Check chips to the left (previous columns) until reaching border or finding different color chip
-        while aColumnIndex >= 0 && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: atPosition.rowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: atPosition.rowIndex, colIndex: aColumnIndex)) == .clear) {
+        while aColumnIndex >= 0 && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: atPosition.rowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: atPosition.rowIndex, colIndex: aColumnIndex)) == .noTeam) {
             numberOfChipsInSequence += 1
             sequenceHorizontalLeft.append(board.boardTiles[atPosition.rowIndex][aColumnIndex])
             sequenceStartColumnIndex = aColumnIndex
@@ -77,7 +77,7 @@ struct SequenceDetector {
         
         // Check chips to the right (next columns) until reaching border or finding different color chip
         aColumnIndex = atPosition.colIndex + 1
-        while aColumnIndex < board.col && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: atPosition.rowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: atPosition.rowIndex, colIndex: aColumnIndex)) == .clear) {
+        while aColumnIndex < board.col && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: atPosition.rowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: atPosition.rowIndex, colIndex: aColumnIndex)) == .noTeam) {
             numberOfChipsInSequence += 1
             sequenceHorizontalRight.append(board.boardTiles[atPosition.rowIndex][aColumnIndex])
             aColumnIndex += 1
@@ -98,7 +98,7 @@ struct SequenceDetector {
         var aRowIndex = atPosition.rowIndex - 1
         
         // Check chips above (previous rows) until reaching border or finding different color chip
-        while aRowIndex >= 0  && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: atPosition.colIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: atPosition.colIndex)) == .clear) {
+        while aRowIndex >= 0  && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: atPosition.colIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: atPosition.colIndex)) == .noTeam) {
             numberOfChipsInSequence += 1
             sequenceVerticalUp.append(board.boardTiles[aRowIndex][atPosition.colIndex])
             sequenceStartRowIndex = aRowIndex
@@ -107,7 +107,7 @@ struct SequenceDetector {
         
         // Check chips below (next rows) until reaching border or finding different color chip
         aRowIndex = atPosition.rowIndex + 1
-        while aRowIndex < board.row && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: atPosition.colIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: atPosition.colIndex)) == .clear) {
+        while aRowIndex < board.row && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: atPosition.colIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: atPosition.colIndex)) == .noTeam) {
             numberOfChipsInSequence += 1
             sequenceVerticalDown.append(board.boardTiles[aRowIndex][atPosition.colIndex])
             aRowIndex += 1
@@ -131,7 +131,7 @@ struct SequenceDetector {
         var aColumnIndex = atPosition.colIndex - 1
         
         // Check chips in top-left direction until reaching border or finding different color chip
-        while aRowIndex >= 0 && aColumnIndex >= 0 && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) == .clear) {
+        while aRowIndex >= 0 && aColumnIndex >= 0 && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) == .noTeam) {
             numberOfChipsInSequence += 1
             sequenceDiagonalLeftUp.append(board.boardTiles[aRowIndex][aColumnIndex])
             sequenceStartRowIndex = aRowIndex
@@ -143,7 +143,7 @@ struct SequenceDetector {
         // Check chips in bottom-right direction until reaching border or finding different color chip
         aRowIndex = atPosition.rowIndex + 1
         aColumnIndex = atPosition.colIndex + 1
-        while aRowIndex < board.row && aColumnIndex < board.col && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) == .clear) {
+        while aRowIndex < board.row && aColumnIndex < board.col && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) == .noTeam) {
             numberOfChipsInSequence += 1
             sequenceDiagonalRightDown.append(board.boardTiles[aRowIndex][aColumnIndex])
             aRowIndex += 1
@@ -169,7 +169,7 @@ struct SequenceDetector {
         
         // Check chips in top-right direction until reaching border or finding different color chip
         while aRowIndex >= 0 && aColumnIndex < board.col &&
-                (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) == .clear) {
+                (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) == .noTeam) {
             numberOfChipsInSequence += 1
             sequenceAntiDiagonalRightUp.append(board.boardTiles[aRowIndex][aColumnIndex])
             sequenceStartRowIndex = aRowIndex
@@ -182,7 +182,7 @@ struct SequenceDetector {
         aRowIndex = atPosition.rowIndex + 1
         aColumnIndex = atPosition.colIndex - 1
         while aRowIndex < board.row && aColumnIndex >= 0 &&
-                (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) == .clear) {
+                (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) == .noTeam) {
             numberOfChipsInSequence += 1
             sequenceAntiDiagonalLeftDown.append(board.boardTiles[aRowIndex][aColumnIndex])
             aRowIndex += 1

@@ -38,6 +38,57 @@ enum ThemeColor {
             return .clear
         }
     }
+    static func getTeamName(for team: Color) -> String {
+        switch team {
+        case ThemeColor.teamBlue:
+            return TeamColor.blue.stringValue
+        case ThemeColor.teamGreen:
+            return TeamColor.green.stringValue
+        case ThemeColor.teamRed:
+            return TeamColor.red.stringValue
+        default:
+            return "Unknown"
+        }
+    }
+    
+    static func getTeamColor(for teamName: TeamColor) -> Color {
+        switch teamName {
+        case TeamColor.blue:
+            return ThemeColor.teamBlue
+        case TeamColor.green:
+            return ThemeColor.teamGreen
+        case TeamColor.red:
+            return ThemeColor.teamRed
+        default:
+            return .clear
+        }
+    }
+    static func getTeamAccentColor(for teamName: TeamColor) -> Color {
+        switch teamName {
+        case TeamColor.blue:
+            return ThemeColor.accentPrimary
+        case TeamColor.green:
+            return ThemeColor.accentSecondary
+        case TeamColor.red:
+            return ThemeColor.accentTertiary
+        default:
+            return .clear
+        }
+    }
+    static func getSuitColor(for suit: Suit) -> Color {
+        switch suit {
+        case Suit.clubs:
+            return Color.black
+        case Suit.diamonds:
+            return Color.red
+        case Suit.hearts:
+            return Color.red
+        case Suit.spades:
+            return Color.black
+        case Suit.empty:
+            return .clear
+        }
+    }
 }
 
 #Preview {

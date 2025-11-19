@@ -5,7 +5,7 @@
 //  Created by Prajakta Kulkarni on 29/10/2025.
 //
 
-import SwiftUI
+import Foundation
 
 enum GameConstants {
     // MARK: - Board Dimensions
@@ -21,8 +21,20 @@ enum GameConstants {
     ]
     
     // MARK: - Team Configuration
-    static let maxTeams = 4
-    static let teamColors: [Color] = [ThemeColor.teamBlue, ThemeColor.teamGreen, ThemeColor.teamRed]
+    
+    /// Available team colors. Add more colors here to support additional teams.
+    ///
+    /// The number of colors in this array determines the maximum number of teams
+    /// that can be created in a game.
+    static let teamColors: [TeamColor] = [TeamColor.blue, TeamColor.green, TeamColor.red]
+    
+    /// Maximum number of teams supported, determined by available team colors.
+    ///
+    /// This value is computed from `teamColors.count` to ensure they stay synchronized.
+    /// To support more teams, add additional colors to the `teamColors` array.
+    static var maxTeams: Int {
+        return teamColors.count
+    }
     
     // MARK: - Cards Per Player (Based on Player Count)
     static func cardsPerPlayer(playerCount: Int) -> Int {

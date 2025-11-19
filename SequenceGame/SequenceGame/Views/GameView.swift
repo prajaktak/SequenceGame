@@ -7,30 +7,84 @@
 
 import SwiftUI
 
+/// The main game screen that displays the board, player hands, turn information, and game overlays.
+///
+/// `GameView` coordinates all visual elements of an active game session:
+/// - Turn banner showing current player and team
+/// - 10x10 game board with chip placements
+/// - Seating ring overlay showing player positions
+/// - Player's hand of cards at the bottom
+/// - Game event overlays (turn start, card selection, dead card, game over)
+///
+/// This view relies on `GameState` as the single source of truth and derives all display data
+/// from it via computed properties to maintain consistency as the game progresses.
 struct GameView: View {
+    // MARK: - Environment & State
+    
+    /// The authoritative game state containing all players, board state, and game logic.
     @EnvironmentObject var gameState: GameState
-    @Environment(\.presentationMode) var presentationMode
-    @State private var numberOfPlayers: Int
+    
+    /// Modern SwiftUI dismiss action for navigation (replaces deprecated presentationMode).
+    @Environment(\.dismiss) var dismiss
+    
+    /// Number of players per team, set at initialization from game settings.
+    @State private var playersPerTeam: Int
+    
+    /// Number of teams in the game, set at initialization from game settings.
     @State private var numberOfTeams: Int
-    @State private var players: [Player] = []
-    @State private var teams: [Team] = []
-    @State private var seats: [Seat] = []
+    
+    /// Controls visibility of game event overlays (turn start, dead card, game over).
     @State private var isOverlayPresent: Bool = false
+    
+    /// Work item for auto-dismissing temporary overlays; can be cancelled if overlay mode changes.
     @State private var overlayDismissWork: DispatchWorkItem?
     
-    init(numberOfPlayers: Int = 5, numberOfTeams: Int = 2) {
-        _numberOfPlayers = State(initialValue: numberOfPlayers)
+    // MARK: - Computed Properties
+    
+    /// Unique teams extracted from the current players in gameState.
+    ///
+    /// Derives team list dynamically to maintain single source of truth.
+    /// Used for computing seating order and maintaining team consistency.
+    private var teams: [Team] {
+        var uniqueTeams: [Team] = []
+        for player in gameState.players {
+            if !uniqueTeams.contains(where: { $0.id == player.team.id }) {
+                uniqueTeams.append(player.team)
+            }
+        }
+        return uniqueTeams
+    }
+
+    /// Seat positions around the board based on current player count.
+    ///
+    /// Computed dynamically from gameState to reflect any changes in player configuration.
+    private var seats: [Seat] {
+        SeatingLayout.computeSeats(for: gameState.players.count)
+    }
+    
+    // MARK: - Initialization
+    
+    /// Creates a new game view with the specified player and team configuration.
+    ///
+    /// - Parameters:
+    ///   - playersPerTeam: Number of players on each team (default: 5)
+    ///   - numberOfTeams: Number of teams in the game (default: 2)
+    init(playersPerTeam: Int = 5, numberOfTeams: Int = 2) {
+        _playersPerTeam = State(initialValue: playersPerTeam)
         _numberOfTeams = State(initialValue: numberOfTeams)
     }
+    
+    // MARK: - Body
     
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 3) {
                 // Turn Banner
                 if let currentPlayer = gameState.currentPlayer {
+                    let teamColor = ThemeColor.getTeamColor(for: currentPlayer.team.color)
                     TurnBannerView(
                         playerName: currentPlayer.name,
-                        teamColor: currentPlayer.team.color
+                        teamColor: teamColor
                     )
                 } else {
                     Text("Setting up game...")
@@ -77,10 +131,9 @@ struct GameView: View {
                     Button(action: {
                         // Pop to root (MainMenu) by dismissing twice
                         // First dismiss GameView, then GameSettingsView
-                        presentationMode.wrappedValue.dismiss()
-                        // Use DispatchQueue to dismiss again after a brief delay
+                        dismiss()
                         DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.Animation.navigationDismissDelay) {
-                            presentationMode.wrappedValue.dismiss()
+                            dismiss()
                         }
                     }, label: {
                         Image(systemName: "line.3.horizontal")
@@ -110,13 +163,14 @@ struct GameView: View {
             .overlay(content: {
                 // Centered overlay for game events
                 if isOverlayPresent, let activePlayer = gameState.currentPlayer {
+                    let teamColor = ThemeColor.getTeamColor(for: activePlayer.team.color)
+                    let teamOverlayBorderColor = ThemeColor.getTeamOverlayColor(for: teamColor)
+                    let overlayBackgroundColor = teamColor
                     GameOverlayView(
                         playerName: activePlayer.name,
-                        teamColor: activePlayer.team.color,
-                        borderColor: activePlayer.team.color == ThemeColor.teamGreen ? ThemeColor.overlayTeamGreen :
-                            (activePlayer.team.color == ThemeColor.teamBlue ? ThemeColor.overlayTeamBlue : ThemeColor.overlayTeamRed),
-                        backgroundColor: activePlayer.team.color == ThemeColor.teamGreen ? ThemeColor.accentPrimary :
-                            (activePlayer.team.color == ThemeColor.teamBlue ? ThemeColor.accentSecondary : ThemeColor.accentTertiary),
+                        teamColor: teamColor ,
+                        borderColor: teamOverlayBorderColor,
+                        backgroundColor: overlayBackgroundColor,
                         onHelp: { /* present help */ },
                         onClose: { isOverlayPresent = false },
                         mode: gameState.overlayMode
@@ -138,9 +192,9 @@ struct GameView: View {
                                 .onTapGesture {
                                     // Pop to root (MainMenu) by dismissing twice
                                     // First dismiss GameView, then GameSettingsView
-                                    presentationMode.wrappedValue.dismiss()
+                                    dismiss()
                                     DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.Animation.navigationDismissDelay) {
-                                        presentationMode.wrappedValue.dismiss()
+                                        dismiss()
                                     }
                                 }
                         }
@@ -150,31 +204,40 @@ struct GameView: View {
         }
     }
     
+    // MARK: - Setup
+    
+    /// Initializes a new game session with the configured teams and players.
+    ///
+    /// Creates teams and players based on `numberOfTeams` and `playersPerTeam`, assigns team colors
+    /// from `GameConstants.teamColors`, interleaves players by team for fair turn order, and hands
+    /// off the configured player list to `GameState` to start the game.
+    ///
+    /// - Note: After setup, all game data lives in `gameState`. This view derives `teams` and `seats`
+    ///   dynamically via computed properties to maintain single source of truth.
     private func setupGame() {
-        players.removeAll()
-        teams.removeAll()
+        var localPlayers: [Player] = []
+        var localTeams: [Team] = []
         
-        let colorNames: [Color] = GameConstants.teamColors
+        let colorNames: [TeamColor] = GameConstants.teamColors
         
         // Build teams and players
         for teamIndex in 0..<numberOfTeams {
-            teams.append(Team(color: colorNames[teamIndex], numberOfPlayers: numberOfPlayers))
-            for index in 0..<numberOfPlayers {
+            localTeams.append(Team(color: colorNames[teamIndex] , numberOfPlayers: playersPerTeam))
+            for index in 0..<playersPerTeam {
                 let displayIndex = index + 1
                 let playerName = "T\(teamIndex + 1)-P\(displayIndex)"
-                players.append(Player(name: playerName, team: teams[teamIndex], cards: []))
+                localPlayers.append(Player(name: playerName, team: localTeams[teamIndex], cards: []))
             }
         }
         
         // Interleave by team
-        let teamOrder = teams.map { $0.id }
-        players = SeatingRules.interleaveByTeams(players, teamOrder: teamOrder)
+        let teamOrder = localTeams.map { $0.id }
+        localPlayers = SeatingRules.interleaveByTeams(localPlayers, teamOrder: teamOrder)
         
-        // Hand off to GameState
-        gameState.startGame(with: players)
+        // Hand off to GameState (single source of truth)
+        gameState.startGame(with: localPlayers)
         
-        // Seats depend only on player count
-        seats = SeatingLayout.computeSeats(for: gameState.players.count)
+        // Note: seats and teams are now computed properties derived from gameState
     }
 }
 

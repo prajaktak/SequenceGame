@@ -6,9 +6,9 @@
 //
 
 import Foundation
-import SwiftUI
+
 
 enum GameResult {
     case ongoing                    // Game continues
-    case win(team: Color)          // A team has won
+    case win(team: TeamColor)          // A team has won
 }

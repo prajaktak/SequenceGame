@@ -37,7 +37,7 @@ struct SeatingRingOverlay: View {
 
                         SeatView(
                             name: player.name,
-                            teamColor: player.team.color,
+                            teamColor: ThemeColor.getTeamColor(for: player.team.color),
                             handCount: player.cards.count,
                             isCurrent: isCurrent
                         )
@@ -57,8 +57,8 @@ private extension Array {
 }
 
 #Preview("SeatingRingOverlay – 4 players") {
-    let teamBlue = Team(color: ThemeColor.teamBlue, numberOfPlayers: 2)
-    let teamGreen = Team(color: ThemeColor.teamGreen, numberOfPlayers: 2)
+    let teamBlue = Team(color: TeamColor.blue , numberOfPlayers: 2)
+    let teamGreen = Team(color: TeamColor.green , numberOfPlayers: 2)
 
     let players = [
         Player(name: "Prajakta", team: teamGreen, isPlaying: true, cards: []),
@@ -82,8 +82,8 @@ private extension Array {
     .padding(12)
 }
 
-#Preview("SeatingRingOverlay – 6 players") {    let teamBlue = Team(color: ThemeColor.teamBlue, numberOfPlayers: 3)
-    let teamGreen = Team(color: ThemeColor.teamGreen, numberOfPlayers: 3)
+#Preview("SeatingRingOverlay – 6 players") {    let teamBlue = Team(color: TeamColor.blue, numberOfPlayers: 3)
+    let teamGreen = Team(color: TeamColor.green, numberOfPlayers: 3)
 
     let players = (0..<6).map { playerIndex in
         let assignedTeam = playerIndex % 2 == 0 ? teamGreen : teamBlue

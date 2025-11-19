@@ -6,10 +6,10 @@
 //
 
 import Foundation
-import SwiftUI
+//import SwiftUI
 
 struct Team: Identifiable {
     var id = UUID()
-    var color: Color
+    var color: TeamColor
     var numberOfPlayers: Int
 }

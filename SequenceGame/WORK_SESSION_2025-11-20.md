@@ -137,21 +137,36 @@
 *(Update this as we work - track completed tasks, blockers, decisions made)*
 
 ### Completed:
-- [ ] Task 1: Jack cards bug
-- [ ] Task 2: GameView state
-- [ ] Task 3: Accessibility label
-- [ ] Task 4: Navigation API
+- [x] Task 1: Jack cards bug - **CLARIFIED, NOT A BUG**: Added comprehensive documentation to `drawCardExceptJacks()` explaining it's designed for board seeding with a temporary deck. Jacks are intentionally discarded. Gameplay deck remains separate and intact.
+- [x] Task 2: GameView state - **FIXED**: Removed duplicate `@State` arrays for `players`, `teams`, and `seats`. Replaced with computed properties derived from `gameState`. Tests pass ✅
+- [x] Task 3: Accessibility label - **FIXED**: Corrected typo `accesabilityLable` → `accessibilityLabel`, added spaces ("Queen of Clubs"), added `accessibilityName` properties to `CardFace` and `Suit` enums
+- [x] Task 4: Navigation API - **FIXED**: Replaced deprecated `@Environment(\.presentationMode)` with modern `@Environment(\.dismiss)` in GameView. Updated all 3 dismiss call sites.
 - [ ] Task 5: Remove Color from models
 - [ ] Task 6: GameOverlayView dependencies
 - [ ] Task 7: Color comparison fix
-- [ ] Task 8: GameConstants validation
-- [ ] Task 9: Parameter rename
+- [x] Task 8: GameConstants validation - **FIXED**: Changed `maxTeams` from hardcoded `4` to computed property based on `teamColors.count`. Prevents color array out-of-bounds crashes.
+- [x] Task 9: Parameter rename - **FIXED**: Renamed `numberOfPlayers` → `playersPerTeam` in GameView for clarity. Updated init, stored property, and all references.
 
 ### Blockers/Questions:
 *(None yet - add as we encounter them)*
 
 ### Decisions Made:
-*(Document any architectural or design decisions)*
+1. **Task 1 - Jack cards:** After analysis, confirmed there are TWO separate decks:
+   - **Seed deck** (temporary): Used only in `BoardManager.setupBoard()`, discards Jacks by design
+   - **Gameplay deck** (persistent): Used for dealing/drawing, retains all 8 Jacks
+   - Decision: Added documentation instead of changing behavior—function works as intended
+2. **Task 2 - GameView duplicate state:** Converted `@State` arrays to computed properties:
+   - `teams` extracts unique teams from `gameState.players`
+   - `seats` computes layout based on player count
+   - Maintains single source of truth principle from CODING_CONVENTIONS.md
+3. **Documentation added:** Comprehensive `///` documentation comments added to:
+   - GameView.swift (class, properties, methods, MARK sections)
+   - GameState.swift (class, all published properties, key methods like `performPlay`, `startGame`)
+   - BoardManager.swift (class, `setupBoard`, `placeChip`, `removeChip`)
+   - HandView.swift (class, layout properties, `calculateCardSize`)
+   - CardFace.swift (added `accessibilityName` property)
+   - Suit.swift (added `accessibilityName` property)
+   - Deck.swift (already had documentation from Task 1)
 
 ---
 

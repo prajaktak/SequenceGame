@@ -6,12 +6,12 @@
 //
 
 import Foundation
-import SwiftUI
+//import SwiftUI
 
 struct Sequence: Identifiable {
     var id = UUID()
     var tiles: [BoardTile]
     var position: (row: Int, col: Int)
-    var teamColor: Color
+    var teamColor: TeamColor
     var sequenceType: SequenceType
 }

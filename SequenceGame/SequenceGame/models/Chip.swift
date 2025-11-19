@@ -6,10 +6,10 @@
 //
 
 import Foundation
-import SwiftUI
+//import SwiftUI
 
 struct Chip {
-    var color: Color
+    var color: TeamColor
     var positionRow: Int = 0
     var positionColumn: Int = 0
     var isPlaced: Bool = false
@@ -20,10 +20,10 @@ struct Chip {
         self.positionColumn = column
     }
     
-    init(color: Color) {
+    init(color: TeamColor) {
         self.color = color
     }
-    init(color: Color, positionRow: Int, positionColumn: Int, isPlaced: Bool) {
+    init(color: TeamColor, positionRow: Int, positionColumn: Int, isPlaced: Bool) {
         self.color = color
         self.positionRow = positionRow
         self.positionColumn = positionColumn

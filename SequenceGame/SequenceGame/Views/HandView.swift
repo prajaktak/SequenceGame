@@ -7,10 +7,25 @@
 
 import SwiftUI
 
+/// Displays the current player's hand of cards at the bottom of the game screen.
+///
+/// `HandView` shows cards in a horizontal scrollable layout with:
+/// - Adaptive card sizing based on available width and card count
+/// - Visual selection state (highlighted border, scale, and offset)
+/// - Tap gestures for card selection/deselection
+/// - Accessibility labels for VoiceOver support
+///
+/// The view automatically calculates optimal card dimensions to fit within the available
+/// space while respecting minimum and maximum size constraints from `GameConstants`.
 struct HandView: View {
+    /// The game state containing the current player and their cards.
     @EnvironmentObject var gameState: GameState
 
-    // Layout configuration (defaults keep call sites simple; can be overridden)
+    // MARK: - Layout Configuration
+    
+    /// Layout configuration values with defaults from GameConstants.
+    /// These can be overridden at initialization for custom layouts or testing.
+    
     var horizontalInsets: CGFloat = GameConstants.UISizing.handHorizontalInsets
     var verticalInsets: CGFloat = GameConstants.UISizing.handVerticalInsets
     var spacing: CGFloat = GameConstants.UISizing.handSpacing
@@ -18,6 +33,8 @@ struct HandView: View {
     var maxWidth: CGFloat = GameConstants.UISizing.handMaxCardWidth
     var aspect: CGFloat = GameConstants.UISizing.handCardAspect
 
+    // MARK: - Body
+    
     var body: some View {
         GeometryReader { geo in
             let availableWidth = geo.size.width
@@ -32,7 +49,7 @@ struct HandView: View {
 
                     HStack(spacing: spacing) {
                         ForEach(cards) { handCard in
-                            let accesabilityLable = (handCard.cardFace.displayValue) + "of" + (handCard.suit.systemImageName)
+                            let accessibilityLabel = "\(handCard.cardFace.accessibilityName) of \(handCard.suit.accessibilityName)"
                             let isSelected = handCard.id == gameState.selectedCardId
 
                             ZStack {
@@ -52,7 +69,7 @@ struct HandView: View {
                             .zIndex(isSelected ? 1 : 0)
                             .animation(.spring(response: 0.25, dampingFraction: 0.8), value: gameState.selectedCardId)
                             .accessibilityElement(children: .ignore)
-                            .accessibilityLabel(accesabilityLable)
+                            .accessibilityLabel(accessibilityLabel)
                             .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : [.isButton])
                             .onTapGesture {
                                 if isSelected {
@@ -75,7 +92,18 @@ struct HandView: View {
         }
     }
 
-    // Single sizing helper internal to HandView
+    // MARK: - Helper Methods
+    
+    /// Calculates optimal card dimensions based on available width and number of cards.
+    ///
+    /// Distributes available space evenly among cards while respecting minimum and maximum
+    /// size constraints. Maintains the configured aspect ratio for card height.
+    ///
+    /// - Parameters:
+    ///   - availableWidth: Total horizontal space available for the card layout
+    ///   - cardCount: Number of cards to display
+    ///
+    /// - Returns: A tuple containing the calculated width and height for each card
     private func calculateCardSize(
         availableWidth: CGFloat,
         cardCount: Int

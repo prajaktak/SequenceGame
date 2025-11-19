@@ -77,7 +77,7 @@ struct CardFaceView: View {
             }
             .frame(width: width, height: height)
             .background(.white)
-            .foregroundColor(card.suit.color)
+            .foregroundColor(ThemeColor.getSuitColor(for: card.suit) )
             .border(Color.gray, width: 1)
         }
     }

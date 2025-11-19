@@ -154,10 +154,10 @@ struct GameOverlayView: View {
             }
         }
     }
-    private func teamName(for color: Color) -> String {
-        if color == ThemeColor.teamBlue { return "Blue Team" }
-        if color == ThemeColor.teamGreen { return "Green Team" }
-        if color == ThemeColor.teamRed { return "Red Team" }
+    private func teamName(for color: TeamColor) -> String {
+        if color == TeamColor.blue { return "Blue Team" }
+        if color == TeamColor.green { return "Green Team" }
+        if color == TeamColor.red { return "Red Team" }
         return "Team"
     }
 }

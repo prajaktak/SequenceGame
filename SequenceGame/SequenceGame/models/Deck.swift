@@ -32,6 +32,20 @@ class Deck {
         guard !cards.isEmpty else { return nil }
         return cards.removeLast()
     }
+    /// Draws a card from the deck, skipping over any Jacks.
+    ///
+    /// This method is specifically designed for board seeding, where Jacks should not appear
+    /// on the game board. When a Jack is encountered, it is permanently removed from this deck
+    /// and the method continues searching for a non-Jack card.
+    ///
+    /// - Important: This method permanently discards any Jacks it encounters. Do NOT use this
+    ///   for the gameplay deck where players need to draw Jacks. Use `drawCard()` instead for
+    ///   normal gameplay draws.
+    ///
+    /// - Note: Intended usage is with a temporary deck instance used solely for board setup,
+    ///   not the main gameplay deck.
+    ///
+    /// - Returns: A non-Jack card if available, or `nil` if only Jacks remain or deck is empty.
     func drawCardExceptJacks() -> Card? {
         // Iterate through remaining cards to find a non-Jack
         var attemptsRemaining = cards.count
@@ -43,11 +57,11 @@ class Deck {
                 return card
             }
             
-            // Card was a Jack, try again
+            // Card was a Jack, discard it and try again
             attemptsRemaining -= 1
         }
         
-        // All remaining cards are Jacks
+        // All remaining cards are Jacks or deck is empty
         return nil
     }
     

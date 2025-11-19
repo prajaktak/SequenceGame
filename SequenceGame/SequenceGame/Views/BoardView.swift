@@ -100,22 +100,31 @@ struct BoardView: View {
     private func teamColorForSequenceTile(row: Int, column: Int) -> Color? {
         let tile = gameState.boardTiles[row][column]
         for sequence in gameState.detectedSequence  where sequence.tiles.contains(where: { $0.id == tile.id }) {
-                return sequence.teamColor
+            return ThemeColor.getTeamColor(for: sequence.teamColor)
         }
         return nil
     }
     
     @ViewBuilder
-    private func sequenceHighlight(_ isInSequence: Bool, teamColor: Color) -> some View {
+    private func sequenceHighlight(_ isInSequence: Bool, teamColor: Color, tileSize: (width: CGFloat, height: CGFloat)) -> some View {
         if isInSequence {
-            ZStack {
-                // Background to see the highlight better
+            let shimmerBorderSettings = ShimmerBorderSettings(
+                teamColor: teamColor,
+                frameWidth: tileSize.width,
+                frameHeight: tileSize.height,
+                dashArray: [tileSize.width, 2*tileSize.height+tileSize.width],
+                dashPhasePositive: CGFloat(2.0*(tileSize.width) + 2.0*(tileSize.height)),
+                dashPhaseNegative: CGFloat(-(2.0*(tileSize.width) + 2.0*(tileSize.height))),
+                animationDuration: 2.0,
+                borderWidth: 3
+            )
+            ShimmerBorder(shimmerBorderSetting: shimmerBorderSettings) {
+                // Background fill with shimmer effect
                 RoundedRectangle(cornerRadius: 4)
-                    .fill(teamColor.opacity(0.4))
-                    .border(teamColor, width: 4)
-                    .shadow(color: teamColor.opacity(0.8), radius: 4)
+                    .fill(teamColor.opacity(0.3))
+                    .frame(width: tileSize.width, height: tileSize.height)
+                    .modifier(Shimmer(teamColor: teamColor))
             }
-            .modifier(Shimmer(teamColor: teamColor))
         } else {
             EmptyView()
         }
@@ -124,7 +133,7 @@ struct BoardView: View {
     @ViewBuilder
     private func tileCell(row: Int, column: Int, tileSize: (width: CGFloat, height: CGFloat)) -> some View {
         let isInSequence = isTileInSequence(row: row, column: column)
-        let sequenceTeamColor = teamColorForSequenceTile(row: row, column: column) ?? .blue
+        let sequenceTeamColor = teamColorForSequenceTile(row: row, column: column) ?? ThemeColor.teamBlue
         let tile = gameState.boardTiles[row][column]
         let isValid = gameState.validPositionsForSelectedCard.contains { $0.row == row && $0.col == column }
         
@@ -153,10 +162,10 @@ struct BoardView: View {
             }
             .opacity(isValid ? 1 : 0.8)
         } else if let card = tile.card {
-            let teamColor = currentPlayer?.team.color ?? .blue
+            let teamColor = ThemeColor.getTeamColor(for: currentPlayer?.team.color ?? .blue)
             TileView(
                 card: card,
-                color: tile.chip?.color ?? .blue,
+                color: ThemeColor.getTeamColor(for: tile.chip?.color ?? .blue) ,
                 isChipVisible: tile.chip?.isPlaced ?? false
             )
             .frame(width: tileSize.width, height: tileSize.height)
@@ -168,10 +177,10 @@ struct BoardView: View {
                         teamColor: teamColor,
                         frameWidth: tileSize.width,
                         frameHeight: tileSize.height,
-                        dashArray: [tileSize.width, 3*tileSize.height],
-                        dashPhasePositive: CGFloat(3.0*(tileSize.height)+25),
-                        dashPhaseNegative: CGFloat(-(3.0*(tileSize.height)+25)),
-                        animationDuration: 0.1,
+                        dashArray: [tileSize.width, 2*tileSize.height+tileSize.width],
+                        dashPhasePositive: CGFloat(2.0*(tileSize.width) + 2.0*(tileSize.height)),
+                        dashPhaseNegative: CGFloat(-(2.0*(tileSize.width) + 2.0*(tileSize.height))),
+                        animationDuration: 2.0,
                         borderWidth: 3)
                     ShimmerBorder(shimmerBorderSetting: shimmerBorderSettings) {
                         Color.clear
@@ -181,7 +190,7 @@ struct BoardView: View {
             }
             .overlay {
                 // Add sequence highlight overlay
-                sequenceHighlight(isInSequence, teamColor: sequenceTeamColor)
+                sequenceHighlight(isInSequence, teamColor: sequenceTeamColor, tileSize: tileSize)
                     .opacity(isInSequence ? 1 : 0)
                     .animation(.easeInOut(duration: 0.3), value: isInSequence)
             }

@@ -5,7 +5,7 @@
 //  Created by Prajakta Kulkarni on 21/10/2025.
 //
 import Foundation
-import SwiftUI
+//import SwiftUI
 
 enum Suit: CaseIterable {
     case hearts, spades, diamonds, clubs, empty
@@ -20,14 +20,13 @@ enum Suit: CaseIterable {
         }
     }
     
-    var color: Color {
+    var accessibilityName: String {
         switch self {
-        case .hearts, .diamonds:
-            return .red
-        case .spades, .clubs:
-            return .black
-        case .empty:
-            return .clear
+        case .hearts: return "Hearts"
+        case .spades: return "Spades"
+        case .diamonds: return "Diamonds"
+        case .clubs: return "Clubs"
+        case .empty: return "Empty"
         }
     }
 }

@@ -41,7 +41,7 @@ struct CardPipsView: View {
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: pipSize, height: pipSize)
-                                        .foregroundColor(card.suit.color)
+                                        .foregroundColor(ThemeColor.getSuitColor(for: card.suit) )
                                 }
                                 Spacer(minLength: 0)
                             }
@@ -57,7 +57,7 @@ struct CardPipsView: View {
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: pipSize, height: pipSize)
-                                        .foregroundColor(card.suit.color)
+                                        .foregroundColor(ThemeColor.getSuitColor(for: card.suit))
                                 }
                                 Spacer(minLength: 0)
                             }

@@ -5,14 +5,41 @@
 //  Created by Prajakta Kulkarni on 29/10/2025.
 //
 
-import SwiftUI
+import Foundation
+//import SwiftUI
 
+/// The authoritative source of truth for all game state and logic.
+///
+/// `GameState` manages the complete lifecycle of a Sequence game, including:
+/// - Player and team configuration
+/// - Board setup and tile state
+/// - Card deck and hand management
+/// - Turn progression
+/// - Chip placement and removal
+/// - Sequence detection and win conditions
+///
+/// All game views observe this object via `@EnvironmentObject` to stay synchronized
+/// with the current game state. Mutation methods handle game rules enforcement,
+/// validation, and state transitions.
 final class GameState: ObservableObject {
-    // Core state
+    
+    // MARK: - Published State
+    
+    /// All players in the game, in turn order. This is the single source of truth for player data.
     @Published var players: [Player] = []
+    
+    /// Index of the current player in the `players` array.
     @Published var currentPlayerIndex: Int = 0
+    
+    /// Current overlay display mode (turn start, card selected, dead card, game over).
     @Published var overlayMode: GameOverlayMode = .turnStart
+    
+    /// The game board structure (10x10 grid metadata).
     @Published var board = Board()
+    
+    /// The 2D array of board tiles containing cards and chip state.
+    ///
+    /// Auto-syncs changes to `board` and `sequenceDetector` via `didSet` to maintain consistency.
     @Published var boardTiles: [[BoardTile]] = Board().boardTiles {
         didSet {
             // Auto-sync board and sequenceDetector whenever boardTiles changes
@@ -20,29 +47,50 @@ final class GameState: ObservableObject {
             sequenceDetector.board = board
         }
     }
+    
+    /// UUID of the currently selected card in the active player's hand, if any.
     @Published var selectedCardId: UUID?
+    
+    /// The sequence detection engine that scans for completed sequences.
     @Published var sequenceDetector: SequenceDetector = SequenceDetector(board: Board())
+    
+    /// All detected sequences on the board. Used for win condition checks and chip protection.
     @Published var detectedSequence: [Sequence] = []
-    @Published var winningTeam: Color?
+    
+    /// The winning team's color, set when a team achieves the required number of sequences.
+    @Published var winningTeam: TeamColor?
+    
+    /// Convenience computed property indicating whether a card is currently selected.
     var hasSelection: Bool { selectedCardId != nil }
 
-    // Deck for gameplay
+    // MARK: - Private State
+    
+    /// The gameplay deck used for dealing and drawing cards during the game.
+    ///
+    /// This is separate from the temporary deck used for board seeding.
     private(set) var deck: DoubleDeck = .init()
+    
+    /// Manager responsible for board setup and chip operations.
     private let boardManager = BoardManager()
     
-    // Derived
+    // MARK: - Computed Properties
+    
+    /// The player whose turn it currently is, derived from `currentPlayerIndex`.
+    ///
+    /// Returns `nil` if the index is out of bounds (shouldn't happen in normal gameplay).
     var currentPlayer: Player? {
         guard players.indices.contains(currentPlayerIndex) else { return nil }
         return players[currentPlayerIndex]
     }
     
-    /// Returns the required number of sequences to win based on game configuration
+    /// Returns the required number of sequences to win based on game configuration.
+    ///
+    /// According to game rules:
+    /// - 2 players: 2 sequences required
+    /// - 3+ players: 1 sequence required
     var requiredSequencesToWin: Int {
         let playerCount = players.count
         
-        // According to game rules:
-        // - 2 players: 2 sequences
-        // - 3+ players: 1 sequence
         if playerCount == 2 {
             return 2
         } else {
@@ -50,7 +98,14 @@ final class GameState: ObservableObject {
         }
     }
 
-    // Lifecycle
+    // MARK: - Game Lifecycle
+    
+    /// Starts a new game with the provided players.
+    ///
+    /// Resets all game state, shuffles and deals cards, sets up the board, and transitions
+    /// to the first turn.
+    ///
+    /// - Parameter players: Array of players in turn order, typically interleaved by team.
     func startGame(with players: [Player]) {
         // Reset win state
         winningTeam = nil
@@ -71,19 +126,34 @@ final class GameState: ObservableObject {
         overlayMode = .turnStart
     }
     
+    /// Sets up the 10x10 game board using a temporary seeding deck.
+    ///
+    /// Populates all non-corner tiles with cards (excluding Jacks per game rules).
+    /// Called once during game start.
     func setupBoard() {
         boardTiles = boardManager.setupBoard()
         board = Board(row: 10, col: 10)
     }
     
-    // Turn control
+    // MARK: - Turn Control
+    
+    /// Advances to the next player's turn.
+    ///
+    /// Wraps around to the first player after the last player. Resets overlay mode to `.turnStart`.
     func advanceTurn() {
         guard !players.isEmpty else { return }
         currentPlayerIndex = (currentPlayerIndex + 1) % players.count
         overlayMode = .turnStart
     }
     
-    // Select a card in current player's hand (by id)
+    // MARK: - Card Selection
+    
+    /// Selects a card from the current player's hand.
+    ///
+    /// Sets the selected card ID and updates overlay mode based on whether the card can be played.
+    /// If no valid positions exist for the card, displays a dead card overlay.
+    ///
+    /// - Parameter cardId: The UUID of the card to select from the current player's hand.
     func selectCard(_ cardId: UUID) {
         selectedCardId = cardId
         // Trigger overlay for dead card if no valid positions
@@ -145,7 +215,7 @@ final class GameState: ObservableObject {
         return validator.canPlace(at: pos, for: card)
     }
     // Sets a chip at the given position. No hand/turn changes.
-    func placeChip(at position: (row: Int, col: Int), teamColor: Color) {
+    func placeChip(at position: (row: Int, col: Int), teamColor: TeamColor) {
         let pos = Position(row: position.row, col: position.col)
         boardManager.placeChip(at: pos, teamColor: teamColor, tiles: &boardTiles)
     }
@@ -181,7 +251,21 @@ final class GameState: ObservableObject {
     }
     #endif
     
-    // performPlay
+    // MARK: - Core Gameplay
+    
+    /// Performs a complete play action: validates, executes, detects sequences, and advances turn.
+    ///
+    /// This is the main entry point for card plays. It orchestrates the full turn sequence:
+    /// 1. Removes the played card from the current player's hand
+    /// 2. Validates the placement using `CardPlayValidator`
+    /// 3. Executes the play (place chip for normal cards, remove chip for one-eyed Jacks)
+    /// 4. Detects new sequences and checks win conditions
+    /// 5. Draws a replacement card
+    /// 6. Advances to the next turn
+    ///
+    /// - Parameters:
+    ///   - position: The board position (row, col) where the card is being played
+    ///   - cardId: The UUID of the card being played from the current player's hand
     func performPlay(atPos position: (row: Int, col: Int), using cardId: UUID) {
         guard overlayMode != .gameOver else { return }
         
@@ -256,7 +340,7 @@ final class GameState: ObservableObject {
     }
     
     /// Returns the number of sequences completed by a specific team
-    func sequencesForTeam(teamColor: Color) -> Int {
+    func sequencesForTeam(teamColor: TeamColor) -> Int {
         detectedSequence.filter { $0.teamColor == teamColor }.count
     }
     
