@@ -20,7 +20,6 @@
 		F9F3BF0C2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF0B2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md */; };
 		F9F3BF0E2ECD484400C65753 /* ci_claude.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF0D2ECD484400C65753 /* ci_claude.yml */; };
 		F9F3BF102ECD491600C65753 /* XCODE_PROJECT_SETTINGS_FOR_CI.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF0F2ECD491600C65753 /* XCODE_PROJECT_SETTINGS_FOR_CI.md */; };
-		F9F3BF122ECD495500C65753 /* ci_composer.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF112ECD495500C65753 /* ci_composer.yml */; };
 		F9F3BF142ECD4AD500C65753 /* CI_COMPARISON_ANALYSIS.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF132ECD4AD500C65753 /* CI_COMPARISON_ANALYSIS.md */; };
 		F9F3BF162ECD4BC000C65753 /* ALIGNMENT_CHECK.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF152ECD4BC000C65753 /* ALIGNMENT_CHECK.md */; };
 		F9F3BFCA2ECD633C00C65753 /* projectGist.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BFC92ECD633C00C65753 /* projectGist.md */; };
@@ -282,7 +281,6 @@
 				F9F3BEF62ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md in Resources */,
 				F9F3BEF42ECC981E00C65753 /* ci.yml in Resources */,
 				F9F3BEFB2ECC986400C65753 /* pr-checks.yml in Resources */,
-				F9F3BF122ECD495500C65753 /* ci_composer.yml in Resources */,
 				F9F3BEFC2ECC986400C65753 /* code-review.yml in Resources */,
 				F9F3BEFD2ECC986400C65753 /* deploy.yml in Resources */,
 				F9F3BF0C2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md in Resources */,
