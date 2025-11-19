@@ -51,6 +51,9 @@ jobs:
         run: |
           echo "=== Finding Best Available Simulator ==="
           
+          # Get full simctl output for parsing
+          SIMCTL_OUTPUT=$(xcrun simctl list devices available iOS)
+          
           # First, try to get a valid destination from -showdestinations output
           if [ -f destinations.log ]; then
             # Extract first iOS Simulator destination
@@ -74,42 +77,64 @@ jobs:
           # Fallback: Use simctl to find available iPhone simulators
           echo "Using simctl fallback method..."
           
-          # Try iPhone 16 (any variant)
-          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone 16" | head -n 1 | sed -E 's/^[[:space:]]+(iPhone 16[^ ]*).*/\1/' | xargs)
+          # Try iPhone 16 (any variant) - get the first match
+          DEVICE_LINE=$(echo "$SIMCTL_OUTPUT" | grep "iPhone 16" | grep -v "Pro\|Plus\|Max\|e" | head -n 1)
           
-          if [ -z "$SIMULATOR" ]; then
+          if [ -z "$DEVICE_LINE" ]; then
+            # Try iPhone 16 Pro
+            DEVICE_LINE=$(echo "$SIMCTL_OUTPUT" | grep "iPhone 16 Pro" | head -n 1)
+          fi
+          
+          if [ -z "$DEVICE_LINE" ]; then
             # Try iPhone 15
-            SIMULATOR=$(xcrun simctl list devices available | grep "iPhone 15" | head -n 1 | sed -E 's/^[[:space:]]+(iPhone 15[^ ]*).*/\1/' | xargs)
+            DEVICE_LINE=$(echo "$SIMCTL_OUTPUT" | grep "iPhone 15" | head -n 1)
           fi
           
-          if [ -z "$SIMULATOR" ]; then
+          if [ -z "$DEVICE_LINE" ]; then
             # Try iPhone 14
-            SIMULATOR=$(xcrun simctl list devices available | grep "iPhone 14" | head -n 1 | sed -E 's/^[[:space:]]+(iPhone 14[^ ]*).*/\1/' | xargs)
+            DEVICE_LINE=$(echo "$SIMCTL_OUTPUT" | grep "iPhone 14" | head -n 1)
           fi
           
-          if [ -z "$SIMULATOR" ]; then
+          if [ -z "$DEVICE_LINE" ]; then
             # Try any iPhone
-            SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | sed -E 's/^[[:space:]]+(iPhone [^ ]+).*/\1/' | xargs)
+            DEVICE_LINE=$(echo "$SIMCTL_OUTPUT" | grep "iPhone" | head -n 1)
           fi
           
-          if [ -z "$SIMULATOR" ]; then
+          if [ -z "$DEVICE_LINE" ]; then
             echo "❌ ERROR: No iPhone simulator found!"
             echo "Available devices:"
-            xcrun simctl list devices available
+            echo "$SIMCTL_OUTPUT"
             exit 1
           fi
           
-          # Get the OS version for this simulator
-          OS_VERSION=$(xcrun simctl list devices available | grep "$SIMULATOR" | grep -oE '\([0-9]+\.[0-9]+\)' | head -1 | tr -d '()')
+          # Extract device name (e.g., "iPhone 16")
+          SIMULATOR=$(echo "$DEVICE_LINE" | sed -E 's/^[[:space:]]+(iPhone [^ ]+).*/\1/' | xargs)
           
-          if [ -n "$OS_VERSION" ]; then
-            DESTINATION="platform=iOS Simulator,name=$SIMULATOR,OS=$OS_VERSION"
-          else
-            # Use without OS version - let xcodebuild pick default
-            DESTINATION="platform=iOS Simulator,name=$SIMULATOR"
+          # Find the OS version by looking backwards from the device line
+          # The format is: "-- iOS 18.4 --" followed by device listings
+          # Find the line number of the device
+          DEVICE_LINE_NUM=$(echo "$SIMCTL_OUTPUT" | grep -n "$DEVICE_LINE" | head -1 | cut -d: -f1)
+          
+          # Get all lines before the device line, find the last iOS version header
+          OS_VERSION=$(echo "$SIMCTL_OUTPUT" | head -n "$DEVICE_LINE_NUM" | grep -E '^-- iOS [0-9]+\.[0-9]+ --' | tail -1 | sed -E 's/-- iOS ([0-9]+\.[0-9]+) --/\1/')
+          
+          if [ -z "$OS_VERSION" ]; then
+            echo "⚠️  Warning: Could not extract OS version from simctl, trying runtimes"
+            # Get first available iOS runtime version as fallback
+            OS_VERSION=$(xcrun simctl list runtimes iOS | grep "iOS" | head -1 | sed -E 's/.*iOS ([0-9]+\.[0-9]+).*/\1/')
           fi
           
+          if [ -z "$OS_VERSION" ]; then
+            echo "❌ ERROR: Could not determine OS version for simulator"
+            echo "Device line: $DEVICE_LINE"
+            echo "Device line number: $DEVICE_LINE_NUM"
+            exit 1
+          fi
+          
+          DESTINATION="platform=iOS Simulator,name=$SIMULATOR,OS=$OS_VERSION"
+          
           echo "✅ Selected Simulator: $SIMULATOR"
+          echo "✅ Selected OS Version: $OS_VERSION"
           echo "✅ Using Destination: $DESTINATION"
           echo "destination=$DESTINATION" >> $GITHUB_OUTPUT
       
