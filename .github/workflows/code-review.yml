@@ -29,12 +29,25 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           
           ISSUES=0
+          FILES="${{ steps.changed-files.outputs.all_changed_files }}"
           
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          if [ -z "$FILES" ]; then
+            echo "No changed files" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            
+            if [ ! -f "$file" ]; then
+              echo "⏭️ Skipping deleted file: \`$file\`" >> $GITHUB_STEP_SUMMARY
+              continue
+            fi
+            
             echo "### Checking: \`$file\`" >> $GITHUB_STEP_SUMMARY
             
-            # Check 1: One type per file
-            TYPE_COUNT=$(grep -E "^(struct|class|enum|protocol) " "$file" | wc -l | tr -d ' ')
+            # Check 1: One type per file (exclude comments, handle modifiers)
+            TYPE_COUNT=$(grep -E '^[[:space:]]*(public|open|internal|fileprivate|private|final|@objc[[:space:]]+)?[[:space:]]*(struct|class|enum|protocol)\b' "$file" | sed '/^[[:space:]]*\/\//d' | wc -l | tr -d ' ')
             if [ "$TYPE_COUNT" -gt 1 ]; then
               echo "❌ **Multiple types in one file** (found $TYPE_COUNT)" >> $GITHUB_STEP_SUMMARY
               ISSUES=$((ISSUES+1))
@@ -42,10 +55,10 @@ jobs:
               echo "✅ One type per file" >> $GITHUB_STEP_SUMMARY
             fi
             
-            # Check 2: No short variable names (i, j, x, y)
-            if grep -E '\b(let|var) [ijxy] ' "$file" > /dev/null; then
+            # Check 2: No short variable names (i, j, x, y) - improved regex
+            if grep -n -E '\b(let|var)\s+[ijxy]\b' "$file" > /dev/null; then
               echo "⚠️  **Short variable names detected** (use descriptive names)" >> $GITHUB_STEP_SUMMARY
-              grep -n -E '\b(let|var) [ijxy] ' "$file" | while read line; do
+              grep -n -E '\b(let|var)\s+[ijxy]\b' "$file" | while read -r line; do
                 echo "  - Line: \`$line\`" >> $GITHUB_STEP_SUMMARY
               done
               ISSUES=$((ISSUES+1))
@@ -58,16 +71,16 @@ jobs:
               ISSUES=$((ISSUES+1))
             fi
             
-            # Check 4: Check for magic numbers (excluding test files)
-            if [[ ! "$file" =~ Test ]]; then
-              if grep -E '[^a-zA-Z0-9](10|20|100|0\.[0-9]+)[^0-9]' "$file" > /dev/null; then
+            # Check 4: Check for magic numbers (excluding test files, exclude comments)
+            if [[ ! "$file" =~ [Tt]est ]]; then
+              if grep -v '^\s*//' "$file" | grep -E '[^a-zA-Z0-9](10|20|100|0\.[0-9]+)[^0-9]' > /dev/null; then
                 echo "⚠️  **Possible magic numbers detected** (consider using GameConstants)" >> $GITHUB_STEP_SUMMARY
                 ISSUES=$((ISSUES+1))
               fi
             fi
             
             echo "" >> $GITHUB_STEP_SUMMARY
-          done
+          done <<< "$FILES"
           
           echo "---" >> $GITHUB_STEP_SUMMARY
           echo "**Total Issues Found:** $ISSUES" >> $GITHUB_STEP_SUMMARY
