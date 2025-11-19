@@ -127,19 +127,14 @@ jobs:
             OS_VERSION=$(xcrun simctl list runtimes iOS | grep "iOS" | head -1 | sed -E 's/.*iOS ([0-9]+\.[0-9]+).*/\1/')
           fi
           
-          # Try using UUID first (most reliable), fallback to name+OS
-          if [ -n "$SIMULATOR_UUID" ]; then
-            DESTINATION="platform=iOS Simulator,id=$SIMULATOR_UUID"
-            echo "✅ Using UUID-based destination (most reliable)"
-          else
-            DESTINATION="platform=iOS Simulator,name=$SIMULATOR,OS=$OS_VERSION"
-            echo "⚠️  Using name+OS destination (UUID not found)"
-          fi
+          # Use device name only - let xcodebuild pick the OS version automatically
+          # This is more reliable when -showdestinations doesn't return valid destinations
+          DESTINATION="platform=iOS Simulator,name=$SIMULATOR"
           
           echo "✅ Selected Simulator: $SIMULATOR"
-          echo "✅ Selected UUID: $SIMULATOR_UUID"
-          echo "✅ Selected OS Version: $OS_VERSION"
-          echo "✅ Using Destination: $DESTINATION"
+          echo "✅ Selected UUID: $SIMULATOR_UUID (for reference)"
+          echo "✅ Selected OS Version: $OS_VERSION (for reference)"
+          echo "✅ Using Destination: $DESTINATION (xcodebuild will pick compatible OS)"
           echo "destination=$DESTINATION" >> $GITHUB_OUTPUT
       
       - name: Build Project
