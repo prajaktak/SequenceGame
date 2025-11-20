@@ -1,0 +1,37 @@
+// .gitignore
+
+# Xcode
+DerivedData/
+build/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+
+# Swift Package Manager
+.build/
+Packages/
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# SwiftLint / SwiftFormat caches
+.swiftlint.yml.cache
+.swiftformat
+
+# User-specific
+*.swp
+*.swo
+.DS_Store
+
+# Local reviews and analysis artifacts
+Reviews/
+Reviews/CodingConventionsReview.md
