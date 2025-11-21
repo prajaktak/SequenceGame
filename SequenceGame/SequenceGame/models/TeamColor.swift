@@ -26,4 +26,12 @@ enum TeamColor: Codable, CaseIterable, Equatable {
         case .noTeam: return "No Team"
         }
     }
+    var accessibilityName: String {
+        switch self {
+        case .blue: return "Blue"
+        case .green: return "Green"
+        case .red: return "Red"
+        case .noTeam: return "No team"
+        }
+    }
 }

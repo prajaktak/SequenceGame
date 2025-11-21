@@ -23,12 +23,12 @@ struct MainMenuHeaderView: View {
                             .offset(item.offset)
                             .rotationEffect(item.rotation)
                     case .card(let borderColor, let suitSymbol, let size):
-                        RoundedRectangle(cornerRadius: 8)
+                        RoundedRectangle(cornerRadius: GameConstants.UISizing.cardCornerRadius)
                             .fill(.white)
                             .frame(width: size * 0.75, height: size)
                             .overlay(
                                 ZStack {
-                                    RoundedRectangle(cornerRadius: 8).stroke(borderColor, lineWidth: 2)
+                                    RoundedRectangle(cornerRadius: 8).stroke(borderColor, lineWidth: GameConstants.UISizing.handCardBorderWidth)
                                     Image(systemName: suitSymbol)
                                         .font(.system(size: size * 0.4))
                                         .foregroundStyle(borderColor)

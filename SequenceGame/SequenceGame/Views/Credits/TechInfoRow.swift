@@ -28,7 +28,7 @@ struct TechInfoRow: View {
         .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.smallCornerRadius, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: GameConstants.UISizing.smallCornerRadius)
-                .stroke(ThemeColor.border, lineWidth: 1)
+                .stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth)
         )
     }
 }

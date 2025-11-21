@@ -19,3 +19,55 @@ struct OptionalSpringAnimation<Value: Equatable>: ViewModifier {
         }
     }
 }
+
+#Preview("OptionalSpringAnimation - Enabled") {
+    struct PreviewView: View {
+        @State private var isExpanded = false
+        
+        var body: some View {
+            VStack(spacing: 30) {
+                Text("Animation Enabled")
+                    .font(.headline)
+                
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.blue)
+                    .frame(width: isExpanded ? 200 : 100, height: 100)
+                    .modifier(OptionalSpringAnimation(enabled: true, value: isExpanded))
+                
+                Button("Toggle") {
+                    isExpanded.toggle()
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding()
+        }
+    }
+    
+    return PreviewView()
+}
+
+#Preview("OptionalSpringAnimation - Disabled") {
+    struct PreviewView: View {
+        @State private var isExpanded = false
+        
+        var body: some View {
+            VStack(spacing: 30) {
+                Text("Animation Disabled")
+                    .font(.headline)
+                
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.red)
+                    .frame(width: isExpanded ? 200 : 100, height: 100)
+                    .modifier(OptionalSpringAnimation(enabled: false, value: isExpanded))
+                
+                Button("Toggle") {
+                    isExpanded.toggle()
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding()
+        }
+    }
+    
+    return PreviewView()
+}

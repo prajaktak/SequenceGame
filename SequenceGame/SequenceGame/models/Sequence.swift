@@ -6,7 +6,6 @@
 //
 
 import Foundation
-//import SwiftUI
 
 struct Sequence: Identifiable {
     var id = UUID()

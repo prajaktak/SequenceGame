@@ -50,7 +50,7 @@ struct SettingsOptionButton: View {
                 RoundedRectangle(cornerRadius: GameConstants.UISizing.mediumCornerRadius)
                     .stroke(
                         isSelected ? ThemeColor.accentPrimary : ThemeColor.border,
-                        lineWidth: isSelected ? 2 : 1
+                        lineWidth: isSelected ? GameConstants.UISizing.handCardBorderWidth : GameConstants.UISizing.universalBorderWidth
                     )
             )
             .shadow(

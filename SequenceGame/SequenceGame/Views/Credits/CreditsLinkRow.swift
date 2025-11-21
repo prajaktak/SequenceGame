@@ -47,7 +47,7 @@ struct CreditsLinkRow: View {
             .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.mediumCornerRadius, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: GameConstants.UISizing.mediumCornerRadius)
-                    .stroke(ThemeColor.border, lineWidth: 1)
+                    .stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth)
             )
             .shadow(color: .black.opacity(0.03), radius: 4, x: 0, y: 2)
         }

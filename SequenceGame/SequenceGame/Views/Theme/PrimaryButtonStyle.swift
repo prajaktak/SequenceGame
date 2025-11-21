@@ -18,10 +18,44 @@ struct PrimaryButtonStyle: ButtonStyle {
                     Color("AccentPrimary")
                 ], startPoint: .top, endPoint: .bottom)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color("Border"), lineWidth: 1))
+            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius,
+                                        style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius).stroke(Color("Border"), lineWidth: GameConstants.UISizing.universalBorderWidth))
             .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 1)
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
     }
+}
+
+#Preview("PrimaryButtonStyle - Default") {
+    VStack(spacing: 20) {
+        Button("Start Game") { }
+            .buttonStyle(PrimaryButtonStyle())
+        
+        Button("Continue") { }
+            .buttonStyle(PrimaryButtonStyle())
+        
+        Button("Settings") { }
+            .buttonStyle(PrimaryButtonStyle())
+    }
+    .padding()
+}
+
+#Preview("PrimaryButtonStyle - With Icons") {
+    VStack(spacing: 20) {
+        Button {
+            // Action
+        } label: {
+            Label("New Game", systemImage: "plus.circle.fill")
+        }
+        .buttonStyle(PrimaryButtonStyle())
+        
+        Button {
+            // Action
+        } label: {
+            Label("Resume", systemImage: "play.fill")
+        }
+        .buttonStyle(PrimaryButtonStyle())
+    }
+    .padding()
 }

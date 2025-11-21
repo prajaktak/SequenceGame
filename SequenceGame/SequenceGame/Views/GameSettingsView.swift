@@ -53,8 +53,8 @@ struct GameSettingsView: View {
                         }
                         .padding()
                         .background(ThemeColor.accentPrimary.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(ThemeColor.border, lineWidth: 1))
+                        .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius).stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth))
                         
                         // Players per team
                         VStack(alignment: .leading, spacing: 12) {
@@ -89,8 +89,8 @@ struct GameSettingsView: View {
                         }
                         .padding()
                         .background(ThemeColor.accentSecondary.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(ThemeColor.border, lineWidth: 1))
+                        .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius).stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth))
                         
                     }
                     .padding(.horizontal, 20)
@@ -115,14 +115,17 @@ struct GameSettingsView: View {
                                 endPoint: .bottom
                             )
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius, style: .continuous))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(ThemeColor.border, lineWidth: 1)
+                            RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius)
+                                .stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth)
                         )
                         .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 1)
                     }
                     .accessibilityIdentifier("startGameButton")
+                    .accessibilityElement(children: .combine)
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityLabel("Start Game")
                     .padding(.horizontal, 20)
                     .disabled(!settings.isValid)
                     .opacity(settings.isValid ? 1.0 : 0.6)

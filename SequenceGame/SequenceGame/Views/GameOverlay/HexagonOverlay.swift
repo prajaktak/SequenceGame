@@ -24,7 +24,7 @@ struct HexagonOverlay<Content: View>: View {
             .padding(16)
             .background(backgroundColor.opacity(0.80))
             .clipShape(Hexagon())
-            .overlay(Hexagon().stroke(borderColor, lineWidth: 3))
+            .overlay(Hexagon().stroke(borderColor, lineWidth: GameConstants.UISizing.emphasizedBorderWidth))
             .shadow(color: borderColor.opacity(0.5), radius: 12, y: 4)
             .allowsHitTesting(false)
     }

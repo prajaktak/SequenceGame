@@ -54,10 +54,14 @@ struct MenuButtonView<Destination: View>: View {
                 LinearGradient(colors: gradient, startPoint: .topLeading, endPoint: .bottomTrailing)
             )
             .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius).stroke(ThemeColor.border, lineWidth: 1.5))
+            .overlay(RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius).stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth))
             .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
             .opacity(isEnabled ? 1.0 : 0.5)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityLabel(title)
+        .accessibilityHint(subtitle)
         .disabled(!isEnabled)
     }
 }

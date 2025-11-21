@@ -30,6 +30,12 @@ excluded:
 - Carthage
 - Pods
 - SwiftLint/Common/3rdPartyLib
+- DerivedData
+- Generated
+- .build
+- "**/GeneratedAssetSymbols.swift"
+- "**/Generated/**"
+- "**/*.generated.swift"
 
 line_length:
     warning: 200

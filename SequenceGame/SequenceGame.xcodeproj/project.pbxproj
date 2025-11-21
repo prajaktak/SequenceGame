@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F95E4DA72ECF34950087CE02 /* CODE_REVIEW_REPORT_2025-11-20.md in Resources */ = {isa = PBXBuildFile; fileRef = F95E4DA62ECF34950087CE02 /* CODE_REVIEW_REPORT_2025-11-20.md */; };
+		F97AFB612ECF3A1600FC0FD4 /* CODE_REVIEW_REPORT_2025-11-20_UPDATED.md in Resources */ = {isa = PBXBuildFile; fileRef = F97AFB602ECF3A1500FC0FD4 /* CODE_REVIEW_REPORT_2025-11-20_UPDATED.md */; };
+		F97AFB652ECF3E6900FC0FD4 /* TODO_FROM_CODE_REVIEWS_2025-11-20.md in Resources */ = {isa = PBXBuildFile; fileRef = F97AFB642ECF3E6900FC0FD4 /* TODO_FROM_CODE_REVIEWS_2025-11-20.md */; };
+		F97AFC432ED08D1D00FC0FD4 /* UI_TEST_FIXES_2025-11-21.md in Resources */ = {isa = PBXBuildFile; fileRef = F97AFC422ED08D1D00FC0FD4 /* UI_TEST_FIXES_2025-11-21.md */; };
 		F9F3BEF42ECC981E00C65753 /* ci.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEF32ECC981E00C65753 /* ci.yml */; };
 		F9F3BEF62ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEF52ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md */; };
 		F9F3BEFB2ECC986400C65753 /* pr-checks.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEFA2ECC986400C65753 /* pr-checks.yml */; };
@@ -44,6 +48,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F95E4DA62ECF34950087CE02 /* CODE_REVIEW_REPORT_2025-11-20.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = "CODE_REVIEW_REPORT_2025-11-20.md"; path = "../CODE_REVIEW_REPORT_2025-11-20.md"; sourceTree = SOURCE_ROOT; };
+		F97AFB602ECF3A1500FC0FD4 /* CODE_REVIEW_REPORT_2025-11-20_UPDATED.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "CODE_REVIEW_REPORT_2025-11-20_UPDATED.md"; sourceTree = "<group>"; };
+		F97AFB642ECF3E6900FC0FD4 /* TODO_FROM_CODE_REVIEWS_2025-11-20.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "TODO_FROM_CODE_REVIEWS_2025-11-20.md"; sourceTree = "<group>"; };
+		F97AFC422ED08D1D00FC0FD4 /* UI_TEST_FIXES_2025-11-21.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "UI_TEST_FIXES_2025-11-21.md"; sourceTree = "<group>"; };
 		F9F3BEF32ECC981E00C65753 /* ci.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = ci.yml; path = ../.github/workflows/ci.yml; sourceTree = SOURCE_ROOT; };
 		F9F3BEF52ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CI_WORKFLOW_VISUAL_GUIDE.md; sourceTree = "<group>"; };
 		F9F3BEF72ECC986400C65753 /* code-review.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = "code-review.yml"; path = "../.github/workflows/code-review.yml"; sourceTree = SOURCE_ROOT; };
@@ -120,6 +128,7 @@
 		F9FE2C622EA2665F00623663 = {
 			isa = PBXGroup;
 			children = (
+				F95E4DA62ECF34950087CE02 /* CODE_REVIEW_REPORT_2025-11-20.md */,
 				F9F3C1E22ECD862700C65753 /* ISSUES_AND_IMPROVEMENTS_2025-11-18.md */,
 				F9F3BFCB2ECD76BC00C65753 /* SequenceGame.xctestplan */,
 				F9F3BEF72ECC986400C65753 /* code-review.yml */,
@@ -145,6 +154,9 @@
 				F9F3BF152ECD4BC000C65753 /* ALIGNMENT_CHECK.md */,
 				F9F3BFC92ECD633C00C65753 /* projectGist.md */,
 				F9F3C1E42ECD876A00C65753 /* WORK_SESSION_2025-11-20.md */,
+				F97AFB602ECF3A1500FC0FD4 /* CODE_REVIEW_REPORT_2025-11-20_UPDATED.md */,
+				F97AFB642ECF3E6900FC0FD4 /* TODO_FROM_CODE_REVIEWS_2025-11-20.md */,
+				F97AFC422ED08D1D00FC0FD4 /* UI_TEST_FIXES_2025-11-21.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -280,13 +292,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F95E4DA72ECF34950087CE02 /* CODE_REVIEW_REPORT_2025-11-20.md in Resources */,
 				F9F3BEF62ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md in Resources */,
 				F9F3BEF42ECC981E00C65753 /* ci.yml in Resources */,
 				F9F3BEFB2ECC986400C65753 /* pr-checks.yml in Resources */,
 				F9F3BEFC2ECC986400C65753 /* code-review.yml in Resources */,
 				F9F3BEFD2ECC986400C65753 /* deploy.yml in Resources */,
+				F97AFB612ECF3A1600FC0FD4 /* CODE_REVIEW_REPORT_2025-11-20_UPDATED.md in Resources */,
 				F9F3BF0C2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md in Resources */,
+				F97AFB652ECF3E6900FC0FD4 /* TODO_FROM_CODE_REVIEWS_2025-11-20.md in Resources */,
 				F9F3BEFE2ECC986400C65753 /* coverage.yml in Resources */,
+				F97AFC432ED08D1D00FC0FD4 /* UI_TEST_FIXES_2025-11-21.md in Resources */,
 				F9F3BF162ECD4BC000C65753 /* ALIGNMENT_CHECK.md in Resources */,
 				F9F3BF142ECD4AD500C65753 /* CI_COMPARISON_ANALYSIS.md in Resources */,
 				F9F3BFCA2ECD633C00C65753 /* projectGist.md in Resources */,
@@ -320,7 +336,7 @@
 		F9FE2CC62EA7B61800623663 /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
-			buildActionMask = 8;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
@@ -332,7 +348,7 @@
 			);
 			outputPaths = (
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if command -v swiftlint >/dev/null 2>&1\nthen\n    swiftlint\nelse\n    echo \"warning: `swiftlint` command not found - See https://github.com/realm/SwiftLint#installation for installation instructions.\"\nfi\n";
 		};
@@ -505,6 +521,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -524,6 +541,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";

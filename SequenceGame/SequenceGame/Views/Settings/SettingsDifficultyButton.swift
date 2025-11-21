@@ -24,7 +24,7 @@ struct SettingsDifficultyButton: View {
                     )
                     .frame(width: 44, height: 44)
                     .background(
-                        RoundedRectangle(cornerRadius: 12)
+                        RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius)
                             .fill(
                                 isSelected ?
                                 ThemeColor.accentPrimary.opacity(0.15) :
@@ -56,7 +56,7 @@ struct SettingsDifficultyButton: View {
                 RoundedRectangle(cornerRadius: GameConstants.UISizing.mediumCornerRadius)
                     .stroke(
                         isSelected ? ThemeColor.accentPrimary : ThemeColor.border,
-                        lineWidth: isSelected ? 2 : 1
+                        lineWidth: isSelected ? GameConstants.UISizing.handCardBorderWidth : GameConstants.UISizing.universalBorderWidth
                     )
             )
             .shadow(

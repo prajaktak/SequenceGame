@@ -26,7 +26,7 @@ struct CreditsInfoCard: View {
                 )
                 .frame(width: 50, height: 50)
                 .background(
-                    RoundedRectangle(cornerRadius: 14)
+                    RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius)
                         .fill(ThemeColor.accentPrimary.opacity(0.1))
                 )
             
@@ -50,7 +50,7 @@ struct CreditsInfoCard: View {
         .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.mediumCornerRadius, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: GameConstants.UISizing.mediumCornerRadius)
-                .stroke(ThemeColor.border, lineWidth: 1)
+                .stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth)
         )
         .shadow(color: .black.opacity(0.03), radius: 4, x: 0, y: 2)
     }

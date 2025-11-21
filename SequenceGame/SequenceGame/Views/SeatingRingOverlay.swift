@@ -57,8 +57,8 @@ private extension Array {
 }
 
 #Preview("SeatingRingOverlay – 4 players") {
-    let teamBlue = Team(color: TeamColor.blue , numberOfPlayers: 2)
-    let teamGreen = Team(color: TeamColor.green , numberOfPlayers: 2)
+    let teamBlue = Team(color: TeamColor.blue, numberOfPlayers: 2)
+    let teamGreen = Team(color: TeamColor.green, numberOfPlayers: 2)
 
     let players = [
         Player(name: "Prajakta", team: teamGreen, isPlaying: true, cards: []),

@@ -21,7 +21,7 @@ public struct ShimmerBorder<Content: View>: View {
                                                            dashPhasePositive: 220,
                                                            dashPhaseNegative: -220,
                                                            animationDuration: 0.1,
-                                                           borderWidth: 2)
+                                                           borderWidth: GameConstants.UISizing.cardBorderWidth)
     }
     public init (shimmerBorderSetting: ShimmerBorderSettings, @ViewBuilder content: () -> Content) {
         self.content = content()
@@ -30,9 +30,9 @@ public struct ShimmerBorder<Content: View>: View {
     
     public var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 2)
+            RoundedRectangle(cornerRadius: GameConstants.UISizing.cardBorderWidth)
                 .foregroundStyle(.clear)
-            RoundedRectangle(cornerRadius: 2)
+            RoundedRectangle(cornerRadius: GameConstants.UISizing.cardBorderWidth)
                 .strokeBorder(style: StrokeStyle(lineWidth: shimmerBorderSettings.borderWidth,
                                                  lineCap: .round,
                                                  lineJoin: .round,

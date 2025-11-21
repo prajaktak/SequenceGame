@@ -11,7 +11,6 @@ struct BoardView: View {
     @EnvironmentObject var gameState: GameState
     @Binding var currentPlayer: Player?
     @Environment(\.colorScheme) private var colorScheme
-    @State private var sequenceAnimationTrigger: Int = 0
     
     var body: some View {
         GeometryReader { geometry in
@@ -53,14 +52,6 @@ struct BoardView: View {
                 RoundedRectangle(cornerRadius: GameConstants.UISizing.boardCornerRadius, style: .continuous)
                     .stroke(ThemeColor.boardFelt, lineWidth: borderThickness)
             )
-            .onChange(of: gameState.detectedSequence.count) { oldValue, newValue in
-                if newValue > oldValue {
-                    // New sequence detected - trigger animation
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
-                        sequenceAnimationTrigger += 1
-                    }
-                }
-            }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             .accessibilityIdentifier("gameBoard")
         }
@@ -89,11 +80,12 @@ struct BoardView: View {
     }
     
     /// Checks if a tile at the given position is part of any detected sequence
+    ///
+    /// Uses the cached `tilesInSequences` set from GameState for O(1) lookup performance
+    /// instead of O(n×m) nested array searches.
     private func isTileInSequence(row: Int, column: Int) -> Bool {
         let tile = gameState.boardTiles[row][column]
-        return gameState.detectedSequence.contains { sequence in
-            sequence.tiles.contains { $0.id == tile.id }
-        }
+        return gameState.tilesInSequences.contains(tile.id)
     }
     
     /// Returns the team color for a tile if it's part of a sequence
@@ -147,45 +139,25 @@ struct BoardView: View {
             )
             .frame(width: tileSize.width, height: tileSize.height)
             .contentShape(Rectangle())
-            .overlay {
-                if isValid {
-                    Circle()
-                        .fill(ThemeColor.accentGolden.opacity(0.85))
-                        .frame(width: tileSize.width * 0.4, height: tileSize.width * 0.4)
-                        .shadow(color: ThemeColor.accentGolden.opacity(0.7), radius: 6, y: 2)
-                        .overlay(
-                            Circle()
-                                .stroke(ThemeColor.accentGolden, lineWidth: 2)
-                                .frame(width: tileSize.width * 0.4, height: tileSize.width * 0.4)
-                        )
-                }
-            }
-            .opacity(isValid ? 1 : 0.8)
+            .accessibilityLabel("Empty corner tile") 
+            .accessibilityAddTraits(.isStaticText)
+            .opacity(0.8)
         } else if let card = tile.card {
             let teamColor = ThemeColor.getTeamColor(for: currentPlayer?.team.color ?? .blue)
             TileView(
                 card: card,
-                color: ThemeColor.getTeamColor(for: tile.chip?.color ?? .blue) ,
+                color: ThemeColor.getTeamColor(for: tile.chip?.color ?? .blue),
                 isChipVisible: tile.chip?.isPlaced ?? false
             )
             .frame(width: tileSize.width, height: tileSize.height)
             .contentShape(Rectangle())
             .border(teamColor.opacity(isValid ? 1 : 0), width: 3)
+            .accessibilityLabel(accessibilityLabelForTile(row: row, column: column))
+            .accessibilityHint(isValid ? "Double tap to place chip" : "")
+            .accessibilityAddTraits(isValid ? .isButton : [])
             .overlay {
                 if isValid {
-                    let shimmerBorderSettings = ShimmerBorderSettings(
-                        teamColor: teamColor,
-                        frameWidth: tileSize.width,
-                        frameHeight: tileSize.height,
-                        dashArray: [tileSize.width, 2*tileSize.height+tileSize.width],
-                        dashPhasePositive: CGFloat(2.0*(tileSize.width) + 2.0*(tileSize.height)),
-                        dashPhaseNegative: CGFloat(-(2.0*(tileSize.width) + 2.0*(tileSize.height))),
-                        animationDuration: 2.0,
-                        borderWidth: 3)
-                    ShimmerBorder(shimmerBorderSetting: shimmerBorderSettings) {
-                        Color.clear
-                            .frame(width: tileSize.width, height: tileSize.height)
-                    }
+                    ValidTileForCardIndicator(teamColor: teamColor, tileSize: tileSize)
                 }
             }
             .overlay {
@@ -203,6 +175,42 @@ struct BoardView: View {
                 }
             }
         }
+    }
+    // Helper function to generate accessibility label
+    private func accessibilityLabelForTile(row: Int, column: Int) -> String {
+        let tile = gameState.boardTiles[row][column]
+        var components: [String] = []
+        
+        // Card information
+        if tile.isEmpty {
+            components.append("Empty tile")
+        } else if let card = tile.card {
+            components.append("\(card.cardFace.accessibilityName) of \(card.suit.accessibilityName)")
+        }
+        
+        // Chip information
+        if let chip = tile.chip, chip.isPlaced {
+            _ = chip.color.stringValue.replacingOccurrences(of: "team", with: "")
+            components.append("\(chip.color.accessibilityName) team chip")
+        } else {
+            components.append("No chip")
+        }
+        
+        // Sequence status
+        if isTileInSequence(row: row, column: column) {
+            components.append("Part of sequence")
+        }
+        
+        // Valid move indicator
+        let isValid = gameState.validPositionsForSelectedCard.contains { $0.row == row && $0.col == column }
+        if isValid {
+            components.append("Valid move")
+        }
+        
+        // Position (optional)
+        components.append("Row \(row + 1), Column \(column + 1)")
+        
+        return components.joined(separator: ", ")
     }
 }
 #Preview {

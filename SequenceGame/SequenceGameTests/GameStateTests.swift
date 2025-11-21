@@ -4,12 +4,12 @@
 //
 //  Created on 2025-11-20.
 //
-
+// swiftlint:disable type_body_length
+import Foundation
 import Testing
 @testable import SequenceGame
 
 /// Comprehensive unit tests for GameState core functionality
-@Suite("GameState Core Logic Tests")
 struct GameStateTests {
     
     // MARK: - Helper Functions
@@ -206,11 +206,14 @@ struct GameStateTests {
     @Test("selectCard sets selectedCardId")
     func testSelectCardSetsId() {
         let state = createTestGameState()
-        let cardId = state.players[0].cards.first!.id
+        guard let card = state.players[0].cards.first else {
+            Issue.record("No cards in player hand")
+            return
+        }
         
-        state.selectCard(cardId)
+        state.selectCard(card.id)
         
-        #expect(state.selectedCardId == cardId)
+        #expect(state.selectedCardId == card.id)
     }
     
     @Test("selectCard sets overlay to cardSelected when valid moves exist")
@@ -243,10 +246,8 @@ struct GameStateTests {
         // Find all tiles and mark them as occupied or protected
         // This makes the jack have no valid moves
         for rowIndex in 0..<state.boardTiles.count {
-            for colIndex in 0..<state.boardTiles[rowIndex].count {
-                if !state.boardTiles[rowIndex][colIndex].isEmpty {
+            for colIndex in 0..<state.boardTiles[rowIndex].count  where !state.boardTiles[rowIndex][colIndex].isEmpty {
                     state.placeChip(at: (rowIndex, colIndex), teamColor: .blue)
-                }
             }
         }
         
@@ -261,9 +262,12 @@ struct GameStateTests {
     @Test("hasSelection returns true when card selected")
     func testHasSelectionTrue() {
         let state = createTestGameState()
-        let cardId = state.players[0].cards.first!.id
+        guard let card = state.players[0].cards.first else {
+            Issue.record("No cards in player hand")
+            return
+        }
         
-        state.selectCard(cardId)
+        state.selectCard(card.id)
         
         #expect(state.hasSelection == true)
     }
@@ -278,9 +282,12 @@ struct GameStateTests {
     @Test("clearSelection removes selectedCardId")
     func testClearSelection() {
         let state = createTestGameState()
-        let cardId = state.players[0].cards.first!.id
+        guard let card = state.players[0].cards.first else {
+            Issue.record("No cards in player hand")
+            return
+        }
         
-        state.selectCard(cardId)
+        state.selectCard(card.id)
         #expect(state.selectedCardId != nil)
         
         state.clearSelection()
@@ -416,7 +423,6 @@ struct GameStateTests {
         let deadCard = Card(cardFace: .ace, suit: .spades)
         state.players[0].cards.append(deadCard)
         
-        let initialCount = state.players[0].cards.count
         state.replaceDeadCard(deadCard.id)
         
         let hasDeadCard = state.players[0].cards.contains { $0.id == deadCard.id }
@@ -525,7 +531,10 @@ struct GameStateTests {
     @Test("selectedCard returns correct card when selected")
     func testSelectedCardReturnsCorrectCard() {
         let state = createTestGameState()
-        let card = state.players[0].cards.first!
+        guard let card = state.players[0].cards.first else {
+            Issue.record("No cards in player hand")
+            return
+        }
         
         state.selectCard(card.id)
         
@@ -537,7 +546,10 @@ struct GameStateTests {
     @Test("canPlace validates position bounds")
     func testCanPlaceValidatesBounds() {
         let state = createTestGameState()
-        let card = state.players[0].cards.first!
+        guard let card = state.players[0].cards.first else {
+            Issue.record("No cards in player hand")
+            return
+        }
         
         // Out of bounds position
         let outOfBounds = (row: 20, col: 20)
@@ -584,5 +596,393 @@ struct GameStateTests {
         // board.boardTiles should be synced automatically via didSet
         #expect(state.board.boardTiles.count == state.boardTiles.count)
     }
+    
+    // MARK: - Sequence Cache Optimization Tests (Task 14)
+    
+    @Test("tilesInSequences cache is empty on initialization")
+    func testTilesInSequencesCacheInitiallyEmpty() {
+        let state = GameState()
+        
+        #expect(state.tilesInSequences.isEmpty)
+    }
+    
+    @Test("tilesInSequences cache updates when sequences detected")
+    func testTilesInSequencesCacheUpdatesOnDetection() {
+        let state = createTestGameState()
+        
+        // Initially empty
+        #expect(state.tilesInSequences.isEmpty)
+        
+        // Create a mock sequence
+        let tile1 = state.boardTiles[1][1]
+        let tile2 = state.boardTiles[1][2]
+        let tile3 = state.boardTiles[1][3]
+        let tile4 = state.boardTiles[1][4]
+        let tile5 = state.boardTiles[1][5]
+        
+        let sequence = Sequence(
+            tiles: [tile1, tile2, tile3, tile4, tile5],
+            position: (row: 1, col: 1),
+            teamColor: .blue,
+            sequenceType: .horizontal
+        )
+        
+        // Manually set detected sequence (simulating detection)
+        state.detectedSequence = [sequence]
+        
+        // Cache should now contain the 5 tile IDs
+        #expect(state.tilesInSequences.count == 5)
+        #expect(state.tilesInSequences.contains(tile1.id))
+        #expect(state.tilesInSequences.contains(tile2.id))
+        #expect(state.tilesInSequences.contains(tile3.id))
+        #expect(state.tilesInSequences.contains(tile4.id))
+        #expect(state.tilesInSequences.contains(tile5.id))
+    }
+    
+    @Test("tilesInSequences cache handles multiple sequences")
+    func testTilesInSequencesCacheMultipleSequences() {
+        let state = createTestGameState()
+        
+        // Create two sequences with no overlap
+        let seq1Tiles = [
+            state.boardTiles[1][1],
+            state.boardTiles[1][2],
+            state.boardTiles[1][3],
+            state.boardTiles[1][4],
+            state.boardTiles[1][5]
+        ]
+        
+        let seq2Tiles = [
+            state.boardTiles[5][5],
+            state.boardTiles[6][5],
+            state.boardTiles[7][5],
+            state.boardTiles[8][5],
+            state.boardTiles[9][5]
+        ]
+        
+        let sequence1 = Sequence(tiles: seq1Tiles, position: (row: 1, col: 1), teamColor: .blue, sequenceType: .horizontal)
+        let sequence2 = Sequence(tiles: seq2Tiles, position: (row: 5, col: 5), teamColor: .red, sequenceType: .vertical)
+        
+        state.detectedSequence = [sequence1, sequence2]
+        
+        // Cache should contain all 10 tile IDs
+        #expect(state.tilesInSequences.count == 10)
+        
+        // Verify all tiles from both sequences are cached
+        for tile in seq1Tiles {
+            #expect(state.tilesInSequences.contains(tile.id))
+        }
+        for tile in seq2Tiles {
+            #expect(state.tilesInSequences.contains(tile.id))
+        }
+    }
+    
+    @Test("tilesInSequences cache handles overlapping sequences")
+    func testTilesInSequencesCacheOverlappingSequences() {
+        let state = createTestGameState()
+        
+        // Create two sequences that share a tile
+        let sharedTile = state.boardTiles[5][5]
+        
+        let seq1Tiles = [
+            state.boardTiles[5][1],
+            state.boardTiles[5][2],
+            state.boardTiles[5][3],
+            state.boardTiles[5][4],
+            sharedTile  // Row sequence
+        ]
+        
+        let seq2Tiles = [
+            state.boardTiles[1][5],
+            state.boardTiles[2][5],
+            state.boardTiles[3][5],
+            state.boardTiles[4][5],
+            sharedTile  // Column sequence
+        ]
+        
+        let sequence1 = Sequence(tiles: seq1Tiles, position: (row: 5, col: 1), teamColor: .blue, sequenceType: .horizontal)
+        let sequence2 = Sequence(tiles: seq2Tiles, position: (row: 1, col: 5), teamColor: .blue, sequenceType: .vertical)
+        
+        state.detectedSequence = [sequence1, sequence2]
+        
+        // Cache should contain 9 unique tiles (5 + 5 - 1 overlap)
+        #expect(state.tilesInSequences.count == 9)
+        #expect(state.tilesInSequences.contains(sharedTile.id))
+    }
+    
+    @Test("tilesInSequences cache clears when sequences removed")
+    func testTilesInSequencesCacheClearsOnRemoval() {
+        let state = createTestGameState()
+        
+        // Add a sequence
+        let tiles = [
+            state.boardTiles[1][1],
+            state.boardTiles[1][2],
+            state.boardTiles[1][3],
+            state.boardTiles[1][4],
+            state.boardTiles[1][5]
+        ]
+        
+        let sequence = Sequence(tiles: tiles, position: (row: 1, col: 1), teamColor: .blue, sequenceType: .horizontal)
+        state.detectedSequence = [sequence]
+        
+        #expect(state.tilesInSequences.count == 5)
+        
+        // Clear sequences
+        state.detectedSequence = []
+        
+        // Cache should be empty
+        #expect(state.tilesInSequences.isEmpty)
+    }
+    
+    @Test("tilesInSequences cache resets on game start")
+    func testTilesInSequencesCacheResetsOnGameStart() {
+        let state = GameState()
+        
+        // Manually add something to the cache
+        let dummyTiles = [
+            BoardTile(card: Card(cardFace: .ace, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .two, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .three, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .four, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .five, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil)
+        ]
+        let sequence = Sequence(tiles: dummyTiles, position: (row: 0, col: 0), teamColor: .blue, sequenceType: .horizontal)
+        state.detectedSequence = [sequence]
+        
+        #expect(!state.tilesInSequences.isEmpty)
+        
+        // Start a new game
+        let teamBlue = Team(color: .blue, numberOfPlayers: 1)
+        let teamRed = Team(color: .red, numberOfPlayers: 1)
+        state.startGame(with: [
+            Player(name: "P1", team: teamBlue, cards: []),
+            Player(name: "P2", team: teamRed, cards: [])
+        ])
+        
+        // Cache should be empty after starting new game
+        #expect(state.tilesInSequences.isEmpty)
+    }
+    
+    @Test("tilesInSequences provides O(1) lookup performance")
+    func testTilesInSequencesCachePerformance() {
+        let state = createTestGameState()
+        
+        // Create a sequence
+        let tiles = [
+            state.boardTiles[1][1],
+            state.boardTiles[1][2],
+            state.boardTiles[1][3],
+            state.boardTiles[1][4],
+            state.boardTiles[1][5]
+        ]
+        
+        let sequence = Sequence(tiles: tiles, position: (row: 1, col: 1), teamColor: .blue, sequenceType: .horizontal)
+        state.detectedSequence = [sequence]
+        
+        // Test that lookups work (O(1) access)
+        let tileToCheck = tiles[2]
+        #expect(state.tilesInSequences.contains(tileToCheck.id))
+        
+        // Test that non-sequence tiles are not in cache
+        let nonSequenceTile = state.boardTiles[9][9]
+        #expect(!state.tilesInSequences.contains(nonSequenceTile.id))
+    }
+    
+    // MARK: - Additional Edge Case Tests
+    
+    @Test("computePlayableTiles returns empty for nil selected card")
+    func testComputePlayableTilesNoCard() {
+        let state = createTestGameState()
+        state.selectedCardId = nil
+        
+        let positions = state.validPositionsForSelectedCard
+        
+        #expect(positions.isEmpty)
+    }
+    
+    @Test("performPlay handles invalid card ID gracefully")
+    func testPerformPlayInvalidCardId() {
+        let state = createTestGameState()
+        let initialHandCount = state.currentPlayer?.cards.count ?? 0
+        
+        // Try to perform play with non-existent card ID
+        let fakeCardId = UUID()
+        state.performPlay(atPos: (5, 5), using: fakeCardId)
+        
+        // Hand should be unchanged
+        #expect(state.currentPlayer?.cards.count == initialHandCount)
+    }
+    
+    @Test("replaceDeadCard handles invalid card ID gracefully")
+    func testReplaceDeadCardInvalidId() {
+        let state = createTestGameState()
+        let initialHandCount = state.currentPlayer?.cards.count ?? 0
+        
+        // Try to replace non-existent card
+        let fakeCardId = UUID()
+        state.replaceDeadCard(fakeCardId)
+        
+        // Hand should be unchanged
+        #expect(state.currentPlayer?.cards.count == initialHandCount)
+    }
+    
+    @Test("replaceCurrentlySelectedDeadCard handles nil selection")
+    func testReplaceCurrentlySelectedDeadCardNilSelection() {
+        let state = createTestGameState()
+        state.selectedCardId = nil
+        let initialHandCount = state.currentPlayer?.cards.count ?? 0
+        
+        state.replaceCurrentlySelectedDeadCard()
+        
+        // Nothing should change
+        #expect(state.currentPlayer?.cards.count == initialHandCount)
+    }
+    
+    @Test("canPlace handles out of bounds positions")
+    func testCanPlaceOutOfBounds() {
+        let state = createTestGameState()
+        let card = Card(cardFace: .ace, suit: .hearts)
+        
+        // Test negative indices
+        #expect(!state.canPlace(at: (-1, 5), for: card))
+        #expect(!state.canPlace(at: (5, -1), for: card))
+        
+        // Test indices beyond board size
+        #expect(!state.canPlace(at: (10, 5), for: card))
+        #expect(!state.canPlace(at: (5, 10), for: card))
+    }
+    
+    @Test("evaluateGameState handles teams with no sequences")
+    func testEvaluateGameStateNoSequences() {
+        let state = createTestGameState()
+        state.detectedSequence = []
+        
+        let result = state.evaluateGameState()
+        
+        if case .ongoing = result {
+            #expect(true)
+        } else {
+            #expect(Bool(false), "Should return .ongoing when no sequences exist")
+        }
+    }
+    
+    @Test("evaluateGameState detects win for 2-player game")
+    func testEvaluateGameStateWinTwoPlayers() {
+        let state = createTestGameState()
+        
+        // Create 2 sequences for blue team (required for 2-player game)
+        let dummyTiles1 = [
+            BoardTile(card: Card(cardFace: .ace, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .two, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .three, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .four, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .five, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil)
+        ]
+        
+        let dummyTiles2 = [
+            BoardTile(card: Card(cardFace: .six, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .seven, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .eight, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .nine, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .ten, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil)
+        ]
+        
+        let sequence1 = Sequence(tiles: dummyTiles1, position: (row: 0, col: 0), teamColor: .blue, sequenceType: .horizontal)
+        let sequence2 = Sequence(tiles: dummyTiles2, position: (row: 1, col: 0), teamColor: .blue, sequenceType: .horizontal)
+        
+        state.detectedSequence = [sequence1, sequence2]
+        
+        let result = state.evaluateGameState()
+        
+        if case .win(let team) = result {
+            #expect(team == .blue)
+            #expect(state.winningTeam == .blue)
+        } else {
+            #expect(Bool(false), "Should detect win for blue team with 2 sequences")
+        }
+    }
+    
+    @Test("evaluateGameState detects win for 3+ player game")
+    func testEvaluateGameStateWinMultiplePlayers() {
+        let state = createFourPlayerGameState()
+        
+        // Create 1 sequence for red team (required for 4-player game)
+        let dummyTiles = [
+            BoardTile(card: Card(cardFace: .ace, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .two, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .three, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .four, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .five, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil)
+        ]
+        
+        let sequence = Sequence(tiles: dummyTiles, position: (row: 0, col: 0), teamColor: .red, sequenceType: .horizontal)
+        state.detectedSequence = [sequence]
+        
+        let result = state.evaluateGameState()
+        
+        if case .win(let team) = result {
+            #expect(team == .red)
+        } else {
+            #expect(Bool(false), "Should detect win for red team with 1 sequence")
+        }
+    }
+    
+    @Test("sequencesForTeam counts correctly with multiple sequences")
+    func testSequencesForTeamMultipleSequences() {
+        let state = createTestGameState()
+        
+        let dummyTiles1 = [
+            BoardTile(card: Card(cardFace: .ace, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .two, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .three, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .four, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .five, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil)
+        ]
+        
+        let dummyTiles2 = [
+            BoardTile(card: Card(cardFace: .six, suit: .diamonds), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .seven, suit: .diamonds), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .eight, suit: .diamonds), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .nine, suit: .diamonds), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .ten, suit: .diamonds), isEmpty: false, isChipOn: false, chip: nil)
+        ]
+        
+        let dummyTiles3 = [
+            BoardTile(card: Card(cardFace: .ace, suit: .clubs), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .two, suit: .clubs), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .three, suit: .clubs), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .four, suit: .clubs), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .five, suit: .clubs), isEmpty: false, isChipOn: false, chip: nil)
+        ]
+        
+        let blueSeq1 = Sequence(tiles: dummyTiles1, position: (row: 0, col: 0), teamColor: .blue, sequenceType: .horizontal)
+        let blueSeq2 = Sequence(tiles: dummyTiles2, position: (row: 1, col: 0), teamColor: .blue, sequenceType: .horizontal)
+        let redSeq = Sequence(tiles: dummyTiles3, position: (row: 2, col: 0), teamColor: .red, sequenceType: .horizontal)
+        
+        state.detectedSequence = [blueSeq1, blueSeq2, redSeq]
+        
+        #expect(state.sequencesForTeam(teamColor: .blue) == 2)
+        #expect(state.sequencesForTeam(teamColor: .red) == 1)
+        #expect(state.sequencesForTeam(teamColor: .green) == 0)
+    }
+    
+    @Test("hasSelection computed property works correctly")
+    func testHasSelectionComputedProperty() {
+        let state = createTestGameState()
+        
+        // Initially no selection
+        #expect(!state.hasSelection)
+        
+        // Select a card
+        if let firstCard = state.currentPlayer?.cards.first {
+            state.selectCard(firstCard.id)
+            #expect(state.hasSelection)
+        }
+        
+        // Clear selection
+        state.clearSelection()
+        #expect(!state.hasSelection)
+    }
 }
-
+// swiftlint:enable type_body_length

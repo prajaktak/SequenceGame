@@ -14,6 +14,10 @@ struct Board {
     init(row: Int = GameConstants.boardRows, col: Int = GameConstants.boardColumns) {
         self.row = row
         self.col = col
+        
+        // Task 15: Keeping imperative style for clarity and debuggability.
+        // Functional alternative considered: (0..<row).map { _ in (0..<col).map { _ in BoardTile(...) } }
+        // Decision: Current code is more readable and maintainable.
         var initialTiles: [[BoardTile]] = []
         for _ in 0..<row {
             var rowTiles: [BoardTile] = []

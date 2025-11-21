@@ -21,3 +21,8 @@ RESEARCH_COMPARISON.md
 ISSUES_AND_IMPROVEMENTS_2025-11-18.md
 CODE_REVIEW_REPORT_*.md
 TEST_COVERAGE_REPORT_*.md
+
+# Test coverage artifacts
+TestResults.xcresult/
+coverage_data.json
+coverage_summary.txt

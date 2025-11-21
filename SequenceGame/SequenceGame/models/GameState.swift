@@ -6,7 +6,6 @@
 //
 
 import Foundation
-//import SwiftUI
 
 /// The authoritative source of truth for all game state and logic.
 ///
@@ -55,7 +54,20 @@ final class GameState: ObservableObject {
     @Published var sequenceDetector: SequenceDetector = SequenceDetector(board: Board())
     
     /// All detected sequences on the board. Used for win condition checks and chip protection.
-    @Published var detectedSequence: [Sequence] = []
+    @Published var detectedSequence: [Sequence] = [] {
+        didSet {
+            // Update cached set for O(1) sequence membership lookups
+            updateTilesInSequencesCache()
+        }
+    }
+    
+    /// Cached set of tile IDs that are part of any detected sequence.
+    ///
+    /// Provides O(1) lookup performance for sequence membership checks instead of O(n×m)
+    /// nested array searches. Auto-updated via `detectedSequence.didSet`.
+    ///
+    /// Used by views to efficiently determine if a tile should display sequence highlighting.
+    @Published private(set) var tilesInSequences: Set<UUID> = []
     
     /// The winning team's color, set when a team achieves the required number of sequences.
     @Published var winningTeam: TeamColor?
@@ -110,6 +122,7 @@ final class GameState: ObservableObject {
         // Reset win state
         winningTeam = nil
         detectedSequence = []
+        tilesInSequences = []  // Clear sequence cache
         
         self.players = players
         currentPlayerIndex = 0
@@ -361,6 +374,23 @@ final class GameState: ObservableObject {
         // No team has won yet
         winningTeam = nil
         return .ongoing
+    }
+    
+    // MARK: - Performance Optimization
+    
+    /// Updates the cached set of tile IDs that are part of detected sequences.
+    ///
+    /// This is called automatically via `detectedSequence.didSet` to maintain a flattened
+    /// Set for O(1) membership lookups. Without this cache, checking if a tile is in a
+    /// sequence requires O(n×m) nested array searches (n sequences × m tiles per sequence).
+    ///
+    /// **Performance Impact:**
+    /// - Before: `isTileInSequence()` = O(n×m) per tile × 100 tiles = expensive
+    /// - After: `isTileInSequence()` = O(1) per tile × 100 tiles = fast
+    private func updateTilesInSequencesCache() {
+        tilesInSequences = Set(detectedSequence.flatMap { sequence in
+            sequence.tiles.map { $0.id }
+        })
     }
         
 }

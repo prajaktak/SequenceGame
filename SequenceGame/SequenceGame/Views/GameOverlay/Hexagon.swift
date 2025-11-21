@@ -26,3 +26,34 @@ struct Hexagon: Shape {
            return path
        }
 }
+
+#Preview("Hexagon Shape - Filled") {
+    Hexagon()
+        .fill(.blue)
+        .frame(width: 100, height: 120)
+        .padding()
+}
+
+#Preview("Hexagon Shape - Stroked") {
+    Hexagon()
+        .stroke(.blue, lineWidth: 3)
+        .frame(width: 100, height: 120)
+        .padding()
+}
+
+#Preview("Hexagon Shape - Multiple Sizes") {
+    VStack(spacing: 20) {
+        Hexagon()
+            .fill(.blue.gradient)
+            .frame(width: 60, height: 80)
+        
+        Hexagon()
+            .fill(.green.gradient)
+            .frame(width: 100, height: 120)
+        
+        Hexagon()
+            .fill(.red.gradient)
+            .frame(width: 140, height: 160)
+    }
+    .padding()
+}

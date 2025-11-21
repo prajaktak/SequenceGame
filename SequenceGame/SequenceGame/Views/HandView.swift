@@ -86,8 +86,8 @@ struct HandView: View {
             .padding(.vertical, verticalInsets)
             .padding(.horizontal, horizontalInsets / 2) // split total across sides
             .background(ThemeColor.boardFelt)
-            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(ThemeColor.border, lineWidth: 1))
+            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.universalCornerRadius, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: GameConstants.UISizing.universalCornerRadius).stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth))
             .accessibilityIdentifier("playerHand")
         }
     }

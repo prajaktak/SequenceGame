@@ -63,6 +63,32 @@ enum GameConstants {
     
     // MARK: - UI Sizing
     struct UISizing {
+        // MARK: - Universal UI Constants
+        
+        /// Universal corner radius for most UI elements (cards, tiles, overlays)
+        static let universalCornerRadius: CGFloat = 8
+        
+        /// Universal border width for most UI elements (cards, buttons, overlays)
+        static let universalBorderWidth: CGFloat = 1
+        
+        /// Thicker border for emphasis (selected cards, valid moves)
+        static let emphasizedBorderWidth: CGFloat = 3
+        
+        // MARK: - Corner Radius (Semantic Naming)
+        static let buttonCornerRadius: CGFloat = 12        // Buttons
+        static let cardCornerRadius: CGFloat = 8           // Cards and tiles
+        static let tileHighlightCornerRadius: CGFloat = 4  // Sequence highlights
+        static let overlayCornerRadius: CGFloat = 16       // Overlays and modals
+        
+        // MARK: - Border Widths (Semantic Naming)
+        static let standardBorderWidth: CGFloat = 1        // Default borders
+        static let cardBorderWidth: CGFloat = 2            // Card borders
+        static let highlightBorderWidth: CGFloat = 3       // Highlights, selections
+        
+        // MARK: - Board (Exception - Larger for Visual Hierarchy)
+        static let boardBorderThickness: CGFloat = 6       // Keep larger
+        static let boardCornerRadius: CGFloat = 12         // Keep larger
+        
         // Button Heights
         static let primaryButtonHeight: CGFloat = 56
         static let secondaryButtonHeight: CGFloat = 50
@@ -92,8 +118,6 @@ enum GameConstants {
         static let boardBottomPadding: CGFloat = 20
         
         // Board View Specific
-        static let boardBorderThickness: CGFloat = 6
-        static let boardCornerRadius: CGFloat = 12
         static let cardAspectRatio: CGFloat = 1.6
         static let boardContentInsetTop: CGFloat = 2
         static let boardContentInsetBottom: CGFloat = 2

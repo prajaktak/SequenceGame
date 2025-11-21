@@ -47,10 +47,8 @@ struct GameView: View {
     /// Used for computing seating order and maintaining team consistency.
     private var teams: [Team] {
         var uniqueTeams: [Team] = []
-        for player in gameState.players {
-            if !uniqueTeams.contains(where: { $0.id == player.team.id }) {
+        for player in gameState.players where uniqueTeams.contains(where: { $0.id == player.team.id }) {
                 uniqueTeams.append(player.team)
-            }
         }
         return uniqueTeams
     }
@@ -111,6 +109,8 @@ struct GameView: View {
                         .opacity(gameState.hasSelection ? 0 : 1)
                         .animation(.easeInOut(duration: GameConstants.Animation.cardSelectionDuration), value: gameState.hasSelection)
                     }
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier("gameBoardContainer")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     Text("Loading board...")
@@ -140,6 +140,9 @@ struct GameView: View {
                             .font(.system(size: 18, weight: .medium))
                             .foregroundColor(ThemeColor.accentPrimary)
                     })
+                    .accessibilityIdentifier("menuButton")
+                    .accessibilityLabel("Menu")
+                    .accessibilityHint("Return to main menu")
                 }
             }
             .onAppear {
@@ -168,7 +171,7 @@ struct GameView: View {
                     let overlayBackgroundColor = teamColor
                     GameOverlayView(
                         playerName: activePlayer.name,
-                        teamColor: teamColor ,
+                        teamColor: teamColor,
                         borderColor: teamOverlayBorderColor,
                         backgroundColor: overlayBackgroundColor,
                         onHelp: { /* present help */ },
@@ -222,7 +225,7 @@ struct GameView: View {
         
         // Build teams and players
         for teamIndex in 0..<numberOfTeams {
-            localTeams.append(Team(color: colorNames[teamIndex] , numberOfPlayers: playersPerTeam))
+            localTeams.append(Team(color: colorNames[teamIndex], numberOfPlayers: playersPerTeam))
             for index in 0..<playersPerTeam {
                 let displayIndex = index + 1
                 let playerName = "T\(teamIndex + 1)-P\(displayIndex)"
