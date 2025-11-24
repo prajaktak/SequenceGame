@@ -147,6 +147,52 @@ final class GameState: ObservableObject {
         boardTiles = boardManager.setupBoard()
         board = Board(row: 10, col: 10)
     }
+    /// Completely resets all game state to initial values.
+    ///
+    /// Use this when returning to game settings or starting a completely new game.
+    /// For restarting with the same players, use `restartGame()` instead.
+    func resetGame() {
+        // Clear all game state
+        players = []
+        currentPlayerIndex = 0
+        selectedCardId = nil
+        winningTeam = nil
+        detectedSequence = []
+        tilesInSequences = []
+        overlayMode = .turnStart
+        
+        // Reset board
+        board = Board()
+        boardTiles = Board().boardTiles
+        
+        // Reset deck
+        deck = DoubleDeck()
+        
+        print("✅ GameState: Game reset complete")
+    }
+    /// Restarts the game with the same player configuration.
+    ///
+    /// Preserves player names, teams, and player count, but resets all game progress.
+    /// Used for "Play Again" and "Restart" features.
+    func restartGame() {
+        // Save current player configuration (names and teams)
+        let savedPlayers = players.map { player in
+            Player(
+                name: player.name,
+                team: player.team,
+                isPlaying: false,
+                cards: []
+            )
+        }
+        
+        print("🔄 GameState: Restarting game with \(savedPlayers.count) players")
+        
+        // Reset all game state
+        resetGame()
+        
+        // Start new game with saved players
+        startGame(with: savedPlayers)
+    }
     
     // MARK: - Turn Control
     

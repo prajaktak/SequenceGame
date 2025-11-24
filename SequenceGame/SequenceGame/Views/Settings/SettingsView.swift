@@ -10,6 +10,7 @@ import SwiftUI
 struct SettingsView: View {
     @State private var soundEffectsEnabled = true
     @State private var hapticFeedbackEnabled = true
+    @AppStorage("showTurnOverlays") private var showTurnOverlays = true
     @State private var selectedTheme: ThemeOption = .auto
     @State private var selectedDifficulty: Difficulty = .medium
     @State private var showAttributions = false
@@ -52,8 +53,12 @@ struct SettingsView: View {
     
     var body: some View {
         ZStack {
-            ThemeColor.backgroundMenu
-                .ignoresSafeArea(edges: .bottom)
+            LinearGradient(
+                colors: [ThemeColor.backgroundMenu, ThemeColor.backgroundMenu.opacity(0.9)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+                .ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: 24) {
@@ -72,6 +77,7 @@ struct SettingsView: View {
                         Text("Settings")
                             .font(.system(size: 32, weight: .bold, design: .rounded))
                             .foregroundStyle(ThemeColor.textPrimary)
+                            .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 2)
                     }
                     .padding(.top, 20)
                     
@@ -96,6 +102,13 @@ struct SettingsView: View {
                             title: "Haptic Feedback",
                             subtitle: "Tactile responses",
                             isOn: $hapticFeedbackEnabled
+                        )
+                        // Show Turn Overlays Toggle
+                        SettingsToggleRow(
+                            icon: "eye.fill",
+                            title: "Show Turn Overlays",
+                            subtitle: "Display turn start and card hints",
+                            isOn: $showTurnOverlays
                         )
                     }
                     

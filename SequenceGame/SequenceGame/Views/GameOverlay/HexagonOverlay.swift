@@ -11,11 +11,13 @@ struct HexagonOverlay<Content: View>: View {
     let content: Content
     let borderColor: Color
     let backgroundColor: Color
+    let allowsHitTesting: Bool
     
-    init(borderColor: Color, backgroundColor: Color, @ViewBuilder content: () -> Content) {
+    init(borderColor: Color, backgroundColor: Color, allowsHitTesting: Bool = false, @ViewBuilder content: () -> Content) {
         self.borderColor = borderColor
         self.content = content()
         self.backgroundColor = backgroundColor
+        self.allowsHitTesting = allowsHitTesting
     }
     
     var body: some View {
@@ -26,7 +28,7 @@ struct HexagonOverlay<Content: View>: View {
             .clipShape(Hexagon())
             .overlay(Hexagon().stroke(borderColor, lineWidth: GameConstants.UISizing.emphasizedBorderWidth))
             .shadow(color: borderColor.opacity(0.5), radius: 12, y: 4)
-            .allowsHitTesting(false)
+            .allowsHitTesting(allowsHitTesting)
     }
 }
 #Preview("HexagonOverlay team green") {

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct GameOverlayView: View {
-    @EnvironmentObject var gameState: GameState  
+    @EnvironmentObject var gameState: GameState
     let playerName: String
     let teamColor: Color
     let borderColor: Color
@@ -18,7 +18,7 @@ struct GameOverlayView: View {
     @State private var shimmerOffset: CGFloat = -60
     @State private var textWidth: CGFloat = 160
     let mode: GameOverlayMode
-
+    
     var body: some View {
         switch mode {
         case .turnStart:
@@ -64,7 +64,7 @@ struct GameOverlayView: View {
                     CardSelectedOverlayContent(teamColor: borderColor)
                 }
             }
-
+            
         case .deadCard:
             HexagonOverlay(
                 borderColor: borderColor,
@@ -138,20 +138,75 @@ struct GameOverlayView: View {
         case .gameOver:
             HexagonOverlay(
                 borderColor: borderColor,
-                backgroundColor: backgroundColor
-            ) {
-                VStack(spacing: GameConstants.UISizing.overlayGameOverSpacing) {
-                    Text("Game Over!")
-                        .font(.system(size: GameConstants.UISizing.overlayGameOverTitleSize, weight: .bold, design: .rounded))
-                        .foregroundColor(ThemeColor.textOnAccent)
-                    
-                    if let winningTeam = gameState.winningTeam {
-                        Text("\(teamName(for: winningTeam)) Wins!")
-                            .font(.system(size: GameConstants.UISizing.overlayGameOverSubtitleSize, weight: .semibold, design: .rounded))
+                backgroundColor: backgroundColor,
+                allowsHitTesting: true,
+                content: {
+                    VStack(spacing: GameConstants.UISizing.overlayGameOverSpacing) {
+                        // Title
+                        Text("Game Over!")
+                            .font(.system(size: GameConstants.UISizing.overlayGameOverTitleSize, weight: .bold, design: .rounded))
                             .foregroundColor(ThemeColor.textOnAccent)
+                        
+                        // Winner announcement
+                        if let winningTeam = gameState.winningTeam {
+                            Text("\(teamName(for: winningTeam)) Wins!")
+                                .font(.system(size: GameConstants.UISizing.overlayGameOverSubtitleSize, weight: .semibold, design: .rounded))
+                                .foregroundColor(ThemeColor.textOnAccent)
+                        }
+                        
+                        // Buttons
+                        HStack(spacing: GameConstants.UISizing.handSpacing) {
+                            // Play Again Button
+                            Button(action: {
+                                gameState.restartGame()
+                            },
+                                   label: {
+                                HStack(spacing: GameConstants.UISizing.iconSizeSmall / 4) {
+                                    Image(systemName: "arrow.clockwise")
+                                        .font(.system(size: GameConstants.UISizing.iconSizeSmall))
+                                    Text("Play Again")
+                                        .font(.caption2)
+                                        .fontWeight(.semibold)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, GameConstants.UISizing.handVerticalInsets)
+                                .padding(.horizontal, GameConstants.UISizing.handSpacing)
+                                .background(Color.white.opacity(0.25))
+                                .foregroundColor(.white)
+                                .cornerRadius(GameConstants.UISizing.cardCornerRadius)
+                            })
+                            .buttonStyle(.plain)
+                            
+                            // New Game Button
+                            Button(action: {
+                                onClose()
+                            },
+                                   label: {
+                                HStack(spacing: GameConstants.UISizing.iconSizeSmall / 4) {
+                                    Image(systemName: "plus.circle")
+                                        .font(.system(size: GameConstants.UISizing.iconSizeSmall))
+                                    Text("New Game")
+                                        .font(.caption2)
+                                        .fontWeight(.semibold)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, GameConstants.UISizing.handVerticalInsets)
+                                .padding(.horizontal, GameConstants.UISizing.handSpacing)
+                                .background(Color.white.opacity(0.25))
+                                .foregroundColor(ThemeColor.textOnAccent)
+                                .cornerRadius(GameConstants.UISizing.cardCornerRadius)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: GameConstants.UISizing.cardCornerRadius)
+                                        .stroke(ThemeColor.textOnAccent.opacity(0.4), lineWidth: GameConstants.UISizing.standardBorderWidth)
+                                )
+                            })
+                            .buttonStyle(.plain)
+                        }
+                        .padding(.horizontal, GameConstants.UISizing.boardPadding)
+                        .padding(.top, GameConstants.UISizing.iconSizeSmall / 4)
                     }
                 }
-            }
+            )
         }
     }
     private func teamName(for color: TeamColor) -> String {

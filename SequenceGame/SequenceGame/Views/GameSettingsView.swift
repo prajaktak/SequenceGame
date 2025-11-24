@@ -13,17 +13,23 @@ struct GameSettingsView: View {
     
     var body: some View {
         ZStack {
-            ThemeColor.backgroundMenu
-                .ignoresSafeArea(edges: [.bottom])
+            LinearGradient(
+                colors: [ThemeColor.backgroundMenu, ThemeColor.backgroundMenu.opacity(0.9)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+                .ignoresSafeArea()
             VStack(spacing: 30) {
                     // Title Section
                     VStack(spacing: 8) {
                         Text("Sequence")
                             .font(.system(size: 48, weight: .bold, design: .rounded))
                             .foregroundStyle(ThemeColor.textPrimary)
+                            .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 2)
                         Text("Select your game settings")
                             .font(.subheadline)
-                            .foregroundStyle(ThemeColor.textPrimary.opacity(0.7))
+                            .fontWeight(.medium)
+                            .foregroundStyle(ThemeColor.textPrimary.opacity(0.85))
                     }
                     .padding(.top, 20)
                     

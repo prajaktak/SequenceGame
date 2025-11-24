@@ -39,6 +39,9 @@ struct GameView: View {
     /// Work item for auto-dismissing temporary overlays; can be cancelled if overlay mode changes.
     @State private var overlayDismissWork: DispatchWorkItem?
     
+    /// Controls visibility of the in-game menu sheet.
+    @State private var showGameMenu: Bool = false
+    
     // MARK: - Computed Properties
     
     /// Unique teams extracted from the current players in gameState.
@@ -129,12 +132,7 @@ struct GameView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
-                        // Pop to root (MainMenu) by dismissing twice
-                        // First dismiss GameView, then GameSettingsView
-                        dismiss()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.Animation.navigationDismissDelay) {
-                            dismiss()
-                        }
+                        showGameMenu = true
                     }, label: {
                         Image(systemName: "line.3.horizontal")
                             .font(.system(size: 18, weight: .medium))
@@ -142,8 +140,21 @@ struct GameView: View {
                     })
                     .accessibilityIdentifier("menuButton")
                     .accessibilityLabel("Menu")
-                    .accessibilityHint("Return to main menu")
+                    .accessibilityHint("Open game menu")
                 }
+            }
+            .sheet(isPresented: $showGameMenu) {
+                InGameMenuView(onNewGame: {
+                    // Close the menu sheet first
+                    showGameMenu = false
+                    
+                    // Reset game state
+                    gameState.resetGame()
+                    
+                    // Dismiss GameView (back to GameSettingsView)
+                    dismiss()
+                })
+                .environmentObject(gameState)
             }
             .onAppear {
                 setupGame()
