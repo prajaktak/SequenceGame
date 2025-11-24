@@ -6,8 +6,8 @@
 //
 import Foundation
 
-struct BoardTile: Identifiable {
-    let id = UUID()
+struct BoardTile: Codable, Identifiable {
+    var id = UUID()
     var card: Card?
     var isEmpty: Bool
     var isChipOn: Bool

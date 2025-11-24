@@ -5,8 +5,24 @@
 //  Created by Prajakta Kulkarni on 21/10/2025.
 //
 
-class Deck {
+class Deck: Codable {
     private(set) var cards: [Card] = []
+    
+    // MARK: - Codable
+    
+    enum CodingKeys: String, CodingKey {
+        case cards
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(cards, forKey: .cards)
+    }
+
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        cards = try container.decode([Card].self, forKey: .cards)
+    }
     
     init() {
         resetDeck()

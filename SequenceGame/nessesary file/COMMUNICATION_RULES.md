@@ -55,6 +55,30 @@ When making any suggestion, claim, or recommendation:
 ✅ **GOOD:** "This will cause an error. According to [Swift Memory Safety Documentation](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/memorysafety/), accessing variables not in scope can lead to EXC_BAD_ACCESS errors."
 
 ---
+## 🔴 **RULE #3: ASKING "HOW TO" MEANS GUIDANCE ONLY**
+
+### **BOLD: "HOW TO" QUESTIONS REQUIRE EXPLANATIONS, NOT IMPLEMENTATIONS**
+
+When user asks:
+- "How to test it?"
+- "How do I create X?"
+- "How should I implement Y?"
+
+**YOU MUST:**
+- ✅ **EXPLAIN** the approach
+- ✅ **PROVIDE** example code for reference
+- ✅ **GUIDE** step-by-step
+- ❌ **DO NOT CREATE** files or modify code
+
+**YOU MUST ASK:**
+- "Would you like me to create this for you?"
+- "Should I implement this, or would you prefer to do it yourself?"
+
+### **ONLY IMPLEMENT WHEN USER SAYS:**
+- "do changes in code"
+- "create the file"
+- "implement it"
+- "yes, please create it"
 
 ## 📋 **DAILY WORKFLOW**
 

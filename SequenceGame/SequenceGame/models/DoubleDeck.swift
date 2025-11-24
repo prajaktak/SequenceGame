@@ -5,10 +5,29 @@
 //  Created by Prajakta Kulkarni on 31/10/2025.
 //
 
-class DoubleDeck {
+class DoubleDeck: Codable {
     private var deck1: Deck
     private var deck2: Deck
     var cardDrawCount: Int = 0
+    
+    // MARK: - Codable
+    enum CodingKeys: String, CodingKey {
+        case deck1, deck2, cardDrawCount
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(deck1, forKey: .deck1)
+        try container.encode(deck2, forKey: .deck2)
+        try container.encode(cardDrawCount, forKey: .cardDrawCount)
+    }
+    
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        deck1 = try container.decode(Deck.self, forKey: .deck1)
+        deck2 = try container.decode(Deck.self, forKey: .deck2)
+        cardDrawCount = try container.decode(Int.self, forKey: .cardDrawCount)
+    }
     
     init() {
         deck1 = Deck()

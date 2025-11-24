@@ -28,7 +28,8 @@ struct GameSettings {
     }
     
     var isValid: Bool {
-        totalPlayers <= 12 &&
+        print("total player \(totalPlayers) valid players per team \( validPlayersPerTeamRange.contains(playersPerTeam))" )
+        return totalPlayers <= 12 &&
         validPlayersPerTeamRange.contains(playersPerTeam)
     }
     

@@ -7,10 +7,10 @@
 
 import Foundation
 
-struct Sequence: Identifiable {
+struct Sequence: Codable, Identifiable {
     var id = UUID()
     var tiles: [BoardTile]
-    var position: (row: Int, col: Int)
+    var position: Position
     var teamColor: TeamColor
     var sequenceType: SequenceType
 }

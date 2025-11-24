@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Team: Identifiable {
+struct Team: Codable, Identifiable {
     var id = UUID()
     var color: TeamColor
     var numberOfPlayers: Int

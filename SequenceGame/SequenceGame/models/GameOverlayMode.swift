@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum GameOverlayMode {
+enum GameOverlayMode: Codable, Equatable {
     case turnStart                     // Appears at the start of a turn
     case cardSelected                  // After a player taps a card in hand
     case deadCard                      // Selected card is dead; offer discard + draw

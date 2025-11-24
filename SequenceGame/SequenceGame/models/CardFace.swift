@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum CardFace: Equatable, CaseIterable {
+enum CardFace: Codable, Equatable, CaseIterable {
     case ace, two, three, four, five, six, seven, eight, nine, ten, jack, queen, king, empty
     
     var displayValue: String {

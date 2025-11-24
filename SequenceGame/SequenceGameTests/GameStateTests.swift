@@ -622,7 +622,7 @@ struct GameStateTests {
         
         let sequence = Sequence(
             tiles: [tile1, tile2, tile3, tile4, tile5],
-            position: (row: 1, col: 1),
+            position: Position(row: 1, col: 1),
             teamColor: .blue,
             sequenceType: .horizontal
         )
@@ -660,8 +660,8 @@ struct GameStateTests {
             state.boardTiles[9][5]
         ]
         
-        let sequence1 = Sequence(tiles: seq1Tiles, position: (row: 1, col: 1), teamColor: .blue, sequenceType: .horizontal)
-        let sequence2 = Sequence(tiles: seq2Tiles, position: (row: 5, col: 5), teamColor: .red, sequenceType: .vertical)
+        let sequence1 = Sequence(tiles: seq1Tiles, position: Position(row: 1, col: 1), teamColor: .blue, sequenceType: .horizontal)
+        let sequence2 = Sequence(tiles: seq2Tiles, position: Position(row: 5, col: 5), teamColor: .red, sequenceType: .vertical)
         
         state.detectedSequence = [sequence1, sequence2]
         
@@ -700,8 +700,8 @@ struct GameStateTests {
             sharedTile  // Column sequence
         ]
         
-        let sequence1 = Sequence(tiles: seq1Tiles, position: (row: 5, col: 1), teamColor: .blue, sequenceType: .horizontal)
-        let sequence2 = Sequence(tiles: seq2Tiles, position: (row: 1, col: 5), teamColor: .blue, sequenceType: .vertical)
+        let sequence1 = Sequence(tiles: seq1Tiles, position: Position(row: 5, col: 1), teamColor: .blue, sequenceType: .horizontal)
+        let sequence2 = Sequence(tiles: seq2Tiles, position: Position(row: 1, col: 5), teamColor: .blue, sequenceType: .vertical)
         
         state.detectedSequence = [sequence1, sequence2]
         
@@ -723,7 +723,7 @@ struct GameStateTests {
             state.boardTiles[1][5]
         ]
         
-        let sequence = Sequence(tiles: tiles, position: (row: 1, col: 1), teamColor: .blue, sequenceType: .horizontal)
+        let sequence = Sequence(tiles: tiles, position: Position(row: 1, col: 1), teamColor: .blue, sequenceType: .horizontal)
         state.detectedSequence = [sequence]
         
         #expect(state.tilesInSequences.count == 5)
@@ -747,7 +747,7 @@ struct GameStateTests {
             BoardTile(card: Card(cardFace: .four, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
             BoardTile(card: Card(cardFace: .five, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil)
         ]
-        let sequence = Sequence(tiles: dummyTiles, position: (row: 0, col: 0), teamColor: .blue, sequenceType: .horizontal)
+        let sequence = Sequence(tiles: dummyTiles, position: Position(row: 0, col: 0), teamColor: .blue, sequenceType: .horizontal)
         state.detectedSequence = [sequence]
         
         #expect(!state.tilesInSequences.isEmpty)
@@ -777,7 +777,7 @@ struct GameStateTests {
             state.boardTiles[1][5]
         ]
         
-        let sequence = Sequence(tiles: tiles, position: (row: 1, col: 1), teamColor: .blue, sequenceType: .horizontal)
+        let sequence = Sequence(tiles: tiles, position: Position(row: 1, col: 1), teamColor: .blue, sequenceType: .horizontal)
         state.detectedSequence = [sequence]
         
         // Test that lookups work (O(1) access)
@@ -888,8 +888,8 @@ struct GameStateTests {
             BoardTile(card: Card(cardFace: .ten, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil)
         ]
         
-        let sequence1 = Sequence(tiles: dummyTiles1, position: (row: 0, col: 0), teamColor: .blue, sequenceType: .horizontal)
-        let sequence2 = Sequence(tiles: dummyTiles2, position: (row: 1, col: 0), teamColor: .blue, sequenceType: .horizontal)
+        let sequence1 = Sequence(tiles: dummyTiles1, position: Position(row: 0, col: 0), teamColor: .blue, sequenceType: .horizontal)
+        let sequence2 = Sequence(tiles: dummyTiles2, position: Position(row: 1, col: 0), teamColor: .blue, sequenceType: .horizontal)
         
         state.detectedSequence = [sequence1, sequence2]
         
@@ -916,7 +916,7 @@ struct GameStateTests {
             BoardTile(card: Card(cardFace: .five, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil)
         ]
         
-        let sequence = Sequence(tiles: dummyTiles, position: (row: 0, col: 0), teamColor: .red, sequenceType: .horizontal)
+        let sequence = Sequence(tiles: dummyTiles, position: Position(row: 0, col: 0), teamColor: .red, sequenceType: .horizontal)
         state.detectedSequence = [sequence]
         
         let result = state.evaluateGameState()
@@ -956,9 +956,9 @@ struct GameStateTests {
             BoardTile(card: Card(cardFace: .five, suit: .clubs), isEmpty: false, isChipOn: false, chip: nil)
         ]
         
-        let blueSeq1 = Sequence(tiles: dummyTiles1, position: (row: 0, col: 0), teamColor: .blue, sequenceType: .horizontal)
-        let blueSeq2 = Sequence(tiles: dummyTiles2, position: (row: 1, col: 0), teamColor: .blue, sequenceType: .horizontal)
-        let redSeq = Sequence(tiles: dummyTiles3, position: (row: 2, col: 0), teamColor: .red, sequenceType: .horizontal)
+        let blueSeq1 = Sequence(tiles: dummyTiles1, position: Position(row: 0, col: 0), teamColor: .blue, sequenceType: .horizontal)
+        let blueSeq2 = Sequence(tiles: dummyTiles2, position: Position(row: 1, col: 0), teamColor: .blue, sequenceType: .horizontal)
+        let redSeq = Sequence(tiles: dummyTiles3, position: Position(row: 2, col: 0), teamColor: .red, sequenceType: .horizontal)
         
         state.detectedSequence = [blueSeq1, blueSeq2, redSeq]
         
