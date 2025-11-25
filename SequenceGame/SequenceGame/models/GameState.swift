@@ -442,5 +442,33 @@ final class GameState: ObservableObject {
             sequence.tiles.map { $0.id }
         })
     }
+
+        // MARK: - Persistence
+    
+    /// Restores game state from a saved snapshot.
+    ///
+    /// This method updates all published properties from the snapshot data,
+    /// triggering UI updates via the `@Published` property wrappers.
+    ///
+    /// - Parameter snapshot: The saved game state snapshot to restore from
+    func restore(from snapshot: GameStateSnapshot) {
+        // Restore all game state properties
+        self.players = snapshot.players
+        self.currentPlayerIndex = snapshot.currentPlayerIndex
+        self.overlayMode = snapshot.overlayMode
+        self.board = snapshot.board
+        self.boardTiles = snapshot.boardTiles
+        self.selectedCardId = snapshot.selectedCardId
+        self.sequenceDetector = snapshot.sequenceDetector
+        self.detectedSequence = snapshot.detectedSequence
+        self.tilesInSequences = snapshot.tilesInSequences
+        self.winningTeam = snapshot.winningTeam
+        self.deck = snapshot.deck
+        
+        // Ensure sequence detector's board reference is updated
+        sequenceDetector.board = board
+        
+        print("✅ Game state restored successfully")
+    }
         
 }

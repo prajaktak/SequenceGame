@@ -102,7 +102,7 @@ struct GameSettingsView: View {
                     .padding(.horizontal, 20)
                     
                     // Start Game Button
-                NavigationLink(destination: GameView(playersPerTeam: settings.playersPerTeam, numberOfTeams: settings.numberOfTeams)) {
+                NavigationLink(destination: GameView(playersPerTeam: settings.playersPerTeam, numberOfTeams: settings.numberOfTeams, isResuming: false)) {
                         HStack(spacing: 12) {
                             Image(systemName: "play.fill")
                                 .font(.title3)

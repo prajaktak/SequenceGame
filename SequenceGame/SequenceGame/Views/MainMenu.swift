@@ -9,6 +9,8 @@ import SwiftUI
 
 struct MainMenu: View {
     @State private var scatterItems: [ScatterItem] = []
+    @State private var hasSavedGame = false
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -23,6 +25,16 @@ struct MainMenu: View {
                     MainMenuHeaderView()
                     Spacer()
                     VStack(spacing: GameConstants.UISizing.verticalSpacing) {
+                        // Resume Game button - only show if saved game exists
+                        if hasSavedGame {
+                            MenuButtonView(
+                                title: "Resume Game",
+                                subtitle: "Continue your last game",
+                                iconSystemName: "arrow.clockwise.circle.fill",
+                                gradient: [ThemeColor.accentSecondary, ThemeColor.accentPrimary]
+                            ) { ResumeGameView() }
+                        }
+                        
                         MenuButtonView(
                             title: "New Game",
                             subtitle: "Start a fresh game",
@@ -63,6 +75,10 @@ struct MainMenu: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(ThemeColor.backgroundMenu, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+            .onAppear {
+                // Check if a saved game exists
+                hasSavedGame = GamePersistence.hasSavedGame()
+            }
         }
     }
 }

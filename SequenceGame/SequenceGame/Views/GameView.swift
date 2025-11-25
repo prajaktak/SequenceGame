@@ -42,6 +42,15 @@ struct GameView: View {
     /// Controls visibility of the in-game menu sheet.
     @State private var showGameMenu: Bool = false
     
+    /// Flag to track if this is a resumed game (true) or new game (false)
+    @State private var isResuming: Bool = false
+    
+    /// Flag to track if the view has finished initial setup
+    /// Prevents onDisappear from triggering during initial setup
+    @State private var hasFinishedSetup: Bool = false
+
+    @Environment(\.scenePhase) var scenePhase
+    
     // MARK: - Computed Properties
     
     /// Unique teams extracted from the current players in gameState.
@@ -70,9 +79,11 @@ struct GameView: View {
     /// - Parameters:
     ///   - playersPerTeam: Number of players on each team (default: 5)
     ///   - numberOfTeams: Number of teams in the game (default: 2)
-    init(playersPerTeam: Int = 5, numberOfTeams: Int = 2) {
+    ///   - isResuming: Whether this is resuming a saved game (default: false)
+    init(playersPerTeam: Int = 5, numberOfTeams: Int = 2, isResuming: Bool = false) {
         _playersPerTeam = State(initialValue: playersPerTeam)
         _numberOfTeams = State(initialValue: numberOfTeams)
+        _isResuming = State(initialValue: isResuming)
     }
     
     // MARK: - Body
@@ -129,6 +140,32 @@ struct GameView: View {
             .navigationTitle("Sequence Game")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
+//            .onChange(of: gameState.boardTiles) { _, _ in
+//                saveGame()
+//            }
+            .onChange(of: gameState.currentPlayerIndex) { _, _ in
+                saveGame()
+            }
+            .onDisappear {
+                print("🔴 GameView.onDisappear - hasFinishedSetup: \(hasFinishedSetup)")
+                print("🔴 GameView.onDisappear - isResuming: \(isResuming)")
+                print("🔴 GameView.onDisappear - currentPlayer: \(gameState.currentPlayer?.name ?? "nil")")
+                print("🔴 GameView.onDisappear - overlayMode: \(gameState.overlayMode)")
+                print("🔴 GameView.onDisappear - isOverlayPresent: \(isOverlayPresent)")
+                
+                // Only save if setup is complete (prevents saving during initial setup)
+                if hasFinishedSetup {
+                    print("🔴 GameView.onDisappear - Saving game")
+                    saveGame()
+                } else {
+                    print("🔴 GameView.onDisappear - Skipping save (setup not complete)")
+                }
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .background {
+                    saveGame()
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
@@ -157,19 +194,61 @@ struct GameView: View {
                 .environmentObject(gameState)
             }
             .onAppear {
-                setupGame()
+                print("🔵 GameView.onAppear - isResuming: \(isResuming), hasFinishedSetup: \(hasFinishedSetup)")
+                print("🔵 GameView.onAppear - currentPlayer: \(gameState.currentPlayer?.name ?? "nil")")
+                print("🔵 GameView.onAppear - overlayMode: \(gameState.overlayMode)")
+                print("🔵 GameView.onAppear - isOverlayPresent: \(isOverlayPresent)")
+                
+                if isResuming {
+                    // Game is already loaded from ResumeGameView, do nothing
+                    print("✅ Resuming saved game")
+                    // Set overlay present if overlayMode is set (even if it doesn't change)
+                    if gameState.overlayMode == .turnStart {
+                        print("🔵 GameView.onAppear - Setting isOverlayPresent = true for resumed game (turnStart)")
+                        isOverlayPresent = true
+                    }
+                    // Mark setup as complete immediately for resume
+                    hasFinishedSetup = true
+                } else {
+                    // Starting a new game - delete any existing save and setup new game
+                    print("✅ Setting new game")
+                    GamePersistence.deleteSavedGame()
+                    setupGame()
+                    print("🔵 GameView.onAppear - After setupGame() - currentPlayer: \(gameState.currentPlayer?.name ?? "nil")")
+                    print("🔵 GameView.onAppear - After setupGame() - overlayMode: \(gameState.overlayMode)")
+                    // Set overlay present if overlayMode is .turnStart (even if it doesn't change)
+                    if gameState.overlayMode == .turnStart {
+                        print("🔵 GameView.onAppear - Setting isOverlayPresent = true for new game (turnStart)")
+                        isOverlayPresent = true
+                    }
+                    // Mark setup as complete after a small delay to allow state updates to settle
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        print("🔵 GameView - Setting hasFinishedSetup = true")
+                        hasFinishedSetup = true
+                    }
+                }
             }
-            .onChange(of: gameState.overlayMode) { _, newMode in
+            .onChange(of: gameState.overlayMode) { oldMode, newMode in
+                print("🟡 GameView.onChange(overlayMode) - oldMode: \(oldMode), newMode: \(newMode)")
+                print("🟡 GameView.onChange(overlayMode) - currentPlayer: \(gameState.currentPlayer?.name ?? "nil")")
+                print("🟡 GameView.onChange(overlayMode) - isOverlayPresent before: \(isOverlayPresent)")
+                
                 if newMode == .gameOver {
                     isOverlayPresent = true
+                    print("🟡 GameView.onChange(overlayMode) - Set isOverlayPresent = true (gameOver)")
+                    saveGame()
                     // Don't auto-dismiss game over overlay
                     return
                 }
                 isOverlayPresent = true
+                print("🟡 GameView.onChange(overlayMode) - Set isOverlayPresent = true")
                 overlayDismissWork?.cancel()
                 overlayDismissWork = nil
                 if newMode != .deadCard {
-                    let work = DispatchWorkItem { isOverlayPresent = false }
+                    let work = DispatchWorkItem { 
+                        print("🟡 GameView - Auto-dismissing overlay")
+                        isOverlayPresent = false 
+                    }
                     overlayDismissWork = work
                     DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.Animation.overlayAutoDismissDelay, execute: work)
                 }
@@ -229,6 +308,10 @@ struct GameView: View {
     /// - Note: After setup, all game data lives in `gameState`. This view derives `teams` and `seats`
     ///   dynamically via computed properties to maintain single source of truth.
     private func setupGame() {
+        print("🟢 GameView.setupGame() - Starting setup")
+        print("🟢 GameView.setupGame() - Before startGame - overlayMode: \(gameState.overlayMode)")
+        print("🟢 GameView.setupGame() - Before startGame - currentPlayer: \(gameState.currentPlayer?.name ?? "nil")")
+        
         var localPlayers: [Player] = []
         var localTeams: [Team] = []
         
@@ -248,10 +331,30 @@ struct GameView: View {
         let teamOrder = localTeams.map { $0.id }
         localPlayers = SeatingRules.interleaveByTeams(localPlayers, teamOrder: teamOrder)
         
+        print("🟢 GameView.setupGame() - About to call startGame with \(localPlayers.count) players")
+        
         // Hand off to GameState (single source of truth)
         gameState.startGame(with: localPlayers)
         
+        print("🟢 GameView.setupGame() - After startGame - overlayMode: \(gameState.overlayMode)")
+        print("🟢 GameView.setupGame() - After startGame - currentPlayer: \(gameState.currentPlayer?.name ?? "nil")")
+        print("🟢 GameView.setupGame() - After startGame - players.count: \(gameState.players.count)")
+        
         // Note: seats and teams are now computed properties derived from gameState
+    }
+    
+    // MARK: - Persistence
+    
+    /// Saves the current game state to disk.
+    ///
+    /// Errors are logged but not shown to the user to avoid interrupting gameplay.
+    private func saveGame() {
+        do {
+            try GamePersistence.saveGame(gameState)
+        } catch {
+            // Log error but don't interrupt gameplay
+            print("⚠️ Failed to save game: \(error.localizedDescription)")
+        }
     }
 }
 
