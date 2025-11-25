@@ -19,6 +19,7 @@ struct InGameMenuView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var showRestartConfirmation = false
+    @State private var showRestartError = false
     var onNewGame: () -> Void
     
     var body: some View {
@@ -116,13 +117,24 @@ struct InGameMenuView: View {
             .alert("Restart Game?", isPresented: $showRestartConfirmation) {
                 Button("Cancel", role: .cancel) { }
                 Button("Restart", role: .destructive) {
-                    gameState.restartGame()
-                    dismiss()
+                    do {
+        try gameState.restartGame()
+        dismiss()
+    } catch {
+        showRestartError = true
+    }
                 }
             } message: {
                 Text("Current progress will be lost. Start over with the same players?")
             }
         }
+        .alert("Cannot Restart Game", isPresented: $showRestartError) {
+    Button("OK") {
+        onNewGame()
+    }
+} message: {
+    Text("Can not restart game due to technical issue. Please start new game")
+}
     }
 }
 

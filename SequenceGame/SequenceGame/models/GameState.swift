@@ -174,7 +174,11 @@ final class GameState: ObservableObject {
     ///
     /// Preserves player names, teams, and player count, but resets all game progress.
     /// Used for "Play Again" and "Restart" features.
-    func restartGame() {
+    func restartGame() throws {
+        // Guard: Cannot restart with no players
+        guard !players.isEmpty else {
+            throw GameStateError.cannotRestartWithoutPlayers
+        }
         // Save current player configuration (names and teams)
         let savedPlayers = players.map { player in
             Player(

@@ -158,7 +158,12 @@ struct GameOverlayView: View {
                         HStack(spacing: GameConstants.UISizing.handSpacing) {
                             // Play Again Button
                             Button(action: {
-                                gameState.restartGame()
+                                do {
+                                    try gameState.restartGame()
+                                } catch {
+                                    // If restart fails, close overlay (user can start new game manually)
+                                    onClose()
+                                }
                             },
                                    label: {
                                 HStack(spacing: GameConstants.UISizing.iconSizeSmall / 4) {

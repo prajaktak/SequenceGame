@@ -44,6 +44,9 @@ struct InGameMenuButtonView: View {
             .shadow(color: .black.opacity(0.1), radius: GameConstants.UISizing.iconSizeSmall / 4, x: 0, y: 2)
         })
         .buttonStyle(.plain)
+        .accessibilityIdentifier(title)
+        .accessibilityLabel(title)
+        .accessibilityHint(subtitle)
     }
 }
 

@@ -60,6 +60,7 @@ struct MenuButtonView<Destination: View>: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier(title)
         .accessibilityLabel(title)
         .accessibilityHint(subtitle)
         .disabled(!isEnabled)
