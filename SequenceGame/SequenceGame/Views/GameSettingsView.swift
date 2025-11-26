@@ -10,6 +10,7 @@ import SwiftUI
 struct GameSettingsView: View {
     @EnvironmentObject var gameState: GameState
     @State private var settings = GameSettings()
+    @State private var navigateToGame = false
     
     var body: some View {
         ZStack {
@@ -102,7 +103,9 @@ struct GameSettingsView: View {
                     .padding(.horizontal, 20)
                     
                     // Start Game Button
-                NavigationLink(destination: GameView(playersPerTeam: settings.playersPerTeam, numberOfTeams: settings.numberOfTeams, isResuming: false)) {
+                    Button(action: {
+                        navigateToGame = true
+                    }, label: {
                         HStack(spacing: 12) {
                             Image(systemName: "play.fill")
                                 .font(.title3)
@@ -127,7 +130,7 @@ struct GameSettingsView: View {
                                 .stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth)
                         )
                         .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 1)
-                    }
+                    })
                     .accessibilityIdentifier("startGameButton")
                     .accessibilityElement(children: .combine)
                     .accessibilityAddTraits(.isButton)
@@ -143,6 +146,9 @@ struct GameSettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(ThemeColor.backgroundMenu, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+            .navigationDestination(isPresented: $navigateToGame) {
+                GameView(playersPerTeam: settings.playersPerTeam, numberOfTeams: settings.numberOfTeams, isResuming: false)
+            }
     }
 }
 

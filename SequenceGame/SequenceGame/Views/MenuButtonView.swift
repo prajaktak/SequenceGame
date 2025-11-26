@@ -68,7 +68,7 @@ struct MenuButtonView<Destination: View>: View {
 }
 
 #Preview("MenuButtonView") {
-    NavigationView {
+    NavigationStack {
         MenuButtonView(
             title: "New Game",
             subtitle: "Start a fresh game",

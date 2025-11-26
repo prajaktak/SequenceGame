@@ -15,6 +15,8 @@ struct GameOverlayView: View {
     let backgroundColor: Color
     var onHelp: () -> Void = {}
     var onClose: () -> Void = {}
+    var onRestart: (() -> Void)?
+    var onNewGame: (() -> Void)?
     @State private var shimmerOffset: CGFloat = -60
     @State private var textWidth: CGFloat = 160
     let mode: GameOverlayMode
@@ -154,15 +156,23 @@ struct GameOverlayView: View {
                                 .foregroundColor(ThemeColor.textOnAccent)
                         }
                         
-                        // Buttons
+                        // Buttons - wrapped in container that consumes taps
                         HStack(spacing: GameConstants.UISizing.handSpacing) {
                             // Play Again Button
                             Button(action: {
-                                do {
-                                    try gameState.restartGame()
-                                } catch {
-                                    // If restart fails, close overlay (user can start new game manually)
+                                // Use callback if provided, otherwise handle directly
+                                if let onRestart = onRestart {
+                                    onRestart()
+                                } else {
+                                    // Fallback: Close overlay and restart
                                     onClose()
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        do {
+                                            try gameState.restartGame()
+                                        } catch {
+                                            // Silently fail
+                                        }
+                                    }
                                 }
                             },
                                    label: {
@@ -181,10 +191,16 @@ struct GameOverlayView: View {
                                 .cornerRadius(GameConstants.UISizing.cardCornerRadius)
                             })
                             .buttonStyle(.plain)
+                            .contentShape(Rectangle())
                             
                             // New Game Button
                             Button(action: {
-                                onClose()
+                                // Use callback if provided, otherwise just close overlay
+                                if let onNewGame = onNewGame {
+                                    onNewGame()
+                                } else {
+                                    onClose()
+                                }
                             },
                                    label: {
                                 HStack(spacing: GameConstants.UISizing.iconSizeSmall / 4) {
@@ -209,6 +225,8 @@ struct GameOverlayView: View {
                         }
                         .padding(.horizontal, GameConstants.UISizing.boardPadding)
                         .padding(.top, GameConstants.UISizing.iconSizeSmall / 4)
+                        .contentShape(Rectangle())
+                        .onTapGesture { } // Consume taps on button area to prevent propagation
                     }
                 }
             )

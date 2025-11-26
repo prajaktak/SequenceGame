@@ -23,7 +23,7 @@ struct InGameMenuView: View {
     var onNewGame: () -> Void
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 LinearGradient(
                     colors: [ThemeColor.backgroundMenu, ThemeColor.backgroundMenu.opacity(0.9)],

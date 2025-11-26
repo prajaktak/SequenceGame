@@ -48,6 +48,11 @@ struct GameView: View {
     /// Flag to track if the view has finished initial setup
     /// Prevents onDisappear from triggering during initial setup
     @State private var hasFinishedSetup: Bool = false
+    
+    /// Timestamp when setup was completed, to prevent immediate saves
+    @State private var setupCompletedAt: Date?
+    @State private var isRestartingGame = false
+    @State private var isNavigatingAway = false
 
     @Environment(\.scenePhase) var scenePhase
     
@@ -137,6 +142,7 @@ struct GameView: View {
                 
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
+            .accessibilityIdentifier("gameView")
             .navigationTitle("Sequence Game")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
@@ -144,25 +150,21 @@ struct GameView: View {
 //                saveGame()
 //            }
             .onChange(of: gameState.currentPlayerIndex) { _, _ in
-                saveGame()
+                // Don't save if game is over
+                if gameState.overlayMode != .gameOver {
+                    saveGame()
+                }
             }
             .onDisappear {
-                print("🔴 GameView.onDisappear - hasFinishedSetup: \(hasFinishedSetup)")
-                print("🔴 GameView.onDisappear - isResuming: \(isResuming)")
-                print("🔴 GameView.onDisappear - currentPlayer: \(gameState.currentPlayer?.name ?? "nil")")
-                print("🔴 GameView.onDisappear - overlayMode: \(gameState.overlayMode)")
-                print("🔴 GameView.onDisappear - isOverlayPresent: \(isOverlayPresent)")
-                
-                // Only save if setup is complete (prevents saving during initial setup)
-                if hasFinishedSetup {
-                    print("🔴 GameView.onDisappear - Saving game")
+                // Only save if setup is complete and game is not over
+                // Also prevent saving immediately after setup completes (within 0.5 seconds) to avoid view refresh issues
+                let timeSinceSetup = setupCompletedAt.map { Date().timeIntervalSince($0) } ?? 999
+                if hasFinishedSetup && gameState.overlayMode != .gameOver && timeSinceSetup > 0.5 {
                     saveGame()
-                } else {
-                    print("🔴 GameView.onDisappear - Skipping save (setup not complete)")
                 }
             }
             .onChange(of: scenePhase) { _, newPhase in
-                if newPhase == .background {
+                if newPhase == .background && gameState.overlayMode != .gameOver {
                     saveGame()
                 }
             }
@@ -188,65 +190,80 @@ struct GameView: View {
                     // Reset game state
                     gameState.resetGame()
                     
-                    // Dismiss GameView (back to GameSettingsView)
+                    // Dismiss GameView (back to GameSettingsView or MainMenu)
                     dismiss()
                 })
                 .environmentObject(gameState)
             }
             .onAppear {
-                print("🔵 GameView.onAppear - isResuming: \(isResuming), hasFinishedSetup: \(hasFinishedSetup)")
-                print("🔵 GameView.onAppear - currentPlayer: \(gameState.currentPlayer?.name ?? "nil")")
-                print("🔵 GameView.onAppear - overlayMode: \(gameState.overlayMode)")
-                print("🔵 GameView.onAppear - isOverlayPresent: \(isOverlayPresent)")
+                // If game is already set up (players exist), just ensure overlay is shown if needed
+                // This handles the case where the view is recreated but the game state persists
+                if !gameState.players.isEmpty && hasFinishedSetup {
+                    if !isOverlayPresent && gameState.overlayMode == .turnStart {
+                        isOverlayPresent = true
+                    }
+                    return
+                }
+                
+                // If game is already set up but hasFinishedSetup is false (view recreated), mark it as complete
+                if !gameState.players.isEmpty && !hasFinishedSetup {
+                    if !isOverlayPresent && gameState.overlayMode == .turnStart {
+                        isOverlayPresent = true
+                    }
+                    hasFinishedSetup = true
+                    setupCompletedAt = Date()
+                    return
+                }
                 
                 if isResuming {
                     // Game is already loaded from ResumeGameView, do nothing
-                    print("✅ Resuming saved game")
-                    // Set overlay present if overlayMode is set (even if it doesn't change)
+                    // Set overlay present if overlayMode is set
                     if gameState.overlayMode == .turnStart {
-                        print("🔵 GameView.onAppear - Setting isOverlayPresent = true for resumed game (turnStart)")
                         isOverlayPresent = true
                     }
                     // Mark setup as complete immediately for resume
                     hasFinishedSetup = true
+                    setupCompletedAt = Date()
                 } else {
                     // Starting a new game - delete any existing save and setup new game
-                    print("✅ Setting new game")
                     GamePersistence.deleteSavedGame()
                     setupGame()
-                    print("🔵 GameView.onAppear - After setupGame() - currentPlayer: \(gameState.currentPlayer?.name ?? "nil")")
-                    print("🔵 GameView.onAppear - After setupGame() - overlayMode: \(gameState.overlayMode)")
-                    // Set overlay present if overlayMode is .turnStart (even if it doesn't change)
+                    // Always show overlay on initial game start
+                    // Set it immediately to avoid view recreation issues
                     if gameState.overlayMode == .turnStart {
-                        print("🔵 GameView.onAppear - Setting isOverlayPresent = true for new game (turnStart)")
                         isOverlayPresent = true
                     }
                     // Mark setup as complete after a small delay to allow state updates to settle
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        print("🔵 GameView - Setting hasFinishedSetup = true")
                         hasFinishedSetup = true
+                        setupCompletedAt = Date()
                     }
                 }
             }
-            .onChange(of: gameState.overlayMode) { oldMode, newMode in
-                print("🟡 GameView.onChange(overlayMode) - oldMode: \(oldMode), newMode: \(newMode)")
-                print("🟡 GameView.onChange(overlayMode) - currentPlayer: \(gameState.currentPlayer?.name ?? "nil")")
-                print("🟡 GameView.onChange(overlayMode) - isOverlayPresent before: \(isOverlayPresent)")
+            .onChange(of: gameState.overlayMode) { _, newMode in
+                // Skip if we're navigating away (prevents overlay from briefly reappearing)
+                guard !isNavigatingAway else {
+                    return
+                }
+                
+                // During initial setup, let onAppear handle overlay visibility to avoid race conditions
+                // Only process overlay changes after setup is complete
+                guard hasFinishedSetup else {
+                    return
+                }
                 
                 if newMode == .gameOver {
                     isOverlayPresent = true
-                    print("🟡 GameView.onChange(overlayMode) - Set isOverlayPresent = true (gameOver)")
-                    saveGame()
+                    // Delete saved game since the game is finished
+                    GamePersistence.deleteSavedGame()
                     // Don't auto-dismiss game over overlay
                     return
                 }
                 isOverlayPresent = true
-                print("🟡 GameView.onChange(overlayMode) - Set isOverlayPresent = true")
                 overlayDismissWork?.cancel()
                 overlayDismissWork = nil
                 if newMode != .deadCard {
                     let work = DispatchWorkItem { 
-                        print("🟡 GameView - Auto-dismissing overlay")
                         isOverlayPresent = false 
                     }
                     overlayDismissWork = work
@@ -266,6 +283,41 @@ struct GameView: View {
                         backgroundColor: overlayBackgroundColor,
                         onHelp: { /* present help */ },
                         onClose: { isOverlayPresent = false },
+                        onRestart: {
+                            // Set flag FIRST to prevent tap gesture from firing
+                            isRestartingGame = true
+                            // Close overlay
+                            isOverlayPresent = false
+                            // Restart game after a short delay
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: {
+                                do {
+                                    try gameState.restartGame()
+                                    // Reset flag after restart completes
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+                                        isRestartingGame = false
+                                    })
+                                } catch {
+                                    isRestartingGame = false
+                                }
+                            })
+                        },
+                        onNewGame: {
+                            // Handle new game: close overlay first, then reset game state and navigate back
+                            // Set flag to prevent onChange handler from showing overlay
+                            isNavigatingAway = true
+                            // Close overlay first to prevent it from briefly reappearing
+                            isOverlayPresent = false
+                            // Small delay to let overlay close, then reset and navigate
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+                                // Reset game state
+                                gameState.resetGame()
+                                // Dismiss GameView (back to GameSettingsView or MainMenu)
+                                dismiss()
+                                DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.Animation.navigationDismissDelay, execute: {
+                                    dismiss()
+                                })
+                            })
+                        },
                         mode: gameState.overlayMode
                     )
                     .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isOverlayPresent)
@@ -278,18 +330,14 @@ struct GameView: View {
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .onTapGesture { gameState.replaceCurrentlySelectedDeadCard() }
                         } else if gameState.overlayMode == .gameOver {
-                            // Add tap gesture to dismiss to main menu
+                            // Note: Game over overlay no longer has tap-to-dismiss
+                            // Users must use the explicit "New Game" button to navigate away
+                            // This prevents accidental dismissal when tapping "Play Again"
+                            // The tap gesture is completely disabled for game over mode
                             Color.clear
                                 .contentShape(Rectangle())
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .onTapGesture {
-                                    // Pop to root (MainMenu) by dismissing twice
-                                    // First dismiss GameView, then GameSettingsView
-                                    dismiss()
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.Animation.navigationDismissDelay) {
-                                        dismiss()
-                                    }
-                                }
+                                .allowsHitTesting(false) // Completely disable tap gesture
                         }
                     })
                 }
@@ -308,10 +356,6 @@ struct GameView: View {
     /// - Note: After setup, all game data lives in `gameState`. This view derives `teams` and `seats`
     ///   dynamically via computed properties to maintain single source of truth.
     private func setupGame() {
-        print("🟢 GameView.setupGame() - Starting setup")
-        print("🟢 GameView.setupGame() - Before startGame - overlayMode: \(gameState.overlayMode)")
-        print("🟢 GameView.setupGame() - Before startGame - currentPlayer: \(gameState.currentPlayer?.name ?? "nil")")
-        
         var localPlayers: [Player] = []
         var localTeams: [Team] = []
         
@@ -331,14 +375,8 @@ struct GameView: View {
         let teamOrder = localTeams.map { $0.id }
         localPlayers = SeatingRules.interleaveByTeams(localPlayers, teamOrder: teamOrder)
         
-        print("🟢 GameView.setupGame() - About to call startGame with \(localPlayers.count) players")
-        
         // Hand off to GameState (single source of truth)
         gameState.startGame(with: localPlayers)
-        
-        print("🟢 GameView.setupGame() - After startGame - overlayMode: \(gameState.overlayMode)")
-        print("🟢 GameView.setupGame() - After startGame - currentPlayer: \(gameState.currentPlayer?.name ?? "nil")")
-        print("🟢 GameView.setupGame() - After startGame - players.count: \(gameState.players.count)")
         
         // Note: seats and teams are now computed properties derived from gameState
     }
@@ -352,8 +390,7 @@ struct GameView: View {
         do {
             try GamePersistence.saveGame(gameState)
         } catch {
-            // Log error but don't interrupt gameplay
-            print("⚠️ Failed to save game: \(error.localizedDescription)")
+            // Silently fail - don't interrupt gameplay
         }
     }
 }

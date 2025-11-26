@@ -72,8 +72,6 @@ final class GamePersistence {
         let url = gameSaveURL()
         // Write data to file atomically
         try data.write(to: url, options: [.atomic])
-        // Print success message
-        print("Game state saved to \(url.path)")
     }
     
     // MARK: - Load Game
@@ -96,11 +94,9 @@ final class GamePersistence {
             // Decode JSON data to GameStateSnapshot
             let snapshot = try decoder.decode(GameStateSnapshot.self, from: data)
             
-            print("✅ Game loaded successfully from: \(url.path)")
             return .success(snapshot)
             
         } catch {
-            print("❌ Failed to load game: \(error.localizedDescription)")
             return .failure(error)
         }
     }
@@ -116,10 +112,8 @@ final class GamePersistence {
     
         do {
             try FileManager.default.removeItem(at: url)
-            print("✅ Saved game deleted successfully")
             return true
         } catch {
-            print("⚠️ Failed to delete saved game: \(error.localizedDescription)")
             return false
         }
     }

@@ -72,6 +72,9 @@ struct HandView: View {
                             .accessibilityLabel(accessibilityLabel)
                             .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : [.isButton])
                             .onTapGesture {
+                                // Prevent card selection/interaction when game is over
+                                guard gameState.overlayMode != .gameOver else { return }
+                                
                                 if isSelected {
                                     gameState.clearSelection()
                                 } else {

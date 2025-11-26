@@ -167,8 +167,6 @@ final class GameState: ObservableObject {
         
         // Reset deck
         deck = DoubleDeck()
-        
-        print("✅ GameState: Game reset complete")
     }
     /// Restarts the game with the same player configuration.
     ///
@@ -188,8 +186,6 @@ final class GameState: ObservableObject {
                 cards: []
             )
         }
-        
-        print("🔄 GameState: Restarting game with \(savedPlayers.count) players")
         
         // Reset all game state
         resetGame()
@@ -218,6 +214,9 @@ final class GameState: ObservableObject {
     ///
     /// - Parameter cardId: The UUID of the card to select from the current player's hand.
     func selectCard(_ cardId: UUID) {
+        // Prevent card selection when game is over
+        guard overlayMode != .gameOver else { return }
+        
         selectedCardId = cardId
         // Trigger overlay for dead card if no valid positions
         if validPositionsForSelectedCard.isEmpty {
@@ -467,8 +466,6 @@ final class GameState: ObservableObject {
         
         // Ensure sequence detector's board reference is updated
         sequenceDetector.board = board
-        
-        print("✅ Game state restored successfully")
     }
         
 }

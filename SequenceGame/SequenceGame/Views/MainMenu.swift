@@ -12,7 +12,7 @@ struct MainMenu: View {
     @State private var hasSavedGame = false
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 LinearGradient(
                     colors: [ThemeColor.backgroundMenu, ThemeColor.backgroundMenu.opacity(0.9)],
@@ -25,15 +25,14 @@ struct MainMenu: View {
                     MainMenuHeaderView()
                     Spacer()
                     VStack(spacing: GameConstants.UISizing.verticalSpacing) {
-                        // Resume Game button - only show if saved game exists
-                        if hasSavedGame {
-                            MenuButtonView(
-                                title: "Resume Game",
-                                subtitle: "Continue your last game",
-                                iconSystemName: "arrow.clockwise.circle.fill",
-                                gradient: [ThemeColor.accentSecondary, ThemeColor.accentPrimary]
-                            ) { ResumeGameView() }
-                        }
+                        // Resume Game button - always visible but disabled when no save exists
+                        MenuButtonView(
+                            title: "Resume Game",
+                            subtitle: "Continue your last game",
+                            iconSystemName: "arrow.clockwise.circle.fill",
+                            gradient: [ThemeColor.accentSecondary, ThemeColor.accentPrimary],
+                            isEnabled: hasSavedGame
+                        ) { ResumeGameView() }
                         
                         MenuButtonView(
                             title: "New Game",
