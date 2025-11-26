@@ -167,6 +167,8 @@ struct BoardView: View {
                     .animation(.easeInOut(duration: 0.3), value: isInSequence)
             }
             .onTapGesture {
+                // Prevent tile interaction when game is over
+                guard gameState.overlayMode != .gameOver else { return }
                 guard isValid else { return }
                 guard let selectedId = gameState.selectedCardId else { return }
                 defer { gameState.clearSelection() }

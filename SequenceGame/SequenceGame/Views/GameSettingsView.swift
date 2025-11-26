@@ -10,20 +10,27 @@ import SwiftUI
 struct GameSettingsView: View {
     @EnvironmentObject var gameState: GameState
     @State private var settings = GameSettings()
+    @State private var navigateToGame = false
     
     var body: some View {
         ZStack {
-            ThemeColor.backgroundMenu
-                .ignoresSafeArea(edges: [.bottom])
+            LinearGradient(
+                colors: [ThemeColor.backgroundMenu, ThemeColor.backgroundMenu.opacity(0.9)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+                .ignoresSafeArea()
             VStack(spacing: 30) {
                     // Title Section
                     VStack(spacing: 8) {
                         Text("Sequence")
                             .font(.system(size: 48, weight: .bold, design: .rounded))
                             .foregroundStyle(ThemeColor.textPrimary)
+                            .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 2)
                         Text("Select your game settings")
                             .font(.subheadline)
-                            .foregroundStyle(ThemeColor.textPrimary.opacity(0.7))
+                            .fontWeight(.medium)
+                            .foregroundStyle(ThemeColor.textPrimary.opacity(0.85))
                     }
                     .padding(.top, 20)
                     
@@ -96,7 +103,9 @@ struct GameSettingsView: View {
                     .padding(.horizontal, 20)
                     
                     // Start Game Button
-                NavigationLink(destination: GameView(playersPerTeam: settings.playersPerTeam, numberOfTeams: settings.numberOfTeams)) {
+                    Button(action: {
+                        navigateToGame = true
+                    }, label: {
                         HStack(spacing: 12) {
                             Image(systemName: "play.fill")
                                 .font(.title3)
@@ -121,7 +130,7 @@ struct GameSettingsView: View {
                                 .stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth)
                         )
                         .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 1)
-                    }
+                    })
                     .accessibilityIdentifier("startGameButton")
                     .accessibilityElement(children: .combine)
                     .accessibilityAddTraits(.isButton)
@@ -137,6 +146,9 @@ struct GameSettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(ThemeColor.backgroundMenu, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+            .navigationDestination(isPresented: $navigateToGame) {
+                GameView(playersPerTeam: settings.playersPerTeam, numberOfTeams: settings.numberOfTeams, isResuming: false)
+            }
     }
 }
 

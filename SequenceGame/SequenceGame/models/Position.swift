@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Position: Equatable, Hashable {
+struct Position: Codable, Equatable, Hashable {
     let row: Int
     let col: Int
     

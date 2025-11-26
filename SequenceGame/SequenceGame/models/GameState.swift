@@ -147,6 +147,52 @@ final class GameState: ObservableObject {
         boardTiles = boardManager.setupBoard()
         board = Board(row: 10, col: 10)
     }
+    /// Completely resets all game state to initial values.
+    ///
+    /// Use this when returning to game settings or starting a completely new game.
+    /// For restarting with the same players, use `restartGame()` instead.
+    func resetGame() {
+        // Clear all game state
+        players = []
+        currentPlayerIndex = 0
+        selectedCardId = nil
+        winningTeam = nil
+        detectedSequence = []
+        tilesInSequences = []
+        overlayMode = .turnStart
+        
+        // Reset board
+        board = Board()
+        boardTiles = Board().boardTiles
+        
+        // Reset deck
+        deck = DoubleDeck()
+    }
+    /// Restarts the game with the same player configuration.
+    ///
+    /// Preserves player names, teams, and player count, but resets all game progress.
+    /// Used for "Play Again" and "Restart" features.
+    func restartGame() throws {
+        // Guard: Cannot restart with no players
+        guard !players.isEmpty else {
+            throw GameStateError.cannotRestartWithoutPlayers
+        }
+        // Save current player configuration (names and teams)
+        let savedPlayers = players.map { player in
+            Player(
+                name: player.name,
+                team: player.team,
+                isPlaying: false,
+                cards: []
+            )
+        }
+        
+        // Reset all game state
+        resetGame()
+        
+        // Start new game with saved players
+        startGame(with: savedPlayers)
+    }
     
     // MARK: - Turn Control
     
@@ -168,6 +214,9 @@ final class GameState: ObservableObject {
     ///
     /// - Parameter cardId: The UUID of the card to select from the current player's hand.
     func selectCard(_ cardId: UUID) {
+        // Prevent card selection when game is over
+        guard overlayMode != .gameOver else { return }
+        
         selectedCardId = cardId
         // Trigger overlay for dead card if no valid positions
         if validPositionsForSelectedCard.isEmpty {
@@ -391,6 +440,32 @@ final class GameState: ObservableObject {
         tilesInSequences = Set(detectedSequence.flatMap { sequence in
             sequence.tiles.map { $0.id }
         })
+    }
+
+        // MARK: - Persistence
+    
+    /// Restores game state from a saved snapshot.
+    ///
+    /// This method updates all published properties from the snapshot data,
+    /// triggering UI updates via the `@Published` property wrappers.
+    ///
+    /// - Parameter snapshot: The saved game state snapshot to restore from
+    func restore(from snapshot: GameStateSnapshot) {
+        // Restore all game state properties
+        self.players = snapshot.players
+        self.currentPlayerIndex = snapshot.currentPlayerIndex
+        self.overlayMode = snapshot.overlayMode
+        self.board = snapshot.board
+        self.boardTiles = snapshot.boardTiles
+        self.selectedCardId = snapshot.selectedCardId
+        self.sequenceDetector = snapshot.sequenceDetector
+        self.detectedSequence = snapshot.detectedSequence
+        self.tilesInSequences = snapshot.tilesInSequences
+        self.winningTeam = snapshot.winningTeam
+        self.deck = snapshot.deck
+        
+        // Ensure sequence detector's board reference is updated
+        sequenceDetector.board = board
     }
         
 }

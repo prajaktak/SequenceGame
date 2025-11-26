@@ -10,8 +10,12 @@ import SwiftUI
 struct CreditsView: View {
     var body: some View {
         ZStack {
-            ThemeColor.backgroundMenu
-                .ignoresSafeArea(edges: .bottom)
+            LinearGradient(
+                colors: [ThemeColor.backgroundMenu, ThemeColor.backgroundMenu.opacity(0.9)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+                .ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: 32) {
@@ -30,10 +34,12 @@ struct CreditsView: View {
                         Text("About")
                             .font(.system(size: 34, weight: .bold, design: .rounded))
                             .foregroundStyle(ThemeColor.textPrimary)
+                            .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 2)
                         
                         Text("Sequence Card Game")
                             .font(.subheadline)
-                            .foregroundStyle(ThemeColor.textPrimary.opacity(0.7))
+                            .fontWeight(.medium)
+                            .foregroundStyle(ThemeColor.textPrimary.opacity(0.85))
                     }
                     .padding(.top, 20)
                     

@@ -14,6 +14,7 @@ struct SequenceGameApp: App {
         WindowGroup {
             MainMenu()
                 .environmentObject(gameState)
+                .preferredColorScheme(.light) // Force light mode always
         }
     }
 }

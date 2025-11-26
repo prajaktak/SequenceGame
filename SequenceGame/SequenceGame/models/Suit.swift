@@ -6,7 +6,7 @@
 //
 import Foundation
 
-enum Suit: CaseIterable {
+enum Suit: Codable, CaseIterable {
     case hearts, spades, diamonds, clubs, empty
     
     var systemImageName: String {

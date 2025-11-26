@@ -48,7 +48,7 @@ import Foundation
 ///     // Sequence was detected and added to gameState.detectedSequence
 /// }
 /// ```
-struct SequenceDetector {
+struct SequenceDetector: Codable {
     /// The game board being analyzed for sequences
     var board: Board
     
@@ -511,7 +511,7 @@ struct SequenceDetector {
         
         let sequence = Sequence(
             tiles: sequenceTiles,
-            position: (row: position.rowIndex, col: position.columnIndex),
+            position: Position(row: position.rowIndex, col: position.columnIndex),
             teamColor: teamColor,
             sequenceType: sequenceType
         )

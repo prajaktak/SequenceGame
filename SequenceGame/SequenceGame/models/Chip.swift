@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Chip {
+struct Chip: Codable {
     var color: TeamColor
     var positionRow: Int = 0
     var positionColumn: Int = 0

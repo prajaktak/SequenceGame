@@ -9,8 +9,10 @@ import SwiftUI
 
 struct MainMenu: View {
     @State private var scatterItems: [ScatterItem] = []
+    @State private var hasSavedGame = false
+    
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 LinearGradient(
                     colors: [ThemeColor.backgroundMenu, ThemeColor.backgroundMenu.opacity(0.9)],
@@ -23,20 +25,21 @@ struct MainMenu: View {
                     MainMenuHeaderView()
                     Spacer()
                     VStack(spacing: GameConstants.UISizing.verticalSpacing) {
+                        // Resume Game button - always visible but disabled when no save exists
+                        MenuButtonView(
+                            title: "Resume Game",
+                            subtitle: "Continue your last game",
+                            iconSystemName: "arrow.clockwise.circle.fill",
+                            gradient: [ThemeColor.accentSecondary, ThemeColor.accentPrimary],
+                            isEnabled: hasSavedGame
+                        ) { ResumeGameView() }
+                        
                         MenuButtonView(
                             title: "New Game",
                             subtitle: "Start a fresh game",
                             iconSystemName: "play.circle.fill",
                             gradient: [ThemeColor.accentPrimary, ThemeColor.accentSecondary]
                         ) { GameSettingsView() }
-
-                        MenuButtonView(
-                            title: "Resume Game",
-                            subtitle: "Continue where you left off",
-                            iconSystemName: "arrow.uturn.forward.circle.fill",
-                            gradient: [ThemeColor.accentPrimary, ThemeColor.accentTertiary],
-                            isEnabled: false
-                        ) { }// SequenceGameView() }
 
                         MenuButtonView(
                             title: "How to Play",
@@ -71,10 +74,15 @@ struct MainMenu: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(ThemeColor.backgroundMenu, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+            .onAppear {
+                // Check if a saved game exists
+                hasSavedGame = GamePersistence.hasSavedGame()
+            }
         }
     }
 }
 
 #Preview {
     MainMenu()
+        .environmentObject(GameState())
 }

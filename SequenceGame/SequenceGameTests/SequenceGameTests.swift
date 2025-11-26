@@ -765,7 +765,7 @@ struct SequenceGameTests {
                                        state.boardTiles[4][2],
                                        state.boardTiles[4][3],
                                        state.boardTiles[4][4],
-                                       state.boardTiles[4][5]], position: (row: 4, col: 1), teamColor: .blue, sequenceType: .horizontal)
+                                       state.boardTiles[4][5]], position: Position(row: 4, col: 1), teamColor: .blue, sequenceType: .horizontal)
         state.detectedSequence.append(sequence)
         
         let position = (row: 4, col: 6)
@@ -791,7 +791,7 @@ struct SequenceGameTests {
                                        state.boardTiles[4][2],
                                        state.boardTiles[4][3],
                                        state.boardTiles[4][4],
-                                       state.boardTiles[4][5]], position: (row: 4, col: 1), teamColor: .blue, sequenceType: .horizontal)
+                                       state.boardTiles[4][5]], position: Position(row: 4, col: 1), teamColor: .blue, sequenceType: .horizontal)
         state.detectedSequence.append(sequence)
         
         let sequenceCount =  state.detectedSequence.count
@@ -820,7 +820,7 @@ struct SequenceGameTests {
                                        state.boardTiles[4][2],
                                        state.boardTiles[4][3],
                                        state.boardTiles[4][4],
-                                       state.boardTiles[4][5]], position: (row: 4, col: 1), teamColor: .blue, sequenceType: .horizontal)
+                                       state.boardTiles[4][5]], position: Position(row: 4, col: 1), teamColor: .blue, sequenceType: .horizontal)
         
         state.detectedSequence.append(sequence)
         

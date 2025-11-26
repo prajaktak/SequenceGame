@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct Card: Identifiable, Equatable {
-    let id = UUID()
+struct Card: Codable, Identifiable, Equatable {
+    var id = UUID()
     let cardFace: CardFace
     let suit: Suit
     

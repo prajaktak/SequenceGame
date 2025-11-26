@@ -60,6 +60,7 @@ struct MenuButtonView<Destination: View>: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier(title)
         .accessibilityLabel(title)
         .accessibilityHint(subtitle)
         .disabled(!isEnabled)
@@ -67,7 +68,7 @@ struct MenuButtonView<Destination: View>: View {
 }
 
 #Preview("MenuButtonView") {
-    NavigationView {
+    NavigationStack {
         MenuButtonView(
             title: "New Game",
             subtitle: "Start a fresh game",
