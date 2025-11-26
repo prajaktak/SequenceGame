@@ -11,6 +11,9 @@ struct MainMenu: View {
     @State private var scatterItems: [ScatterItem] = []
     @State private var hasSavedGame = false
     
+    @AppStorage("isOnboardingCompleted") private var isOnboardingCompleted = false
+    @State private var showOnboarding = false
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -19,7 +22,7 @@ struct MainMenu: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-                    .ignoresSafeArea()
+                .ignoresSafeArea()
                 VStack(spacing: GameConstants.UISizing.largeSpacing) {
                     // Logo/Title Section
                     MainMenuHeaderView()
@@ -40,21 +43,21 @@ struct MainMenu: View {
                             iconSystemName: "play.circle.fill",
                             gradient: [ThemeColor.accentPrimary, ThemeColor.accentSecondary]
                         ) { GameSettingsView() }
-
+                        
                         MenuButtonView(
                             title: "How to Play",
                             subtitle: "Game rules and tips",
                             iconSystemName: "questionmark.circle.fill",
                             gradient: [ThemeColor.accentPrimary, ThemeColor.accentSecondary]
                         ) { HelpView() }
-
+                        
                         MenuButtonView(
                             title: "Settings",
                             subtitle: "Preferences and options",
                             iconSystemName: "gearshape.circle.fill",
                             gradient: [ThemeColor.accentPrimary, ThemeColor.accentTertiary]
                         ) { SettingsView() }
-
+                        
                         MenuButtonView(
                             title: "About & Credits",
                             subtitle: "App info and attributions",
@@ -77,11 +80,21 @@ struct MainMenu: View {
             .onAppear {
                 // Check if a saved game exists
                 hasSavedGame = GamePersistence.hasSavedGame()
+                
+                // Show onboarding on first launch
+                if !isOnboardingCompleted {
+                    // Small delay to let the view appear first
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        showOnboarding = true
+                    }
+                }
             }
+        }
+        .sheet(isPresented: $showOnboarding) {
+            OnboardingView()
         }
     }
 }
-
 #Preview {
     MainMenu()
         .environmentObject(GameState())
