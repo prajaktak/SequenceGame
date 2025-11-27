@@ -81,8 +81,11 @@ struct MainMenu: View {
                 // Check if a saved game exists
                 hasSavedGame = GamePersistence.hasSavedGame()
                 
-                // Show onboarding on first launch
-                if !isOnboardingCompleted {
+                // Skip onboarding if running UI tests
+                let isUITesting = CommandLine.arguments.contains("-ui-testing")
+                
+                // Show onboarding on first launch (unless in UI tests)
+                if !isOnboardingCompleted && !isUITesting {
                     // Small delay to let the view appear first
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         showOnboarding = true

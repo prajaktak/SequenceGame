@@ -17,7 +17,7 @@ final class GameRestartUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments = ["-reset-saved-game", "YES"]
+        app.launchArguments = ["-reset-saved-game", "YES", "-ui-testing"]
         app.launch()
         Thread.sleep(forTimeInterval: 0.5)
     }
@@ -105,7 +105,7 @@ final class GameRestartUITests: XCTestCase {
         // After restart, menu should be closed and game should still be active
         // Check for menu button as indicator that we're back on GameView
         let menuButton = app.buttons["menuButton"]
-        XCTAssertTrue(menuButton.waitForExistence(timeout: 5.0), "Menu button should exist after restart (game is active)")
+        XCTAssertTrue(menuButton.waitForExistence(timeout: 5.0), "Menu button should exist after restart game is active")
         
         // Verify menu is closed
         let menuTitle = app.staticTexts["Game Menu"]
@@ -118,9 +118,9 @@ final class GameRestartUITests: XCTestCase {
         restartGameFromMenu()
         
         // After restart, menu should be closed and game board should be visible
-        // Check for gameBoardContainer as indicator that game is active
-        let gameBoardContainer = app.otherElements["gameBoardContainer"]
-        XCTAssertTrue(gameBoardContainer.waitForExistence(timeout: 5.0), "Game board should be visible after restart")
+        // Check for gameView as indicator that game is active
+        let gameView = app.otherElements["gameView"]
+        XCTAssertTrue(gameView.waitForExistence(timeout: 5.0), "Game board should be visible after restart")
         
         // Verify menu is closed
         let menuTitle = app.staticTexts["Game Menu"]

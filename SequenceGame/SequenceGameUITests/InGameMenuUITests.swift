@@ -17,7 +17,7 @@ final class InGameMenuUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments = ["-reset-saved-game", "YES"]
+        app.launchArguments = ["-reset-saved-game", "YES", "-ui-testing"]
         app.launch()
         Thread.sleep(forTimeInterval: 0.5)
     }
@@ -148,9 +148,9 @@ final class InGameMenuUITests: XCTestCase {
         Thread.sleep(forTimeInterval: 1.5)
         
         // Game should still be in same state after resume
-        // Check for gameBoardContainer as indicator that game is still active
-        let gameBoardContainer = app.otherElements["gameBoardContainer"]
-        XCTAssertTrue(gameBoardContainer.waitForExistence(timeout: 3.0), "Game board should still be visible after resume")
+        // Check for gameView as indicator that game is still active
+        let gameView = app.otherElements["gameView"]
+        XCTAssertTrue(gameView.waitForExistence(timeout: 3.0), "Game view should still be visible after resume")
         
         // Verify menu is closed
         let menuTitle = app.staticTexts["Game Menu"]
