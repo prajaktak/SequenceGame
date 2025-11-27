@@ -8,12 +8,26 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @State private var soundEffectsEnabled = true
-    @State private var hapticFeedbackEnabled = true
     @AppStorage("showTurnOverlays") private var showTurnOverlays = true
     @State private var selectedTheme: ThemeOption = .auto
     @State private var selectedDifficulty: Difficulty = .medium
     @State private var showAttributions = false
+
+    private let audioManager = AudioManager.shared
+
+    private var soundEffectsBinding: Binding<Bool> {
+        Binding(
+            get: { audioManager.soundEffectsEnabled },
+            set: { audioManager.soundEffectsEnabled = $0 }
+        )
+    }
+
+    private var hapticsBinding: Binding<Bool> {
+        Binding(
+            get: { audioManager.hapticsEnabled },
+            set: { audioManager.hapticsEnabled = $0 }
+        )
+    }
     
     enum ThemeOption: String, CaseIterable {
         case light = "Light"
@@ -93,7 +107,7 @@ struct SettingsView: View {
                             icon: "speaker.wave.2.fill",
                             title: "Sound Effects",
                             subtitle: "Game sounds and notifications",
-                            isOn: $soundEffectsEnabled
+                            isOn: soundEffectsBinding
                         )
                         
                         // Haptic Feedback Toggle
@@ -101,7 +115,7 @@ struct SettingsView: View {
                             icon: "iphone.radiowaves.left.and.right",
                             title: "Haptic Feedback",
                             subtitle: "Tactile responses",
-                            isOn: $hapticFeedbackEnabled
+                            isOn: hapticsBinding
                         )
                         // Show Turn Overlays Toggle
                         SettingsToggleRow(
