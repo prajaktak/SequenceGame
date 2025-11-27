@@ -17,7 +17,9 @@ final class ResumeGameUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        // Don't reset saved game for resume tests - we need to test with actual saves
+        // Reset saved game for tests that expect no save to exist
+        // Individual tests that need a save will create one
+        app.launchArguments = ["-reset-saved-game", "YES", "-ui-testing"]
         app.launch()
         Thread.sleep(forTimeInterval: 0.5)
     }
@@ -67,13 +69,18 @@ final class ResumeGameUITests: XCTestCase {
     
     func testResumeGameButton_whenNoSaveExists_isDisabled() {
         // Ensure no save exists
-        // Note: This assumes app was launched with reset flag or no save exists
+        // Note: App was launched with -reset-saved-game flag
         
         let resumeButton = app.buttons["Resume Game"]
         
-        if resumeButton.waitForExistence(timeout: 3.0) {
-            XCTAssertFalse(resumeButton.isEnabled, "Resume button should be disabled when no save exists")
-        }
+        // Wait for button to appear
+        XCTAssertTrue(resumeButton.waitForExistence(timeout: 3.0), "Resume Game button should exist")
+        
+        // Give MainMenu.onAppear time to check for saved game and update hasSavedGame state
+        Thread.sleep(forTimeInterval: 1.0)
+        
+        // Button should be disabled when no save exists
+        XCTAssertFalse(resumeButton.isEnabled, "Resume button should be disabled when no save exists")
     }
     
     func testResumeGameButton_whenSaveExists_isEnabled() {

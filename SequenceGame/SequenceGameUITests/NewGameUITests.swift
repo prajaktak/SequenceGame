@@ -17,7 +17,7 @@ final class NewGameUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments = ["-reset-saved-game", "YES"]
+        app.launchArguments = ["-reset-saved-game", "YES", "-ui-testing"]
         app.launch()
         Thread.sleep(forTimeInterval: 0.5)
     }

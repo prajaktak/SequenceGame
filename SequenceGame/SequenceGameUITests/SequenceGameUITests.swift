@@ -41,7 +41,8 @@ final class SequenceGameUITests: XCTestCase {
         
         // Pass launch argument to clear any saved game state
         // This ensures each test starts with a clean slate
-        app.launchArguments = ["-reset-saved-game", "YES"]
+        // Also add -ui-testing to skip onboarding
+        app.launchArguments = ["-reset-saved-game", "YES", "-ui-testing"]
         
         app.launch()
         
@@ -165,12 +166,11 @@ final class SequenceGameUITests: XCTestCase {
         // The board container only appears when currentPlayer != nil
         Thread.sleep(forTimeInterval: 3.0)
         
-        // Additional wait for the game board container to appear
-        let gameBoardContainer = app.otherElements["gameBoardContainer"]
+        // Additional wait for the game view to appear
         let gameView = app.otherElements["gameView"]
         
-        // Wait up to 5 seconds for either element to appear
-        _ = gameBoardContainer.waitForExistence(timeout: 5.0) || gameView.waitForExistence(timeout: 5.0)
+        // Wait up to 5 seconds for game view to appear
+        _ = gameView.waitForExistence(timeout: 5.0)
     }
     
     /// Checks if we are on the game settings screen
@@ -185,15 +185,13 @@ final class SequenceGameUITests: XCTestCase {
     
     /// Checks if we are on the game view screen
     private func isOnGameView() -> Bool {
-        // Check for game board or container (either identifier works)
-        let hasGameBoard = app.otherElements["gameBoard"].exists
-        let hasBoardContainer = app.otherElements["gameBoardContainer"].exists
+        // Check for game view (stable identifier that's always present)
         let hasGameView = app.otherElements["gameView"].exists
         
         // Also check that we're NOT on settings anymore
         let notOnSettings = !app.staticTexts["Select your game settings"].exists
         
-        return hasGameBoard || hasBoardContainer || hasGameView || notOnSettings
+        return hasGameView || notOnSettings
     }
 
     // MARK: - Game Settings Screen Tests
@@ -364,10 +362,9 @@ final class SequenceGameUITests: XCTestCase {
         // Wait for navigation and game initialization
         Thread.sleep(forTimeInterval: 2.0)
         
-        // Wait for game view indicators to appear
+        // Wait for game view to appear
         let gameView = app.otherElements["gameView"]
-        let gameBoardContainer = app.otherElements["gameBoardContainer"]
-        let viewAppeared = gameView.waitForExistence(timeout: 5.0) || gameBoardContainer.waitForExistence(timeout: 3.0)
+        let viewAppeared = gameView.waitForExistence(timeout: 5.0)
 
         // Verify we navigated away from settings
         let settingsGone = !app.staticTexts["Select your game settings"].exists
@@ -377,7 +374,6 @@ final class SequenceGameUITests: XCTestCase {
             print("❌ Navigation failed!")
             print("Settings still visible: \(app.staticTexts["Select your game settings"].exists)")
             print("GameView exists: \(gameView.exists)")
-            print("GameBoardContainer exists: \(gameBoardContainer.exists)")
             print("Available elements: \(app.descendants(matching: .any).matching(NSPredicate(format: "identifier CONTAINS 'game'")).allElementsBoundByIndex.map { $0.identifier })")
         }
         
@@ -406,15 +402,11 @@ final class SequenceGameUITests: XCTestCase {
         navigateToGameView()
 
         // Check for game board by accessibility identifier
-        // Try both the BoardView identifier and the container identifier
-        let gameBoard = app.otherElements["gameBoard"]
-        let gameBoardContainer = app.otherElements["gameBoardContainer"]
+        // Check for stable gameView identifier
         let gameView = app.otherElements["gameView"]
         
-        // Wait up to 5 seconds for any of these to appear
-        let boardExists = gameBoard.waitForExistence(timeout: 5.0) || 
-                         gameBoardContainer.waitForExistence(timeout: 5.0) ||
-                         gameView.waitForExistence(timeout: 5.0)
+        // Wait up to 5 seconds for game view to appear
+        let boardExists = gameView.waitForExistence(timeout: 5.0)
         
         XCTAssertTrue(boardExists, "Game board should be visible after navigation")
     }
@@ -434,19 +426,15 @@ final class SequenceGameUITests: XCTestCase {
     func testGameView_boardHasTiles() throws {
         navigateToGameView()
         
-        // Try multiple identifiers
-        let gameBoard = app.otherElements["gameBoard"]
-        let gameBoardContainer = app.otherElements["gameBoardContainer"]
+        // Check for stable gameView identifier
         let gameView = app.otherElements["gameView"]
         
-        let boardExists = gameBoard.waitForExistence(timeout: 5.0) || 
-                         gameBoardContainer.waitForExistence(timeout: 5.0) ||
-                         gameView.waitForExistence(timeout: 5.0)
+        let boardExists = gameView.waitForExistence(timeout: 5.0)
         XCTAssertTrue(boardExists, "Game board should exist")
         
         // The board should have descendant elements (tiles)
         // Note: Exact count may vary based on implementation
-        let board = gameBoard.exists ? gameBoard : (gameBoardContainer.exists ? gameBoardContainer : gameView)
+        let board = gameView
         let tileElements = board.descendants(matching: .any)
         XCTAssertFalse(tileElements.allElementsBoundByIndex.isEmpty, "Game board should contain tile elements")
     }
@@ -462,8 +450,7 @@ final class SequenceGameUITests: XCTestCase {
         
         // First verify we're actually on the game view
         let gameView = app.otherElements["gameView"]
-        let gameBoardContainer = app.otherElements["gameBoardContainer"]
-        let onGameView = gameView.waitForExistence(timeout: 3.0) || gameBoardContainer.waitForExistence(timeout: 3.0)
+        let onGameView = gameView.waitForExistence(timeout: 3.0)
         
         XCTAssertTrue(onGameView, "Should be on game view before checking for cards")
         
@@ -512,10 +499,9 @@ final class SequenceGameUITests: XCTestCase {
                 firstCard.tap()
                 Thread.sleep(forTimeInterval: 0.5)
                 
-                // Try to tap a board tile - check both identifiers
-                let gameBoard = app.otherElements["gameBoard"]
-                let gameBoardContainer = app.otherElements["gameBoardContainer"]
-                let board = gameBoard.exists ? gameBoard : gameBoardContainer
+                // Try to tap a board tile using gameView
+                let gameView = app.otherElements["gameView"]
+                let board = gameView
                 
                 if board.exists {
                     // Tap somewhere in the middle of the board
@@ -581,17 +567,13 @@ final class SequenceGameUITests: XCTestCase {
     func testGameView_boardHasAccessibilityIdentifier() throws {
         navigateToGameView()
         
-        // After fixes, board should have identifier (either on BoardView or container)
-        let gameBoard = app.otherElements["gameBoard"]
-        let gameBoardContainer = app.otherElements["gameBoardContainer"]
+        // Verify gameView has accessibility identifier
         let gameView = app.otherElements["gameView"]
         
-        let hasBoardIdentifier = gameBoard.waitForExistence(timeout: 5.0) || 
-                                gameBoardContainer.waitForExistence(timeout: 5.0) ||
-                                gameView.waitForExistence(timeout: 5.0)
+        let hasBoardIdentifier = gameView.waitForExistence(timeout: 5.0)
         
         XCTAssertTrue(hasBoardIdentifier,
-                      "Game board should have accessibility identifier 'gameBoard' or 'gameBoardContainer'")
+                      "Game view should have accessibility identifier 'gameView'")
     }
 
     // MARK: - Edge Case Tests
