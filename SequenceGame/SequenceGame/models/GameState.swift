@@ -201,6 +201,7 @@ final class GameState: ObservableObject {
     /// Wraps around to the first player after the last player. Resets overlay mode to `.turnStart`.
     func advanceTurn() {
         guard !players.isEmpty else { return }
+        AudioManager.shared.play(sound: .turnChange, haptic: .selection)
         currentPlayerIndex = (currentPlayerIndex + 1) % players.count
         overlayMode = .turnStart
     }
@@ -217,6 +218,7 @@ final class GameState: ObservableObject {
         // Prevent card selection when game is over
         guard overlayMode != .gameOver else { return }
         
+        AudioManager.shared.play(sound: .cardSelect, haptic: .light)
         selectedCardId = cardId
         // Trigger overlay for dead card if no valid positions
         if validPositionsForSelectedCard.isEmpty {
@@ -279,6 +281,7 @@ final class GameState: ObservableObject {
     // Sets a chip at the given position. No hand/turn changes.
     func placeChip(at position: (row: Int, col: Int), teamColor: TeamColor) {
         let pos = Position(row: position.row, col: position.col)
+        AudioManager.shared.play(sound: .chipPlace, haptic: .medium)
         boardManager.placeChip(at: pos, teamColor: teamColor, tiles: &boardTiles)
     }
     
@@ -359,7 +362,7 @@ final class GameState: ObservableObject {
         
         // 3.1) Check if sequence is completed && check winning condition
         if !(validator.classifyJack(playedCard) == .removeChip) {            // Only check sequences after chip placement (not removal)
-            
+            let previousSequenceCount = detectedSequence.count
             // Detect sequences at the placed position
             var detector = sequenceDetector
             _ = detector.detectSequence(
@@ -368,7 +371,8 @@ final class GameState: ObservableObject {
                 gameState: self
             )
             sequenceDetector = detector
-            
+            let newSequenceCount = detectedSequence.count
+           
             // Check win condition
             let gameResult = evaluateGameState()
             switch gameResult {
@@ -376,8 +380,14 @@ final class GameState: ObservableObject {
                 overlayMode = .gameOver
                 // Store winning team for UI display
                 winningTeam = teamColor
+                // Play win sound and success haptic
+                AudioManager.shared.play(sound: .gameWin, haptic: .success)
             case .ongoing:
-                break // Continue game
+                // Continue game
+                if newSequenceCount > previousSequenceCount {
+                    AudioManager.shared.play(sound: .sequenceComplete, haptic: .heavy)
+                }
+                
             }
         }
         //  This guard to prevent drawing and advancing turn after win
@@ -408,6 +418,7 @@ final class GameState: ObservableObject {
     
     /// Evaluates the current game state and returns win or ongoing result
     func evaluateGameState() -> GameResult {
+        
         let requiredSequences = requiredSequencesToWin
         let uniqueTeamColors = Set(players.map { $0.team.color })
         
