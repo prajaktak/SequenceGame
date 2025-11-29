@@ -383,10 +383,11 @@ final class GameState: ObservableObject {
                 // Play win sound and success haptic
                 AudioManager.shared.play(sound: .gameWin, haptic: .success)
             case .ongoing:
+                // Continue game
                 if newSequenceCount > previousSequenceCount {
                     AudioManager.shared.play(sound: .sequenceComplete, haptic: .heavy)
                 }
-                break // Continue game
+                
             }
         }
         //  This guard to prevent drawing and advancing turn after win

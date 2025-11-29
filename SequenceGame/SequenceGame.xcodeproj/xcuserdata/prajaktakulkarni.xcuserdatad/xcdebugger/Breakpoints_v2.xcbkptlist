@@ -64,7 +64,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "176"
             endingLineNumber = "176"
-            landmarkName = "resetGame()"
+            landmarkName = "restartGame()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
