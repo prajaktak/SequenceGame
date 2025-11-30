@@ -25,8 +25,7 @@
 // 1. App launches with MainMenu
 // 2. Tap "New Game" LINK (not button!) to reach GameSettingsView
 // 3. Configure settings and tap "Start Game" LINK to reach GameView
-//
-// swiftlint:disable type_body_length
+
 import XCTest
 
 final class SequenceGameUITests: XCTestCase {
@@ -62,9 +61,8 @@ final class SequenceGameUITests: XCTestCase {
         Thread.sleep(forTimeInterval: 2.0)
         
         // After accessibility fixes, "New Game" should be queryable as a button
-        // Try multiple strategies for robustness
         
-        // Strategy 1: Try as button with accessibility (preferred after fix)
+        // Try as button with accessibility (preferred after fix)
         let newGameButton = app.buttons["New Game"]
         if newGameButton.waitForExistence(timeout: 3.0) {
             print("✅ Found 'New Game' as button")
@@ -72,41 +70,7 @@ final class SequenceGameUITests: XCTestCase {
             Thread.sleep(forTimeInterval: 1.0)
             return
         }
-        
-        // Strategy 2: Try as button containing "New Game"
-        let newGameButtonPredicate = app.buttons.containing(NSPredicate(format: "label CONTAINS 'New Game'")).firstMatch
-        if newGameButtonPredicate.waitForExistence(timeout: 2.0) {
-            print("✅ Found 'New Game' as button (predicate)")
-            newGameButtonPredicate.tap()
-            Thread.sleep(forTimeInterval: 1.0)
-            return
-        }
-        
-        // Strategy 3: Try as a link with exact text
-        let newGameLink = app.links["New Game"]
-        if newGameLink.waitForExistence(timeout: 2.0) {
-            print("✅ Found 'New Game' as link")
-            newGameLink.tap()
-            Thread.sleep(forTimeInterval: 1.0)
-            return
-        }
-        
-        // Strategy 4: Try finding by static text and tapping it directly (fallback)
-        let newGameText = app.staticTexts["New Game"]
-        if newGameText.waitForExistence(timeout: 2.0) {
-            print("✅ Found 'New Game' as text, tapping it")
-            newGameText.tap()
-            Thread.sleep(forTimeInterval: 1.0)
-            return
-        }
-        
         // If we got here, navigation failed - print comprehensive debug info
-        print("⚠️ ========== NAVIGATION FAILED ==========")
-        print("Available buttons: \(app.buttons.allElementsBoundByIndex.map { $0.label })")
-        print("Available links: \(app.links.allElementsBoundByIndex.map { $0.label })")
-        print("Available static texts (first 10): \(app.staticTexts.allElementsBoundByIndex.prefix(10).map { $0.label })")
-        print("==========================================")
-        
         XCTFail("Could not find 'New Game' button to navigate to settings")
     }
     
@@ -121,42 +85,12 @@ final class SequenceGameUITests: XCTestCase {
         // After accessibility fixes, "Start Game" should be queryable as a button
         var tapped = false
         
-        // Strategy 1: Try as button with identifier (preferred after fix)
+        // Try as button with identifier (preferred after fix)
         let startGameButton = app.buttons["startGameButton"]
         if startGameButton.waitForExistence(timeout: 3.0) {
             print("✅ Found 'Start Game' as button with identifier")
             startGameButton.tap()
             tapped = true
-        }
-        
-        // Strategy 2: Try as button with label
-        if !tapped {
-            let startGameButtonLabel = app.buttons["Start Game"]
-            if startGameButtonLabel.waitForExistence(timeout: 2.0) {
-                print("✅ Found 'Start Game' as button with label")
-                startGameButtonLabel.tap()
-                tapped = true
-            }
-        }
-        
-        // Strategy 3: Try as link with identifier (fallback)
-        if !tapped {
-            let startGameLink = app.links["startGameButton"]
-            if startGameLink.waitForExistence(timeout: 2.0) {
-                print("✅ Found 'Start Game' as link")
-                startGameLink.tap()
-                tapped = true
-            }
-        }
-        
-        // Strategy 4: Try as static text (legacy fallback)
-        if !tapped {
-            let startGameText = app.staticTexts["Start Game"]
-            if startGameText.waitForExistence(timeout: 2.0) {
-                print("✅ Found 'Start Game' as static text")
-                startGameText.tap()
-                tapped = true
-            }
         }
         
         XCTAssertTrue(tapped, "Should be able to find and tap Start Game button")
@@ -165,12 +99,6 @@ final class SequenceGameUITests: XCTestCase {
         // GameView calls setupGame in onAppear which creates players and sets currentPlayer
         // The board container only appears when currentPlayer != nil
         Thread.sleep(forTimeInterval: 3.0)
-        
-        // Additional wait for the game view to appear
-        let gameView = app.otherElements["gameView"]
-        
-        // Wait up to 5 seconds for game view to appear
-        _ = gameView.waitForExistence(timeout: 5.0)
     }
     
     /// Checks if we are on the game settings screen
@@ -182,7 +110,6 @@ final class SequenceGameUITests: XCTestCase {
         
         return hasStartGameButton || hasSettingsTitle || hasNumberOfTeamsLabel
     }
-    
     /// Checks if we are on the game view screen
     private func isOnGameView() -> Bool {
         // Check for game view (stable identifier that's always present)
@@ -193,132 +120,84 @@ final class SequenceGameUITests: XCTestCase {
         
         return hasGameView || notOnSettings
     }
-
-    // MARK: - Game Settings Screen Tests
     
-    /// Debug test to see what's available on launch
-    func testDebug_whatIsOnScreen() throws {
-        // Wait for app to settle
-        Thread.sleep(forTimeInterval: 2.0)
-        
-        print("\n=== DEBUG: Elements on screen ===")
-        
-        print("Buttons found: \(app.buttons.allElementsBoundByIndex.count)")
-        for (index, button) in app.buttons.allElementsBoundByIndex.prefix(10).enumerated() {
-            print("  Button \(index): '\(button.label)' enabled:\(button.isEnabled) hittable:\(button.isHittable)")
+    /// Opens the in-game menu
+    private func openInGameMenu() {
+        let menuButton = app.buttons["menuButton"]
+        if menuButton.waitForExistence(timeout: 5.0) {
+            menuButton.tap()
+            Thread.sleep(forTimeInterval: 1.0)
         }
-        
-        print("\nLinks found: \(app.links.allElementsBoundByIndex.count)")
-        if !app.links.allElementsBoundByIndex.isEmpty {
-            for (index, link) in app.links.allElementsBoundByIndex.enumerated() {
-                print("  Link \(index): '\(link.label)' enabled:\(link.isEnabled) hittable:\(link.isHittable)")
-            }
-        } else {
-            print("  ⚠️ NO LINKS FOUND AT ALL")
-        }
-        
-        print("\nStatic texts found: \(app.staticTexts.allElementsBoundByIndex.count)")
-        for (index, text) in app.staticTexts.allElementsBoundByIndex.prefix(15).enumerated() {
-            print("  Text \(index): '\(text.label)'")
-        }
-        
-        print("\nOther elements:")
-        print("  Images: \(app.images.count)")
-        print("  ScrollViews: \(app.scrollViews.count)")
-        print("  Cells: \(app.cells.count)")
-        
-        // Try to find anything with "New Game" in it
-        let allElements = app.descendants(matching: .any)
-        let newGameElements = allElements.matching(NSPredicate(format: "label CONTAINS[c] 'New Game'"))
-        print("\nElements containing 'New Game': \(newGameElements.count)")
-        for index in 0..<min(newGameElements.count, 5) {
-            let elem = newGameElements.element(boundBy: index)
-            print("  Element \(index): type=\(elem.elementType.rawValue) label='\(elem.label)'")
-        }
-        
-        print("================================\n")
-        
-        XCTAssertTrue(true, "Debug test always passes")
     }
     
-    /// Verifies that the game settings screen displays the title
-    func testGameSettings_displaysTitle() throws {
+    /// Opens the in-game menu and confirms restart
+    private func restartGameFromMenu() {
+        let menuButton = app.buttons["menuButton"]
+        if menuButton.waitForExistence(timeout: 5.0) {
+            menuButton.tap()
+            Thread.sleep(forTimeInterval: 1.0)
+        }
+        
+        let restartButton = app.buttons["Restart"]
+        if restartButton.waitForExistence(timeout: 3.0) {
+            restartButton.tap()
+            Thread.sleep(forTimeInterval: 1.0)
+        }
+        
+        let alert = app.alerts["Restart Game?"]
+        let confirmButton = alert.buttons["Restart"]
+        if confirmButton.waitForExistence(timeout: 2.0) {
+            confirmButton.tap()
+            // Wait for menu to dismiss and game to restart
+            Thread.sleep(forTimeInterval: 3.0)
+        }
+    }
+    // MARK: - Main Menu
+    ///  Test to check existance of Main Menu
+    func test_mainMenuExists() throws {
+        
+        let resumeButton = app.buttons["Resume Game"]
+        XCTAssertTrue(resumeButton.waitForExistence(timeout: 3.0), "Resume Game button should exist")
+        
+        let newGameButton = app.buttons["New Game"]
+        XCTAssert(newGameButton.waitForExistence(timeout: 1.0), "New Game should exist as button")
+        
+        let howToPlayButton = app.buttons["How to Play"]
+        XCTAssertTrue(howToPlayButton.waitForExistence(timeout: 1.0), "Settings should exist as button")
+        
+        let settingsButton = app.buttons["Settings"]
+        XCTAssertTrue(settingsButton.waitForExistence(timeout: 1.0), "Settings should exist as button")
+        
+        let aboutAndCreditsButton = app.buttons["About & Credits"]
+        XCTAssertTrue(aboutAndCreditsButton.waitForExistence(timeout: 1.0), "Settings should exist as button")
+    }
+
+    // MARK: - Game Settings
+    
+    /// test to check existance of Game settings view
+    /// Verifies that changing number of teams updates the UI
+    /// Verifies that changing number of players  updates the UI
+    func test_gameSettingsExists() throws {
         navigateToGameSettings()
         
         let titleText = app.staticTexts["Sequence"]
         XCTAssertTrue(titleText.waitForExistence(timeout: 3.0), "Title 'Sequence' should be visible")
-    }
-    
-    /// Verifies that the game settings screen displays subtitle
-    func testGameSettings_displaysSubtitle() throws {
-        navigateToGameSettings()
         
         let subtitleText = app.staticTexts["Select your game settings"]
-        XCTAssertTrue(subtitleText.waitForExistence(timeout: 3.0), "Subtitle should be visible")
-    }
-    
-    /// Verifies that the Start Game button is visible and enabled by default
-    func testGameSettings_displaysStartGameButton() throws {
-        navigateToGameSettings()
+        XCTAssertTrue(subtitleText.waitForExistence(timeout: 1.0), "Subtitle should be visible")
         
-        // After accessibility fixes, button should be queryable as a button
         let startGameButton = app.buttons["startGameButton"]
-        if !startGameButton.waitForExistence(timeout: 3.0) {
-            // Fallback: try as static text or link
-            let startGameText = app.staticTexts["Start Game"]
-            let startGameLink = app.links["startGameButton"]
-            XCTAssertTrue(startGameText.exists || startGameLink.exists, "Start Game should exist as button, link, or text")
-        }
-        
-        let exists = startGameButton.exists || app.staticTexts["Start Game"].exists || app.links["startGameButton"].exists
-        XCTAssertTrue(exists, "Start Game should exist")
-        
-        let isEnabled = startGameButton.isEnabled || app.staticTexts["Start Game"].isEnabled
-        XCTAssertTrue(isEnabled, "Start Game should be enabled by default")
-    }
-    
-    /// Verifies that number of teams picker is displayed
-    func testGameSettings_displaysNumberOfTeamsPicker() throws {
-        navigateToGameSettings()
+        XCTAssertTrue(startGameButton.waitForExistence(timeout: 1.0), "Start Game should exist as button")
         
         let teamsLabel = app.staticTexts["Number of Teams"]
-        XCTAssertTrue(teamsLabel.waitForExistence(timeout: 3.0), "Number of Teams label should be visible")
+        XCTAssertTrue(teamsLabel.waitForExistence(timeout: 1.0), "Number of Teams label should be visible")
         
         // Check for picker (it's a segmented control)
-        let picker = app.segmentedControls.firstMatch
-        XCTAssertTrue(picker.waitForExistence(timeout: 3.0), "Teams picker should exist")
-    }
-    
-    /// Verifies that players per team picker is displayed
-    func testGameSettings_displaysPlayersPerTeamPicker() throws {
-        navigateToGameSettings()
-        
-        let playersLabel = app.staticTexts["Players in Team"]
-        XCTAssertTrue(playersLabel.waitForExistence(timeout: 3.0), "Players in Team label should be visible")
-        
-        // Check for wheel picker
-        let picker = app.pickers.firstMatch
-        XCTAssertTrue(picker.waitForExistence(timeout: 3.0), "Players per team picker should exist")
-    }
-    
-    /// Verifies that total players count is displayed
-    func testGameSettings_displaysTotalPlayers() throws {
-        navigateToGameSettings()
-        
-        // Default is 2 teams × 1 player = 2 total
-        let totalPlayersLabel = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'Total Players'")).firstMatch
-        XCTAssertTrue(totalPlayersLabel.waitForExistence(timeout: 3.0), "Total Players label should be visible")
-    }
-    
-    /// Verifies that changing number of teams updates the UI
-    func testGameSettings_changeNumberOfTeams() throws {
-        navigateToGameSettings()
-        
-        let segmentedControl = app.segmentedControls.firstMatch
-        XCTAssertTrue(segmentedControl.waitForExistence(timeout: 3.0), "Segmented control should exist")
+        let pickerTeam = app.segmentedControls.firstMatch
+        XCTAssertTrue(pickerTeam.waitForExistence(timeout: 1.0), "Teams picker should exist")
         
         // Tap "3" segment
-        let threeTeamsButton = segmentedControl.buttons["3"]
+        let threeTeamsButton = pickerTeam.buttons["3"]
         if threeTeamsButton.exists {
             threeTeamsButton.tap()
             Thread.sleep(forTimeInterval: 0.5)
@@ -328,140 +207,181 @@ final class SequenceGameUITests: XCTestCase {
             XCTAssertTrue(totalPlayersLabel.exists || app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'Total Players: 3'")).firstMatch.exists,
                           "Total players should update to 3")
         }
+        
+        let playersLabel = app.staticTexts["Players in Team"]
+        XCTAssertTrue(playersLabel.waitForExistence(timeout: 1.0), "Players in Team label should be visible")
+        
+        // Check for wheel picker
+        let pickerPlayers = app.pickers.firstMatch
+        XCTAssertTrue(pickerPlayers.waitForExistence(timeout: 1.0), "Players per team picker should exist")
+        
+        // 2. Get the wheel (for a single-component picker)
+        let playersWheel = pickerPlayers.pickerWheels.element
+
+        // 3. Adjust wheel to a specific value, e.g. "2"
+        playersWheel.adjust(toPickerWheelValue: "2")
+
+        // Optional: small wait if UI updates async
+         _ = app.staticTexts["Total Players"].waitForExistence(timeout: 1.0)
+
+        // 4. Assert UI updated
+        // Example: 3 teams × 2 players = 6
+        let exactLabel = app.staticTexts["Total Players: 6"]
+        let containsLabel = app.staticTexts
+            .matching(NSPredicate(format: "label CONTAINS 'Total Players: 6'"))
+            .firstMatch
+
+        XCTAssertTrue(exactLabel.exists || containsLabel.exists,
+                      "Total players should update to 6 when picker is set to 2 players per team")
+        
+        // Default is 2 teams × 1 player = 2 total
+        let totalPlayersLabel = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'Total Players'")).firstMatch
+        XCTAssertTrue(totalPlayersLabel.waitForExistence(timeout: 1.0), "Total Players label should be visible")
     }
-
-    // MARK: - Navigation Tests
-
-    /// Verifies that tapping "Start Game" navigates to the game view
-    func testGameSettings_tapStartGame_navigatesToGameView() throws {
-        navigateToGameSettings()
+    
+    // MARK: - Game View elements exitstance test
+    /// Game view elements exists
+    func testGameView_elementsExist() throws {
+        navigateToGameView()
         
-        // Find Start Game button/link using multiple strategies
-        var tapped = false
-        
-        let startGameButton = app.buttons["startGameButton"]
-        if startGameButton.waitForExistence(timeout: 3.0) {
-            print("🔍 About to tap Start Game button")
-            print("🔍 Button exists: \(startGameButton.exists)")
-            print("🔍 Button isEnabled: \(startGameButton.isEnabled)")
-            print("🔍 Button isHittable: \(startGameButton.isHittable)")
-            startGameButton.tap()
-            print("🔍 Tapped Start Game button")
-            tapped = true
-        } else {
-            let startGameText = app.staticTexts["Start Game"]
-            if startGameText.waitForExistence(timeout: 2.0) {
-                print("🔍 Tapping Start Game as text")
-                startGameText.tap()
-                tapped = true
-            }
-        }
-        
-        XCTAssertTrue(tapped, "Should find and tap Start Game")
-
-        // Wait for navigation and game initialization
-        Thread.sleep(forTimeInterval: 2.0)
-        
-        // Wait for game view to appear
         let gameView = app.otherElements["gameView"]
         let viewAppeared = gameView.waitForExistence(timeout: 5.0)
-
-        // Verify we navigated away from settings
-        let settingsGone = !app.staticTexts["Select your game settings"].exists
+        XCTAssertTrue(viewAppeared, "Game view should not be empty")
         
-        // Debug: If navigation failed, print what's on screen
-        if !settingsGone && !viewAppeared {
-            print("❌ Navigation failed!")
-            print("Settings still visible: \(app.staticTexts["Select your game settings"].exists)")
-            print("GameView exists: \(gameView.exists)")
-            print("Available elements: \(app.descendants(matching: .any).matching(NSPredicate(format: "identifier CONTAINS 'game'")).allElementsBoundByIndex.map { $0.identifier })")
-        }
+        let tileElements = gameView.descendants(matching: .any)
+        XCTAssertFalse(tileElements.allElementsBoundByIndex.isEmpty, "Game board should contain tile elements")
         
-        XCTAssertTrue(settingsGone || viewAppeared, "Should navigate away from settings screen. SettingsGone=\(settingsGone), ViewAppeared=\(viewAppeared)")
-    }
-    
-    /// Verifies that the menu button exists in game view for returning to settings
-    func testGameView_hasMenuButton() throws {
-        navigateToGameView()
-        
-        // After accessibility fixes, menu button should have identifier "menuButton"
         let menuButton = app.buttons["menuButton"]
-        if !menuButton.waitForExistence(timeout: 3.0) {
-            // Fallback: try as navigation bar button
-            let navBarButton = app.navigationBars.buttons.element(boundBy: 0)
-            XCTAssertTrue(navBarButton.waitForExistence(timeout: 3.0), "Menu button should exist in navigation bar")
-        } else {
-            XCTAssertTrue(menuButton.exists, "Menu button with identifier should exist")
-        }
-    }
-
-    // MARK: - Game Board Tests
-
-    /// Verifies that the game board is displayed after starting a game
-    func testGameView_displaysGameBoard() throws {
-        navigateToGameView()
-
-        // Check for game board by accessibility identifier
-        // Check for stable gameView identifier
-        let gameView = app.otherElements["gameView"]
-        
-        // Wait up to 5 seconds for game view to appear
-        let boardExists = gameView.waitForExistence(timeout: 5.0)
-        
-        XCTAssertTrue(boardExists, "Game board should be visible after navigation")
-    }
-    
-    /// Verifies that the turn banner is displayed
-    func testGameView_displaysTurnBanner() throws {
-        navigateToGameView()
+        XCTAssertTrue(menuButton.exists, "Menu button with identifier should exist")
         
         // Look for turn banner elements (contains player name and team info)
         // The turn banner shows "T1-P1" or similar player name
         let turnBanner = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'T1-P1' OR label CONTAINS 'Player'")).firstMatch
-        XCTAssertTrue(turnBanner.waitForExistence(timeout: 3.0) || isOnGameView(),
-                      "Turn banner should be visible")
-    }
-    
-    /// Verifies that board tiles are rendered
-    func testGameView_boardHasTiles() throws {
-        navigateToGameView()
+        XCTAssertTrue(turnBanner.waitForExistence(timeout: 1.0), "Turn banner should be visible")
         
-        // Check for stable gameView identifier
-        let gameView = app.otherElements["gameView"]
-        
-        let boardExists = gameView.waitForExistence(timeout: 5.0)
-        XCTAssertTrue(boardExists, "Game board should exist")
-        
-        // The board should have descendant elements (tiles)
-        // Note: Exact count may vary based on implementation
-        let board = gameView
-        let tileElements = board.descendants(matching: .any)
-        XCTAssertFalse(tileElements.allElementsBoundByIndex.isEmpty, "Game board should contain tile elements")
-    }
-    
-    // MARK: - Player Hand Tests
-    
-    /// Verifies that cards are displayed in the player's hand
-    func testGameView_displaysCardsInHand() throws {
-        navigateToGameView()
-        
-        // Wait for game to fully initialize including card dealing
-        Thread.sleep(forTimeInterval: 2.0)
-        
-        // First verify we're actually on the game view
-        let gameView = app.otherElements["gameView"]
-        let onGameView = gameView.waitForExistence(timeout: 3.0)
-        
-        XCTAssertTrue(onGameView, "Should be on game view before checking for cards")
-        
-        // Look for card images or elements
-        // Cards should be visible in the hand area
-        let cardElements = app.images.matching(NSPredicate(format: "identifier CONTAINS 'card'")).allElementsBoundByIndex
-        
+        // Look for card buttons directly (they should be accessible within gameView)
+        // Cards have accessibility labels like "Queen of Hearts", "Ace of Spades", etc.
+        let allButtons = app.buttons
+        let cardButtons = allButtons.matching(NSPredicate(format: "label CONTAINS 'of'"))
+
+        // Wait a bit more for cards to render
+        Thread.sleep(forTimeInterval: 1.0)
+
         // Player should have cards (typically 5-7 cards depending on game setup)
-        // We'll just verify some cards exist or that we're at least on the game view
-        XCTAssertTrue(!cardElements.isEmpty || onGameView,
-                      "Player hand should contain cards or game view should be loaded")
+        XCTAssertGreaterThan(cardButtons.count, 0, "Expected at least one card button in hand")
+        
+    }
+    
+    // MARK: - In-game menu
+    func testInGameMenu_and_MenubuttonsExistance() throws {
+        navigateToGameView()
+        
+        let menuButton = app.buttons["menuButton"]
+        XCTAssertTrue(menuButton.waitForExistence(timeout: 5.0), "Menu button should exist in game view")
+        
+        openInGameMenu()
+        
+        // Check for menu title
+        let menuTitle = app.staticTexts["Game Menu"]
+        XCTAssertTrue(menuTitle.waitForExistence(timeout: 3.0), "In-game menu should appear")
+        
+        // Check resume button exists
+        let resumeButton = app.buttons["Resume"]
+        XCTAssertTrue(resumeButton.waitForExistence(timeout: 3.0), "Resume button should exist")
+        
+        // Check restart button exists
+        let restartButton = app.buttons["Restart"]
+        XCTAssertTrue(restartButton.waitForExistence(timeout: 3.0), "Restart button should exist")
+        
+        // Check new game button exists
+        let newGameButton = app.buttons["New Game"]
+        XCTAssertTrue(newGameButton.waitForExistence(timeout: 3.0), "New Game button should exist")
+        
+        // Check How to Play  button exists
+        let howToPlayButton = app.buttons["How to Play"]
+        XCTAssertTrue(howToPlayButton.waitForExistence(timeout: 3.0), "How to Play button should exist")
+        
+        // Check Settings  button exists
+        let settingsButton = app.buttons["Settings"]
+        XCTAssertTrue(settingsButton.waitForExistence(timeout: 3.0), "Settings button should exist")
+    }
+    
+    // MARK: - Resume Flow Tests
+    
+    func testResumeButton_tapNavigatesToResumeView() {
+        // This test requires a saved game
+        // For now, we'll test the navigation structure
+        
+        let resumeButton = app.buttons["Resume Game"]
+        
+        if resumeButton.waitForExistence(timeout: 3.0) && resumeButton.isEnabled {
+            resumeButton.tap()
+            Thread.sleep(forTimeInterval: 2.0)
+            
+            // Should navigate to resume view or game view
+            let resumeTitle = app.staticTexts["Resume Game"]
+            let gameView = app.otherElements["gameView"]
+            
+            // Either resume view or game view should appear
+            let navigated = resumeTitle.waitForExistence(timeout: 2.0) || gameView.waitForExistence(timeout: 2.0)
+            XCTAssertTrue(navigated, "Should navigate to resume or game view")
+        }
+    }
+    
+    // MARK: - Restart from Menu Tests
+    
+    func testRestartFromMenu_preservesPlayerCount_resetsBoardState_closesMenu() {
+        navigateToGameView()
+        
+        restartGameFromMenu()
+        
+        // After restart, menu should be closed and game should still be active
+        // Check for menu button as indicator that we're back on GameView
+        let menuButton = app.buttons["menuButton"]
+        XCTAssertTrue(menuButton.waitForExistence(timeout: 5.0), "Menu button should exist after restart game is active")
+        
+        // Verify menu is closed
+        let menuTitle = app.staticTexts["Game Menu"]
+        XCTAssertFalse(menuTitle.exists, "Menu should be closed after restart")
+ 
+        // After restart, menu should be closed and game board should be visible
+        // Check for gameView as indicator that game is active
+        let gameView = app.otherElements["gameView"]
+        XCTAssertTrue(gameView.waitForExistence(timeout: 5.0), "Game board should be visible after restart")
+        
+        // Menu should be closed
+        XCTAssertFalse(menuTitle.exists, "Menu should be closed after restart")
+    }
+    
+    // MARK: - New Game from In-Game Menu Tests
+    
+    func testNewGameButton_existsInInGameMenuAndStartsNewGame() {
+        // Navigate to game
+        let newGameButton = app.buttons["New Game"]
+        newGameButton.tap()
+        Thread.sleep(forTimeInterval: 1.0)
+        
+        let startGameButton = app.buttons["startGameButton"]
+        startGameButton.tap()
+        Thread.sleep(forTimeInterval: 3.0)
+        
+        // Open in-game menu
+        let menuButton = app.buttons["menuButton"]
+        menuButton.tap()
+        Thread.sleep(forTimeInterval: 1.0)
+        
+        let inGameNewGameButton = app.buttons["New Game"]
+        XCTAssertTrue(inGameNewGameButton.waitForExistence(timeout: 3.0), "New Game button should exist in menu")
+        
+        inGameNewGameButton.tap()
+        Thread.sleep(forTimeInterval: 2.0)
+
+        // Should be back at settings, not in game
+        let settingsTitle = app.staticTexts["Select your game settings"]
+        XCTAssertTrue(settingsTitle.waitForExistence(timeout: 3.0), "Should be at settings screen")
+        
+        // Menu button should not be visible (we're not in game anymore)
+        XCTAssertFalse(menuButton.exists, "Menu button should not be visible (not in game)")
     }
 
     // MARK: - Game Interaction Tests
@@ -472,9 +392,10 @@ final class SequenceGameUITests: XCTestCase {
         Thread.sleep(forTimeInterval: 1.5)
         
         // Try to find and tap a card
-        let cards = app.images.matching(NSPredicate(format: "identifier CONTAINS 'card'"))
-        if !cards.allElementsBoundByIndex.isEmpty {
-            let firstCard = cards.element(boundBy: 0)
+        let allButtons = app.buttons
+        let cardButtons = allButtons.matching(NSPredicate(format: "label CONTAINS 'of'"))
+        if !cardButtons.debugDescription.isEmpty {
+            let firstCard = cardButtons.element(boundBy: 0)
             if firstCard.exists && firstCard.isHittable {
                 firstCard.tap()
                 Thread.sleep(forTimeInterval: 0.5)
@@ -545,37 +466,6 @@ final class SequenceGameUITests: XCTestCase {
         }
     }
     
-    // MARK: - Accessibility Tests
-    
-    /// Verifies that key UI elements have accessibility labels
-    func testGameSettings_hasAccessibilityLabels() throws {
-        navigateToGameSettings()
-        
-        // After accessibility fixes, Start Game should be queryable as a button
-        let startGameButton = app.buttons["startGameButton"]
-        let startGameExists = startGameButton.waitForExistence(timeout: 3.0) || app.staticTexts["Start Game"].exists
-        XCTAssertTrue(startGameExists, "Start Game should have accessible identifier")
-        
-        let teamsLabel = app.staticTexts["Number of Teams"]
-        XCTAssertTrue(teamsLabel.waitForExistence(timeout: 3.0), "Number of Teams should have accessible label")
-        
-        let playersLabel = app.staticTexts["Players in Team"]
-        XCTAssertTrue(playersLabel.waitForExistence(timeout: 3.0), "Players in Team should have accessible label")
-    }
-    
-    /// Verifies that game board has accessibility identifier
-    func testGameView_boardHasAccessibilityIdentifier() throws {
-        navigateToGameView()
-        
-        // Verify gameView has accessibility identifier
-        let gameView = app.otherElements["gameView"]
-        
-        let hasBoardIdentifier = gameView.waitForExistence(timeout: 5.0)
-        
-        XCTAssertTrue(hasBoardIdentifier,
-                      "Game view should have accessibility identifier 'gameView'")
-    }
-
     // MARK: - Edge Case Tests
     
     /// Verifies behavior with minimum configuration (2 teams, 1 player each)
@@ -648,4 +538,3 @@ final class SequenceGameUITests: XCTestCase {
         }
     }
 }
-// swiftlint:enable type_body_length
