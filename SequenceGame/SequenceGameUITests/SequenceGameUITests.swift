@@ -26,6 +26,7 @@
 // 2. Tap "New Game" LINK (not button!) to reach GameSettingsView
 // 3. Configure settings and tap "Start Game" LINK to reach GameView
 
+// swiftlint:disable type_body_length
 import XCTest
 
 final class SequenceGameUITests: XCTestCase {
@@ -383,6 +384,33 @@ final class SequenceGameUITests: XCTestCase {
         // Menu button should not be visible (we're not in game anymore)
         XCTAssertFalse(menuButton.exists, "Menu button should not be visible (not in game)")
     }
+    
+    // MARK: - Navigate to How to play
+    func testNavigation_to_HowToPlay() {
+        let howToPlayButton = app.buttons["How to Play"]
+        howToPlayButton.firstMatch.tap()
+        
+        let howToPlayTitle = app.staticTexts["How to Play"]
+        XCTAssertTrue(howToPlayTitle.exists, "Should be on the How to Play screen")
+    }
+    
+    // MARK: - Navigate to Settings
+    func testNavigation_to_Settings() {
+        let settingsButton = app.buttons["Settings"]
+        settingsButton.firstMatch.tap()
+        
+        let settingsTitle = app.staticTexts["Settings"]
+        XCTAssertTrue(settingsTitle.exists, "Should be on the Settings screen")
+    }
+    
+    // MARK: - Navigate to About and Credits
+    func testNavigation_to_AboutAndCredits() {
+        let aboutAndCreditsButton = app.buttons["About & Credits"]
+        aboutAndCreditsButton.firstMatch.tap()
+        
+        let aboutAndCreditsTitle = app.staticTexts["About"]
+        XCTAssertTrue(aboutAndCreditsTitle.exists, "Should be on the About and Credits screen")
+    }
 
     // MARK: - Game Interaction Tests
     
@@ -538,3 +566,4 @@ final class SequenceGameUITests: XCTestCase {
         }
     }
 }
+// swiftlint:enable type_body_length
