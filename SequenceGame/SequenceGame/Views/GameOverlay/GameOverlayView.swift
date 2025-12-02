@@ -230,6 +230,14 @@ struct GameOverlayView: View {
                     }
                 }
             )
+        case .aITurnInProgress:
+            HexagonOverlay(
+                borderColor: borderColor, backgroundColor: backgroundColor) {
+                    VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
+                        AITurnInProgressOverlay(teamColor: borderColor, text: "\(playerName) is thinking...")
+                    }
+                }
+            
         }
     }
     private func teamName(for color: TeamColor) -> String {

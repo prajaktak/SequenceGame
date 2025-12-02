@@ -13,11 +13,11 @@ enum GameConstants {
     static let boardColumns = 10
     
     // MARK: - Corner Positions (Wild Spaces)
-    static let cornerPositions: [(row: Int, col: Int)] = [
-        (0, 0),
-        (0, 9),
-        (9, 0),
-        (9, 9)
+    static let cornerPositions: [Position] = [
+        Position(row: 0, col: 0),
+        Position(row: 0, col: 9),
+        Position(row: 9, col: 0),
+        Position(row: 9, col: 9)
     ]
     
     // MARK: - Team Configuration

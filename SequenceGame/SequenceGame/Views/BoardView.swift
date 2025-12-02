@@ -173,7 +173,7 @@ struct BoardView: View {
                 guard let selectedId = gameState.selectedCardId else { return }
                 defer { gameState.clearSelection() }
                 withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
-                    gameState.performPlay(atPos: (row, column), using: selectedId)
+                    gameState.performPlay(atPos: Position(row: row, col: column), using: selectedId)
                 }
             }
         }

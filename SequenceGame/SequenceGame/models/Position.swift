@@ -25,4 +25,37 @@ struct Position: Codable, Equatable, Hashable {
     func isValid(rows: Int, cols: Int) -> Bool {
         return (0..<rows).contains(row) && (0..<cols).contains(col)
     }
+    func directionUp() -> Position {
+        //  (-1, 0),  // up
+        return Position(row: row - 1, col: self.col)
+    }
+    func directionDown() -> Position {
+        // (1, 0),   // down
+        return Position(row: row + 1, col: self.col)
+    }
+    func directionLeft() -> Position {
+        // (0, -1),  // left
+        return Position(row: row, col: self.col - 1)
+    }
+    func directionRight() -> Position {
+        // (0, 1),   // right
+        return Position(row: row, col: self.col + 1)
+    }
+    func directionUpLeft() -> Position {
+        // (-1, -1), // up-left
+        return Position(row: row - 1, col: self.col - 1)
+    }
+    func directionUpRight() -> Position {
+        // (-1, 1),  // up-right
+        return Position(row: row - 1, col: self.col + 1)
+    }
+    func directionDownLeft() -> Position {
+        // (1, -1),  // down-left
+        return Position(row: row + 1, col: self.col - 1)
+    }
+    func directionDownRight() -> Position {
+        // (1, 1)    // down-right
+        return Position(row: row + 1, col: self.col + 1)
+    }
+    
 }

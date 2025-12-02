@@ -74,18 +74,18 @@ struct SequenceDetector: Codable {
     ///
     /// Corner positions are checked first to ensure they're treated as wildcards.
     /// The double-check for corners is intentional to handle edge cases during board initialization.
-    func getChipColor(atPosition: (rowIndex: Int, colIndex: Int)) -> TeamColor? {
-        if GameConstants.cornerPositions.contains(where: { $0.row == atPosition.rowIndex && $0.col == atPosition.colIndex }) {
+    func getChipColor(atPosition: Position) -> TeamColor? {
+        if GameConstants.cornerPositions.contains(where: { $0.row == atPosition.row && $0.col == atPosition.col }) {
             return .noTeam
         }
         
-        let isCorner = GameConstants.cornerPositions.contains { $0.row == atPosition.rowIndex && $0.col == atPosition.colIndex }
-        if board.boardTiles[atPosition.rowIndex][atPosition.colIndex].isEmpty && !isCorner {
+        let isCorner = GameConstants.cornerPositions.contains { $0.row == atPosition.row && $0.col == atPosition.col }
+        if board.boardTiles[atPosition.row][atPosition.col].isEmpty && !isCorner {
             return nil
         }
         
-        if board.boardTiles[atPosition.rowIndex][atPosition.colIndex].isChipOn {
-            return board.boardTiles[atPosition.rowIndex][atPosition.colIndex].chip?.color
+        if board.boardTiles[atPosition.row][atPosition.col].isChipOn {
+            return board.boardTiles[atPosition.row][atPosition.col].chip?.color
         }
         
         return nil
@@ -131,14 +131,14 @@ struct SequenceDetector: Codable {
     /// )
     /// // detected = true if any 5-in-a-row found
     /// ```
-    mutating func detectSequence(atPosition: (rowIndex: Int, colIndex: Int), forPlayer: Player, gameState: GameState) -> Bool {
+    mutating func detectSequence(atPosition: Position, forPlayer: Player, gameState: GameState) -> Bool {
         var isSequenceCompleteHorizontally: Bool = false
         var isSequenceCompleteVertically: Bool = false
         var isSequenceCompleteDiagonally: Bool = false
         var isSequenceCompleteAntidiagonally: Bool = false
         
-        let isCorner = GameConstants.cornerPositions.contains { $0.row == atPosition.rowIndex && $0.col == atPosition.colIndex }
-        if board.boardTiles[atPosition.rowIndex][atPosition.colIndex].isEmpty && !isCorner {
+        let isCorner = GameConstants.cornerPositions.contains { $0.row == atPosition.row && $0.col == atPosition.col }
+        if board.boardTiles[atPosition.row][atPosition.col].isEmpty && !isCorner {
             return false
         }
         
@@ -196,35 +196,35 @@ struct SequenceDetector: Codable {
     /// ```
     ///
     /// - Complexity: O(n) where n is the number of columns (typically 10)
-    mutating func detectSequenceHorizontally(atPosition: (rowIndex: Int, colIndex: Int), forPlayer: Player, gameState: GameState) -> Bool {
+    mutating func detectSequenceHorizontally(atPosition: Position, forPlayer: Player, gameState: GameState) -> Bool {
         var sequenceHorizontalLeft: [BoardTile] = []
         var sequenceHorizontalRight: [BoardTile] = []
-        let sequenceHorizontalCenter: BoardTile = board.boardTiles[atPosition.rowIndex][atPosition.colIndex]
-        var sequenceStartColumnIndex: Int = atPosition.colIndex
+        let sequenceHorizontalCenter: BoardTile = board.boardTiles[atPosition.row][atPosition.col]
+        var sequenceStartColumnIndex: Int = atPosition.col
         // Start counting with the center chip (position 1)
         numberOfChipsInSequence = 1
         
         // For horizontal detection, column index varies. Start checking left (previous column) first
-        var aColumnIndex = atPosition.colIndex - 1
+        var aColumnIndex = atPosition.col - 1
     
         // Check chips to the left (previous columns) until reaching border or finding different color chip
-        while aColumnIndex >= 0 && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: atPosition.rowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: atPosition.rowIndex, colIndex: aColumnIndex)) == .noTeam) {
+        while aColumnIndex >= 0 && (forPlayer.team.color == getChipColor(atPosition: Position(row: atPosition.row, col: aColumnIndex)) || getChipColor(atPosition: Position(row: atPosition.row, col: aColumnIndex)) == .noTeam) {
             numberOfChipsInSequence += 1
-            sequenceHorizontalLeft.append(board.boardTiles[atPosition.rowIndex][aColumnIndex])
+            sequenceHorizontalLeft.append(board.boardTiles[atPosition.row][aColumnIndex])
             sequenceStartColumnIndex = aColumnIndex
             aColumnIndex -= 1
         }
         
         // Check chips to the right (next columns) until reaching border or finding different color chip
-        aColumnIndex = atPosition.colIndex + 1
-        while aColumnIndex < board.col && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: atPosition.rowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: atPosition.rowIndex, colIndex: aColumnIndex)) == .noTeam) {
+        aColumnIndex = atPosition.col + 1
+        while aColumnIndex < board.col && (forPlayer.team.color == getChipColor(atPosition: Position(row: atPosition.row, col: aColumnIndex)) || getChipColor(atPosition: Position(row: atPosition.row, col: aColumnIndex)) == .noTeam) {
             numberOfChipsInSequence += 1
-            sequenceHorizontalRight.append(board.boardTiles[atPosition.rowIndex][aColumnIndex])
+            sequenceHorizontalRight.append(board.boardTiles[atPosition.row][aColumnIndex])
             aColumnIndex += 1
         }
 
         // Verify sequence has at least 5 chips and matches the player's team color
-        return validateAndCreateSequence(left: sequenceHorizontalLeft, center: sequenceHorizontalCenter, right: sequenceHorizontalRight, position: (rowIndex: atPosition.rowIndex, columnIndex: sequenceStartColumnIndex), sequenceType: .horizontal, gameState: gameState)
+        return validateAndCreateSequence(left: sequenceHorizontalLeft, center: sequenceHorizontalCenter, right: sequenceHorizontalRight, position: Position(row: atPosition.row, col: sequenceStartColumnIndex), sequenceType: .horizontal, gameState: gameState)
     }
     
     // MARK: - Vertical Detection
@@ -270,35 +270,35 @@ struct SequenceDetector: Codable {
     /// ```
     ///
     /// - Complexity: O(n) where n is the number of rows (typically 10)
-    mutating func detectSequenceVertically(atPosition: (rowIndex: Int, colIndex: Int), forPlayer: Player, gameState: GameState) -> Bool {
+    mutating func detectSequenceVertically(atPosition: Position, forPlayer: Player, gameState: GameState) -> Bool {
         var sequenceVerticalUp: [BoardTile] = []
         var sequenceVerticalDown: [BoardTile] = []
-        let sequenceVerticalCenter = board.boardTiles[atPosition.rowIndex][atPosition.colIndex]
-        var sequenceStartRowIndex: Int = atPosition.rowIndex
+        let sequenceVerticalCenter = board.boardTiles[atPosition.row][atPosition.col]
+        var sequenceStartRowIndex: Int = atPosition.row
 
         // Start counting with the center chip (position 1)
         numberOfChipsInSequence = 1
         // For vertical detection, row index varies. Start checking up (previous row) first
-        var aRowIndex = atPosition.rowIndex - 1
+        var aRowIndex = atPosition.row - 1
         
         // Check chips above (previous rows) until reaching border or finding different color chip
-        while aRowIndex >= 0  && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: atPosition.colIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: atPosition.colIndex)) == .noTeam) {
+        while aRowIndex >= 0  && (forPlayer.team.color == getChipColor(atPosition: Position(row: aRowIndex, col: atPosition.col)) || getChipColor(atPosition: Position(row: aRowIndex, col: atPosition.col)) == .noTeam) {
             numberOfChipsInSequence += 1
-            sequenceVerticalUp.append(board.boardTiles[aRowIndex][atPosition.colIndex])
+            sequenceVerticalUp.append(board.boardTiles[aRowIndex][atPosition.col])
             sequenceStartRowIndex = aRowIndex
             aRowIndex -= 1
         }
         
         // Check chips below (next rows) until reaching border or finding different color chip
-        aRowIndex = atPosition.rowIndex + 1
-        while aRowIndex < board.row && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: atPosition.colIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: atPosition.colIndex)) == .noTeam) {
+        aRowIndex = atPosition.row + 1
+        while aRowIndex < board.row && (forPlayer.team.color == getChipColor(atPosition: Position(row: aRowIndex, col: atPosition.col)) || getChipColor(atPosition: Position(row: aRowIndex, col: atPosition.col)) == .noTeam) {
             numberOfChipsInSequence += 1
-            sequenceVerticalDown.append(board.boardTiles[aRowIndex][atPosition.colIndex])
+            sequenceVerticalDown.append(board.boardTiles[aRowIndex][atPosition.col])
             aRowIndex += 1
         }
         
         // Verify sequence has at least 5 chips and matches the player's team color
-        return validateAndCreateSequence(left: sequenceVerticalUp, center: sequenceVerticalCenter, right: sequenceVerticalDown, position: (rowIndex: sequenceStartRowIndex, columnIndex: atPosition.colIndex), sequenceType: .vertical, gameState: gameState)
+        return validateAndCreateSequence(left: sequenceVerticalUp, center: sequenceVerticalCenter, right: sequenceVerticalDown, position: Position(row: sequenceStartRowIndex, col: atPosition.col), sequenceType: .vertical, gameState: gameState)
     }
     
     // MARK: - Diagonal Detection
@@ -342,22 +342,22 @@ struct SequenceDetector: Codable {
     /// ```
     ///
     /// - Complexity: O(n) where n is min(rows, columns) along the diagonal
-    mutating func detectSequenceDiagonally(atPosition: (rowIndex: Int, colIndex: Int), forPlayer: Player, gameState: GameState) -> Bool {
+    mutating func detectSequenceDiagonally(atPosition: Position, forPlayer: Player, gameState: GameState) -> Bool {
         var sequenceDiagonalLeftUp: [BoardTile] = []
         var sequenceDiagonalRightDown: [BoardTile] = []
-        let sequenceDiagonalCenter = board.boardTiles[atPosition.rowIndex][atPosition.colIndex]
-        var sequenceStartRowIndex: Int = atPosition.rowIndex
-        var sequenceStartColumnIndex: Int = atPosition.colIndex
+        let sequenceDiagonalCenter = board.boardTiles[atPosition.row][atPosition.col]
+        var sequenceStartRowIndex: Int = atPosition.row
+        var sequenceStartColumnIndex: Int = atPosition.col
 
         // Start counting with the center chip (position 1)
         numberOfChipsInSequence = 1
         // For diagonal detection (top-left to bottom-right), both row and column indices vary
         // Start checking top-left (previous row and column) first
-        var aRowIndex = atPosition.rowIndex - 1
-        var aColumnIndex = atPosition.colIndex - 1
+        var aRowIndex = atPosition.row - 1
+        var aColumnIndex = atPosition.col - 1
         
         // Check chips in top-left direction until reaching border or finding different color chip
-        while aRowIndex >= 0 && aColumnIndex >= 0 && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) == .noTeam) {
+        while aRowIndex >= 0 && aColumnIndex >= 0 && (forPlayer.team.color == getChipColor(atPosition: Position(row: aRowIndex, col: aColumnIndex)) || getChipColor(atPosition: Position(row: aRowIndex, col: aColumnIndex)) == .noTeam) {
             numberOfChipsInSequence += 1
             sequenceDiagonalLeftUp.append(board.boardTiles[aRowIndex][aColumnIndex])
             sequenceStartRowIndex = aRowIndex
@@ -367,9 +367,9 @@ struct SequenceDetector: Codable {
         }
         
         // Check chips in bottom-right direction until reaching border or finding different color chip
-        aRowIndex = atPosition.rowIndex + 1
-        aColumnIndex = atPosition.colIndex + 1
-        while aRowIndex < board.row && aColumnIndex < board.col && (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) == .noTeam) {
+        aRowIndex = atPosition.row + 1
+        aColumnIndex = atPosition.col + 1
+        while aRowIndex < board.row && aColumnIndex < board.col && (forPlayer.team.color == getChipColor(atPosition: Position(row: aRowIndex, col: aColumnIndex)) || getChipColor(atPosition: Position(row: aRowIndex, col: aColumnIndex)) == .noTeam) {
             numberOfChipsInSequence += 1
             sequenceDiagonalRightDown.append(board.boardTiles[aRowIndex][aColumnIndex])
             aRowIndex += 1
@@ -377,7 +377,7 @@ struct SequenceDetector: Codable {
         }
         
         // Verify sequence has at least 5 chips and matches the player's team color
-        return validateAndCreateSequence(left: sequenceDiagonalLeftUp, center: sequenceDiagonalCenter, right: sequenceDiagonalRightDown, position: (rowIndex: sequenceStartRowIndex, columnIndex: sequenceStartColumnIndex), sequenceType: .diagonal, gameState: gameState)
+        return validateAndCreateSequence(left: sequenceDiagonalLeftUp, center: sequenceDiagonalCenter, right: sequenceDiagonalRightDown, position: Position(row: sequenceStartRowIndex, col: sequenceStartColumnIndex), sequenceType: .diagonal, gameState: gameState)
     }
     
     // MARK: - Antidiagonal Detection
@@ -426,23 +426,23 @@ struct SequenceDetector: Codable {
     /// and runs perpendicular to the main diagonal.
     ///
     /// - Complexity: O(n) where n is min(rows, columns) along the antidiagonal
-    mutating func detectSequenceAntidiagonal(atPosition: (rowIndex: Int, colIndex: Int), forPlayer: Player, gameState: GameState) -> Bool {
+    mutating func detectSequenceAntidiagonal(atPosition: Position, forPlayer: Player, gameState: GameState) -> Bool {
         var sequenceAntiDiagonalLeftDown: [BoardTile] = []
         var sequenceAntiDiagonalRightUp: [BoardTile] = []
-        let sequenceAntiDiagonalCenter = board.boardTiles[atPosition.rowIndex][atPosition.colIndex]
-        var sequenceStartRowIndex: Int = atPosition.rowIndex
-        var sequenceStartColumnIndex: Int = atPosition.colIndex
+        let sequenceAntiDiagonalCenter = board.boardTiles[atPosition.row][atPosition.col]
+        var sequenceStartRowIndex: Int = atPosition.row
+        var sequenceStartColumnIndex: Int = atPosition.col
        
         // Start counting with the center chip (position 1)
         numberOfChipsInSequence = 1
         // For antidiagonal detection (top-right to bottom-left), both row and column indices vary
         // Start checking top-right (previous row, next column) first
-        var aRowIndex = atPosition.rowIndex - 1
-        var aColumnIndex = atPosition.colIndex + 1
+        var aRowIndex = atPosition.row - 1
+        var aColumnIndex = atPosition.col + 1
         
         // Check chips in top-right direction until reaching border or finding different color chip
         while aRowIndex >= 0 && aColumnIndex < board.col &&
-                (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) == .noTeam) {
+                (forPlayer.team.color == getChipColor(atPosition: Position(row: aRowIndex, col: aColumnIndex)) || getChipColor(atPosition: Position(row: aRowIndex, col: aColumnIndex)) == .noTeam) {
             numberOfChipsInSequence += 1
             sequenceAntiDiagonalRightUp.append(board.boardTiles[aRowIndex][aColumnIndex])
             sequenceStartRowIndex = aRowIndex
@@ -452,10 +452,10 @@ struct SequenceDetector: Codable {
         }
         
         // Check chips in bottom-left direction until reaching border or finding different color chip
-        aRowIndex = atPosition.rowIndex + 1
-        aColumnIndex = atPosition.colIndex - 1
+        aRowIndex = atPosition.row + 1
+        aColumnIndex = atPosition.col - 1
         while aRowIndex < board.row && aColumnIndex >= 0 &&
-                (forPlayer.team.color == getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) || getChipColor(atPosition: (rowIndex: aRowIndex, colIndex: aColumnIndex)) == .noTeam) {
+                (forPlayer.team.color == getChipColor(atPosition: Position(row: aRowIndex, col: aColumnIndex)) || getChipColor(atPosition: Position(row: aRowIndex, col: aColumnIndex)) == .noTeam) {
             numberOfChipsInSequence += 1
             sequenceAntiDiagonalLeftDown.append(board.boardTiles[aRowIndex][aColumnIndex])
             aRowIndex += 1
@@ -463,7 +463,7 @@ struct SequenceDetector: Codable {
         }
         
         // Verify sequence has at least 5 chips and matches the player's team color
-        return validateAndCreateSequence(left: sequenceAntiDiagonalRightUp, center: sequenceAntiDiagonalCenter, right: sequenceAntiDiagonalLeftDown, position: (rowIndex: sequenceStartRowIndex, columnIndex: sequenceStartColumnIndex), sequenceType: .antiDiagonal, gameState: gameState)
+        return validateAndCreateSequence(left: sequenceAntiDiagonalRightUp, center: sequenceAntiDiagonalCenter, right: sequenceAntiDiagonalLeftDown, position: Position(row: sequenceStartRowIndex, col: sequenceStartColumnIndex), sequenceType: .antiDiagonal, gameState: gameState)
     }
     
     // MARK: - Sequence Validation and Creation
@@ -501,7 +501,7 @@ struct SequenceDetector: Codable {
         left: [BoardTile],
         center: BoardTile,
         right: [BoardTile],
-        position: (rowIndex: Int, columnIndex: Int),
+        position: Position,
         sequenceType: SequenceType,
         gameState: GameState) -> Bool {
         guard numberOfChipsInSequence >= 5 else { return false }
@@ -511,7 +511,7 @@ struct SequenceDetector: Codable {
         
         let sequence = Sequence(
             tiles: sequenceTiles,
-            position: Position(row: position.rowIndex, col: position.columnIndex),
+            position: Position(row: position.row, col: position.col),
             teamColor: teamColor,
             sequenceType: sequenceType
         )
