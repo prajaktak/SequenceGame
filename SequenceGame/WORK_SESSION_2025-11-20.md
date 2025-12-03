@@ -92,7 +92,7 @@
 
 ### Session 3: Quick Wins (if time allows)
 
-#### 8. 🔢 Fix GameConstants Validation
+#### 8. 🔢 Fix GameConstantsValidation
 **Files:** `GameConstants.swift` & `GameSettingsView.swift`  
 **Problem:** `maxTeams` is 4 but only 3 colors available  
 **Fix:** Tie `maxTeams` to `teamColors.count`  
@@ -144,7 +144,7 @@
 - [ ] Task 5: Remove Color from models
 - [ ] Task 6: GameOverlayView dependencies
 - [ ] Task 7: Color comparison fix
-- [x] Task 8: GameConstants validation - **FIXED**: Changed `maxTeams` from hardcoded `4` to computed property based on `teamColors.count`. Prevents color array out-of-bounds crashes.
+- [x] Task 8: GameConstantsvalidation - **FIXED**: Changed `maxTeams` from hardcoded `4` to computed property based on `teamColors.count`. Prevents color array out-of-bounds crashes.
 - [x] Task 9: Parameter rename - **FIXED**: Renamed `numberOfPlayers` → `playersPerTeam` in GameView for clarity. Updated init, stored property, and all references.
 
 ### Blockers/Questions:

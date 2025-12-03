@@ -18,9 +18,9 @@ struct PrimaryButtonStyle: ButtonStyle {
                     Color("AccentPrimary")
                 ], startPoint: .top, endPoint: .bottom)
             )
-            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius,
+            .clipShape(RoundedRectangle(cornerRadius: GameConstants.buttonCornerRadius,
                                         style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius).stroke(Color("Border"), lineWidth: GameConstants.UISizing.universalBorderWidth))
+            .overlay(RoundedRectangle(cornerRadius: GameConstants.buttonCornerRadius).stroke(Color("Border"), lineWidth: GameConstants.universalBorderWidth))
             .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 1)
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)

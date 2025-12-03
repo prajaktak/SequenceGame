@@ -23,7 +23,7 @@ struct SeatView: View {
             // Subtle border consistent with Theme border color
             Circle()
                 .stroke(ThemeColor.border.opacity(isCurrent ? 0.85 : 0.6),
-                        lineWidth: isCurrent ? GameConstants.UISizing.handCardBorderWidth : GameConstants.UISizing.universalBorderWidth)
+                        lineWidth: isCurrent ? GameConstants.handCardBorderWidth : GameConstants.universalBorderWidth)
 
             // Initials + hand count with text color that contrasts on accent
             VStack(spacing: 2) {

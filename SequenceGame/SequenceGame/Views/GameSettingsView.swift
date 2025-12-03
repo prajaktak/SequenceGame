@@ -63,8 +63,8 @@ struct GameSettingsView: View {
                             }
                             .padding()
                             .background(ThemeColor.accentPrimary.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius).stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth))
+                            .clipShape(RoundedRectangle(cornerRadius: GameConstants.buttonCornerRadius, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: GameConstants.buttonCornerRadius).stroke(ThemeColor.border, lineWidth: GameConstants.universalBorderWidth))
                             
                             // Players per team
                             VStack(alignment: .leading, spacing: 12) {
@@ -102,8 +102,8 @@ struct GameSettingsView: View {
                             }
                             .padding()
                             .background(ThemeColor.accentSecondary.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius).stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth))
+                            .clipShape(RoundedRectangle(cornerRadius: GameConstants.buttonCornerRadius, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: GameConstants.buttonCornerRadius).stroke(ThemeColor.border, lineWidth: GameConstants.universalBorderWidth))
                             
                             // Player Configuration
                             VStack(alignment: .leading, spacing: 16) {
@@ -188,10 +188,10 @@ struct GameSettingsView: View {
                                 endPoint: .bottom
                             )
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: GameConstants.buttonCornerRadius, style: .continuous))
                         .overlay(
-                            RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius)
-                                .stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth)
+                            RoundedRectangle(cornerRadius: GameConstants.buttonCornerRadius)
+                                .stroke(ThemeColor.border, lineWidth: GameConstants.universalBorderWidth)
                         )
                         .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 1)
                     })

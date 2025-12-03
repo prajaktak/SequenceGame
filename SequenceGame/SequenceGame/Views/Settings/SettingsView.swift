@@ -100,7 +100,7 @@ struct SettingsView: View {
                         Text("Audio & Feedback")
                             .font(.headline)
                             .foregroundStyle(ThemeColor.textPrimary.opacity(0.7))
-                            .padding(.horizontal, GameConstants.UISizing.horizontalPadding)
+                            .padding(.horizontal, GameConstants.horizontalPadding)
                         
                         // Sound Effects Toggle
                         SettingsToggleRow(
@@ -131,7 +131,7 @@ struct SettingsView: View {
                         Text("Appearance")
                             .font(.headline)
                             .foregroundStyle(ThemeColor.textPrimary.opacity(0.7))
-                            .padding(.horizontal, GameConstants.UISizing.horizontalPadding)
+                            .padding(.horizontal, GameConstants.horizontalPadding)
                         
                         // Theme Selection
                         VStack(spacing: 12) {
@@ -152,7 +152,7 @@ struct SettingsView: View {
                         Text("Gameplay")
                             .font(.headline)
                             .foregroundStyle(ThemeColor.textPrimary.opacity(0.7))
-                            .padding(.horizontal, GameConstants.UISizing.horizontalPadding)
+                            .padding(.horizontal, GameConstants.horizontalPadding)
                         
                         VStack(spacing: 12) {
                             ForEach(Difficulty.allCases, id: \.self) { difficulty in

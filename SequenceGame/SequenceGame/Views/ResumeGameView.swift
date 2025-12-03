@@ -135,3 +135,8 @@ struct ResumeGameView: View {
         }
     }
 }
+
+#Preview {
+    ResumeGameView()
+        .environmentObject(GameState())
+}

@@ -33,7 +33,7 @@ struct MenuButtonView<Destination: View>: View {
         NavigationLink(destination: destination) {
             HStack(spacing: 16) {
                 Image(systemName: iconSystemName)
-                    .font(.system(size: GameConstants.UISizing.iconSizeLarge))
+                    .font(.system(size: GameConstants.iconSizeLarge))
                     .foregroundStyle(ThemeColor.textOnAccent)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
@@ -49,12 +49,12 @@ struct MenuButtonView<Destination: View>: View {
             }
             .foregroundStyle(ThemeColor.textOnAccent)
             .padding(.horizontal, 20)
-            .frame(maxWidth: .infinity, minHeight: GameConstants.UISizing.secondaryButtonHeight)
+            .frame(maxWidth: .infinity, minHeight: GameConstants.secondaryButtonHeight)
             .background(
                 LinearGradient(colors: gradient, startPoint: .topLeading, endPoint: .bottomTrailing)
             )
-            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius).stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth))
+            .clipShape(RoundedRectangle(cornerRadius: GameConstants.largeCornerRadius, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: GameConstants.largeCornerRadius).stroke(ThemeColor.border, lineWidth: GameConstants.universalBorderWidth))
             .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
             .opacity(isEnabled ? 1.0 : 0.5)
         }

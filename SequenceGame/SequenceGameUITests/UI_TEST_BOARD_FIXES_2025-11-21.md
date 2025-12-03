@@ -62,7 +62,7 @@ ZStack {
     )
     .allowsHitTesting(false)
     .opacity(gameState.hasSelection ? 0 : 1)
-    .animation(.easeInOut(duration: GameConstants.Animation.overlayAutoDismissDelay), value: gameState.hasSelection)
+    .animation(.easeInOut(duration: GameConstants.overlayAutoDismissDelay), value: gameState.hasSelection)
 }
 .accessibilityElement(children: .contain)  // ← Added
 .accessibilityIdentifier("gameBoardContainer")  // ← Added

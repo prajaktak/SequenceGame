@@ -131,7 +131,7 @@ struct GameView: View {
                         )
                         .allowsHitTesting(false)
                         .opacity(gameState.hasSelection ? 0 : 1)
-                        .animation(.easeInOut(duration: GameConstants.Animation.cardSelectionDuration), value: gameState.hasSelection)
+                        .animation(.easeInOut(duration: GameConstants.cardSelectionDuration), value: gameState.hasSelection)
                     }
                     .disabled(gameState.isAITurnInProgress)
                     .accessibilityElement(children: .contain)
@@ -274,7 +274,7 @@ struct GameView: View {
                         isOverlayPresent = false 
                     }
                     overlayDismissWork = work
-                    DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.Animation.overlayAutoDismissDelay, execute: work)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.overlayAutoDismissDelay, execute: work)
                 }
             }
             .overlay(content: {
@@ -320,7 +320,7 @@ struct GameView: View {
                                 gameState.resetGame()
                                 // Dismiss GameView (back to GameSettingsView or MainMenu)
                                 dismiss()
-                                DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.Animation.navigationDismissDelay, execute: {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.navigationDismissDelay, execute: {
                                     dismiss()
                                 })
                             })

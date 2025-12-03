@@ -85,12 +85,11 @@ struct CardFaceView: View {
 
 // MARK: - Asset name resolution
 private func availableCenterAssetName(for card: Card) -> String? {
-    let suit = card.suit.accessibilityName
-    let rank = card.cardFace.accessibilityName
+    let suit = card.suit.rawValue
+    let rank = card.cardFace.rawValue
     let name = "card_center_\(rank)_\(suit)"
     return UIImage(named: name) != nil ? name : nil
 }
-
 
 #Preview {
     CardFaceView(card: .init(cardFace: .jack, suit: .diamonds))

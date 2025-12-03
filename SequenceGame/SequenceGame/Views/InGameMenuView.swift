@@ -33,9 +33,9 @@ struct InGameMenuView: View {
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: GameConstants.UISizing.largeSpacing) {
+                    VStack(spacing: GameConstants.largeSpacing) {
                         // Header
-                        VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
+                        VStack(spacing: GameConstants.overlayContentSpacing) {
                             Image(systemName: "line.3.horizontal.circle.fill")
                                 .font(.system(size: 56))
                                 .foregroundStyle(
@@ -51,10 +51,10 @@ struct InGameMenuView: View {
                                 .foregroundStyle(ThemeColor.textPrimary)
                                 .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 2)
                         }
-                        .padding(.top, GameConstants.UISizing.boardTopPadding)
+                        .padding(.top, GameConstants.boardTopPadding)
                         
                         // Main Actions
-                        VStack(spacing: GameConstants.UISizing.verticalSpacing) {
+                        VStack(spacing: GameConstants.verticalSpacing) {
                             // Resume Button
                             InGameMenuButtonView(
                                 title: "Resume",
@@ -85,13 +85,13 @@ struct InGameMenuView: View {
                                onNewGame()
                             }
                         }
-                        .padding(.horizontal, GameConstants.UISizing.horizontalPadding)
+                        .padding(.horizontal, GameConstants.horizontalPadding)
                         
                         Divider()
-                            .padding(.horizontal, GameConstants.UISizing.horizontalPadding)
+                            .padding(.horizontal, GameConstants.horizontalPadding)
                         
                         // Navigation Section
-                        VStack(spacing: GameConstants.UISizing.verticalSpacing) {
+                        VStack(spacing: GameConstants.verticalSpacing) {
                             MenuButtonView(
                                 title: "How to Play",
                                 subtitle: "Game rules and tips",
@@ -106,7 +106,7 @@ struct InGameMenuView: View {
                                 gradient: [ThemeColor.accentSecondary, ThemeColor.accentTertiary]
                             ) { SettingsView() }
                         }
-                        .padding(.horizontal, GameConstants.UISizing.horizontalPadding)
+                        .padding(.horizontal, GameConstants.horizontalPadding)
                         
                         Spacer()
                     }
