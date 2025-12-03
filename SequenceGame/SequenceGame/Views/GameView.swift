@@ -45,6 +45,9 @@ struct GameView: View {
     /// Flag to track if this is a resumed game (true) or new game (false)
     @State private var isResuming: Bool = false
     
+    /// Player configurations passed from settings
+    private let playerConfigs: [String: PlayerConfig]?
+    
     /// Flag to track if the view has finished initial setup
     /// Prevents onDisappear from triggering during initial setup
     @State private var hasFinishedSetup: Bool = false
@@ -85,10 +88,12 @@ struct GameView: View {
     ///   - playersPerTeam: Number of players on each team (default: 5)
     ///   - numberOfTeams: Number of teams in the game (default: 2)
     ///   - isResuming: Whether this is resuming a saved game (default: false)
-    init(playersPerTeam: Int = 5, numberOfTeams: Int = 2, isResuming: Bool = false) {
+    ///   - playerConfigs: Optional configuration for players (AI/Human)
+    init(playersPerTeam: Int = 5, numberOfTeams: Int = 2, isResuming: Bool = false, playerConfigs: [String: PlayerConfig]? = nil) {
         _playersPerTeam = State(initialValue: playersPerTeam)
         _numberOfTeams = State(initialValue: numberOfTeams)
         _isResuming = State(initialValue: isResuming)
+        self.playerConfigs = playerConfigs
     }
     
     // MARK: - Body
@@ -126,8 +131,9 @@ struct GameView: View {
                         )
                         .allowsHitTesting(false)
                         .opacity(gameState.hasSelection ? 0 : 1)
-                        .animation(.easeInOut(duration: GameConstants.Animation.cardSelectionDuration), value: gameState.hasSelection)
+                        .animation(.easeInOut(duration: GameConstants.cardSelectionDuration), value: gameState.hasSelection)
                     }
+                    .disabled(gameState.isAITurnInProgress)
                     .accessibilityElement(children: .contain)
                     .accessibilityIdentifier("gameBoardContainer")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -139,6 +145,7 @@ struct GameView: View {
                 HandView()
                     .frame(height: 100)
                     .environmentObject(gameState)
+                    .disabled(gameState.isAITurnInProgress)
                 
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
@@ -267,7 +274,7 @@ struct GameView: View {
                         isOverlayPresent = false 
                     }
                     overlayDismissWork = work
-                    DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.Animation.overlayAutoDismissDelay, execute: work)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.overlayAutoDismissDelay, execute: work)
                 }
             }
             .overlay(content: {
@@ -313,7 +320,7 @@ struct GameView: View {
                                 gameState.resetGame()
                                 // Dismiss GameView (back to GameSettingsView or MainMenu)
                                 dismiss()
-                                DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.Animation.navigationDismissDelay, execute: {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.navigationDismissDelay, execute: {
                                     dismiss()
                                 })
                             })
@@ -366,8 +373,22 @@ struct GameView: View {
             localTeams.append(Team(color: colorNames[teamIndex], numberOfPlayers: playersPerTeam))
             for index in 0..<playersPerTeam {
                 let displayIndex = index + 1
-                let playerName = "T\(teamIndex + 1)-P\(displayIndex)"
-                localPlayers.append(Player(name: playerName, team: localTeams[teamIndex], cards: []))
+                let configKey = "T\(teamIndex + 1)-P\(displayIndex)"
+                let config = playerConfigs?[configKey]
+                
+                let isAI = config?.isAI ?? false
+                let difficulty = config?.difficulty
+                
+                let baseName = "T\(teamIndex + 1)-P\(displayIndex)"
+                var player = Player(name: baseName, team: localTeams[teamIndex], cards: [])
+                
+                if isAI {
+                    player.isAI = true
+                    player.aiDifficulty = difficulty
+                    player.name = "\(baseName) (AI)"
+                }
+                
+                localPlayers.append(player)
             }
         }
         

@@ -21,12 +21,12 @@ struct InGameMenuButtonView: View {
     var body: some View {
         Button(action: action,
                label: {
-            HStack(spacing: GameConstants.UISizing.verticalSpacing) {
+            HStack(spacing: GameConstants.verticalSpacing) {
                 Image(systemName: icon)
-                    .font(.system(size: GameConstants.UISizing.iconSizeLarge))
+                    .font(.system(size: GameConstants.iconSizeLarge))
                     .foregroundStyle(ThemeColor.textOnAccent)
                 
-                VStack(alignment: .leading, spacing: GameConstants.UISizing.iconSizeSmall / 4) {
+                VStack(alignment: .leading, spacing: GameConstants.iconSizeSmall / 4) {
                     Text(title)
                         .font(.system(.headline, design: .rounded).weight(.heavy))
                     Text(subtitle)
@@ -37,11 +37,11 @@ struct InGameMenuButtonView: View {
                 
                 Spacer()
             }
-            .padding(.horizontal, GameConstants.UISizing.boardTopPadding)
-            .frame(maxWidth: .infinity, minHeight: GameConstants.UISizing.secondaryButtonHeight)
+            .padding(.horizontal, GameConstants.boardTopPadding)
+            .frame(maxWidth: .infinity, minHeight: GameConstants.secondaryButtonHeight)
             .background(LinearGradient(colors: gradient, startPoint: .topLeading, endPoint: .bottomTrailing))
-            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.largeCornerRadius, style: .continuous))
-            .shadow(color: .black.opacity(0.1), radius: GameConstants.UISizing.iconSizeSmall / 4, x: 0, y: 2)
+            .clipShape(RoundedRectangle(cornerRadius: GameConstants.largeCornerRadius, style: .continuous))
+            .shadow(color: .black.opacity(0.1), radius: GameConstants.iconSizeSmall / 4, x: 0, y: 2)
         })
         .buttonStyle(.plain)
         .accessibilityIdentifier(title)

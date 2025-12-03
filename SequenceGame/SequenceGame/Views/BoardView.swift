@@ -15,12 +15,12 @@ struct BoardView: View {
     var body: some View {
         GeometryReader { geometry in
             // Single source of truth for sizing
-            let borderThickness = GameConstants.UISizing.boardBorderThickness
+            let borderThickness = GameConstants.boardBorderThickness
             let contentInsets = EdgeInsets(
-                top: GameConstants.UISizing.boardContentInsetTop,
-                leading: GameConstants.UISizing.boardContentInsetLeading,
-                bottom: GameConstants.UISizing.boardContentInsetBottom,
-                trailing: GameConstants.UISizing.boardContentInsetTrailing
+                top: GameConstants.boardContentInsetTop,
+                leading: GameConstants.boardContentInsetLeading,
+                bottom: GameConstants.boardContentInsetBottom,
+                trailing: GameConstants.boardContentInsetTrailing
             )
             
             // Compute available drawing area by subtracting border and content insets once
@@ -47,9 +47,9 @@ struct BoardView: View {
             .frame(width: gridWidth, height: gridHeight)
             .padding(contentInsets)
             .background(colorScheme == .dark ? Color("woodDark") : Color("wood"))
-            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.boardCornerRadius, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: GameConstants.boardCornerRadius, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: GameConstants.UISizing.boardCornerRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: GameConstants.boardCornerRadius, style: .continuous)
                     .stroke(ThemeColor.boardFelt, lineWidth: borderThickness)
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -67,7 +67,7 @@ struct BoardView: View {
         let tileWidth: CGFloat
         let tileHeight: CGFloat
         
-        let aspectRatio = GameConstants.UISizing.cardAspectRatio
+        let aspectRatio = GameConstants.cardAspectRatio
         if calculatedTileWidth * aspectRatio <= calculatedTileHeight {
             tileWidth = calculatedTileWidth
             tileHeight = calculatedTileWidth * aspectRatio
@@ -173,7 +173,7 @@ struct BoardView: View {
                 guard let selectedId = gameState.selectedCardId else { return }
                 defer { gameState.clearSelection() }
                 withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
-                    gameState.performPlay(atPos: (row, column), using: selectedId)
+                    gameState.performPlay(atPos: Position(row: row, col: column), using: selectedId)
                 }
             }
         }

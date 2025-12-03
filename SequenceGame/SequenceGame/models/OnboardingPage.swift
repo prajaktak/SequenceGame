@@ -5,7 +5,7 @@
 //  Created by Prajakta Kulkarni on 26/11/2025.
 //
 
-import SwiftUI
+import Foundation
 
 struct OnboardingPage: Identifiable {
     let id = UUID()

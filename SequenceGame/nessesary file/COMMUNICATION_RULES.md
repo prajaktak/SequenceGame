@@ -31,7 +31,6 @@
 
 - ✅ User explicitly says: "fix it", "change it", "implement it", "do it"
 - ✅ User says: "yes, please" after you ask permission
-- ✅ User accepts changes you propose
 - ✅ User explicitly says: "do changes in code"
 
 ---

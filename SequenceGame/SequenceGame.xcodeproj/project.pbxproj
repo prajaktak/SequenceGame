@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F96742CA2EDDA1D50096F590 /* AI_PLAYER_IMPLEMENTATION_GUIDE.md in Resources */ = {isa = PBXBuildFile; fileRef = F96742C82EDDA1D50096F590 /* AI_PLAYER_IMPLEMENTATION_GUIDE.md */; };
-		F96742CB2EDDA1D50096F590 /* AI_PLAYER_STEP_BY_STEP_GUIDE.md in Resources */ = {isa = PBXBuildFile; fileRef = F96742C92EDDA1D50096F590 /* AI_PLAYER_STEP_BY_STEP_GUIDE.md */; };
 		F97A04312ED6182B00FC0FD4 /* ASSISTANT_RULES.md in Resources */ = {isa = PBXBuildFile; fileRef = F97A04302ED6182B00FC0FD4 /* ASSISTANT_RULES.md */; };
 		F97AFB652ECF3E6900FC0FD4 /* TODO_FROM_CODE_REVIEWS_2025-11-20.md in Resources */ = {isa = PBXBuildFile; fileRef = F97AFB642ECF3E6900FC0FD4 /* TODO_FROM_CODE_REVIEWS_2025-11-20.md */; };
 		F97AFC432ED08D1D00FC0FD4 /* UI_TEST_FIXES_2025-11-21.md in Resources */ = {isa = PBXBuildFile; fileRef = F97AFC422ED08D1D00FC0FD4 /* UI_TEST_FIXES_2025-11-21.md */; };
@@ -49,8 +47,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		F96742C82EDDA1D50096F590 /* AI_PLAYER_IMPLEMENTATION_GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AI_PLAYER_IMPLEMENTATION_GUIDE.md; sourceTree = "<group>"; };
-		F96742C92EDDA1D50096F590 /* AI_PLAYER_STEP_BY_STEP_GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AI_PLAYER_STEP_BY_STEP_GUIDE.md; sourceTree = "<group>"; };
 		F97A04302ED6182B00FC0FD4 /* ASSISTANT_RULES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ASSISTANT_RULES.md; sourceTree = "<group>"; };
 		F97AFB642ECF3E6900FC0FD4 /* TODO_FROM_CODE_REVIEWS_2025-11-20.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "TODO_FROM_CODE_REVIEWS_2025-11-20.md"; sourceTree = "<group>"; };
 		F97AFC422ED08D1D00FC0FD4 /* UI_TEST_FIXES_2025-11-21.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "UI_TEST_FIXES_2025-11-21.md"; sourceTree = "<group>"; };
@@ -129,8 +125,6 @@
 		F9FE2C622EA2665F00623663 = {
 			isa = PBXGroup;
 			children = (
-				F96742C82EDDA1D50096F590 /* AI_PLAYER_IMPLEMENTATION_GUIDE.md */,
-				F96742C92EDDA1D50096F590 /* AI_PLAYER_STEP_BY_STEP_GUIDE.md */,
 				F9F3C1E22ECD862700C65753 /* ISSUES_AND_IMPROVEMENTS_2025-11-18.md */,
 				F9F3BEF72ECC986400C65753 /* code-review.yml */,
 				F9F3BEF82ECC986400C65753 /* coverage.yml */,
@@ -300,8 +294,6 @@
 				F9F3BEFC2ECC986400C65753 /* code-review.yml in Resources */,
 				F9F3BEFD2ECC986400C65753 /* deploy.yml in Resources */,
 				F9F3BF0C2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md in Resources */,
-				F96742CA2EDDA1D50096F590 /* AI_PLAYER_IMPLEMENTATION_GUIDE.md in Resources */,
-				F96742CB2EDDA1D50096F590 /* AI_PLAYER_STEP_BY_STEP_GUIDE.md in Resources */,
 				F97AFB652ECF3E6900FC0FD4 /* TODO_FROM_CODE_REVIEWS_2025-11-20.md in Resources */,
 				F9F3BEFE2ECC986400C65753 /* coverage.yml in Resources */,
 				F97AFC432ED08D1D00FC0FD4 /* UI_TEST_FIXES_2025-11-21.md in Resources */,

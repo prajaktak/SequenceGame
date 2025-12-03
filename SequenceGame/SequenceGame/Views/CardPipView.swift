@@ -12,7 +12,7 @@ struct CardPipsView: View {
     var pipviewMaxHeight: CGFloat = 7
     let card: Card
     
-    enum LayoutAxis { case rows, columns }
+    private enum LayoutAxis { case rows, columns }
     
     var body: some View {
         GeometryReader { geometry in
@@ -70,7 +70,7 @@ struct CardPipsView: View {
     }
     
     // Data-driven pip patterns (line counts) with axis selection
-    func pipLayout(_ face: CardFace) -> (axis: LayoutAxis, counts: [Int]) {
+    private func pipLayout(_ face: CardFace) -> (axis: LayoutAxis, counts: [Int]) {
         switch face {
         case .ace:
             return (.rows, [1])

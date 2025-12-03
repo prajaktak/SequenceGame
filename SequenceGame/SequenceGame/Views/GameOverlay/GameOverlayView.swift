@@ -24,13 +24,13 @@ struct GameOverlayView: View {
     var body: some View {
         switch mode {
         case .turnStart:
-            VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
+            VStack(spacing: GameConstants.overlayContentSpacing) {
                 HexagonOverlay(
                     borderColor: borderColor,
                     backgroundColor: backgroundColor
                 ) {
                     // Content will go here in next step
-                    VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
+                    VStack(spacing: GameConstants.overlayContentSpacing) {
                         // Player name + "Your turn"
                         ShimmeringNameView(
                             name: playerName,
@@ -39,13 +39,13 @@ struct GameOverlayView: View {
                         )
                         // Instruction text
                         Text("Select card to place chip")
-                            .font(.system(size: GameConstants.UISizing.overlayInstructionFontSize, weight: .semibold, design: .rounded))
+                            .font(.system(size: GameConstants.overlayInstructionFontSize, weight: .semibold, design: .rounded))
                             .foregroundColor(ThemeColor.textOnAccent.opacity(0.7))
                         
                         // Help button (icon only)
                         Button(action: onHelp) {
                             Image(systemName: "questionmark.circle.fill")
-                                .font(.system(size: GameConstants.UISizing.overlayHelpIconSize, weight: .bold))
+                                .font(.system(size: GameConstants.overlayHelpIconSize, weight: .bold))
                                 .foregroundColor(borderColor)
                         }
                         .buttonStyle(.plain)
@@ -57,7 +57,7 @@ struct GameOverlayView: View {
                 borderColor: borderColor,
                 backgroundColor: backgroundColor
             ) {
-                VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
+                VStack(spacing: GameConstants.overlayContentSpacing) {
                     ShimmeringNameView(
                         name: playerName,
                         baseColor: ThemeColor.textOnAccent,
@@ -72,7 +72,7 @@ struct GameOverlayView: View {
                 borderColor: borderColor,
                 backgroundColor: backgroundColor
             ) {
-                VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
+                VStack(spacing: GameConstants.overlayContentSpacing) {
                     ShimmeringNameView(
                         name: playerName,
                         baseColor: ThemeColor.textOnAccent,
@@ -86,7 +86,7 @@ struct GameOverlayView: View {
                 borderColor: borderColor,
                 backgroundColor: backgroundColor
             ) {
-                VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
+                VStack(spacing: GameConstants.overlayContentSpacing) {
                     ShimmeringNameView(
                         name: playerName,
                         baseColor: ThemeColor.textOnAccent,
@@ -100,7 +100,7 @@ struct GameOverlayView: View {
                 borderColor: borderColor,
                 backgroundColor: backgroundColor
             ) {
-                VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
+                VStack(spacing: GameConstants.overlayContentSpacing) {
                     ShimmeringNameView(
                         name: playerName,
                         baseColor: ThemeColor.textOnAccent,
@@ -114,7 +114,7 @@ struct GameOverlayView: View {
                 borderColor: borderColor,
                 backgroundColor: backgroundColor
             ) {
-                VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
+                VStack(spacing: GameConstants.overlayContentSpacing) {
                     ShimmeringNameView(
                         name: playerName,
                         baseColor: ThemeColor.textOnAccent,
@@ -128,7 +128,7 @@ struct GameOverlayView: View {
                 borderColor: borderColor,
                 backgroundColor: backgroundColor
             ) {
-                VStack(spacing: GameConstants.UISizing.overlayContentSpacing) {
+                VStack(spacing: GameConstants.overlayContentSpacing) {
                     ShimmeringNameView(
                         name: playerName,
                         baseColor: ThemeColor.textOnAccent,
@@ -143,21 +143,21 @@ struct GameOverlayView: View {
                 backgroundColor: backgroundColor,
                 allowsHitTesting: true,
                 content: {
-                    VStack(spacing: GameConstants.UISizing.overlayGameOverSpacing) {
+                    VStack(spacing: GameConstants.overlayGameOverSpacing) {
                         // Title
                         Text("Game Over!")
-                            .font(.system(size: GameConstants.UISizing.overlayGameOverTitleSize, weight: .bold, design: .rounded))
+                            .font(.system(size: GameConstants.overlayGameOverTitleSize, weight: .bold, design: .rounded))
                             .foregroundColor(ThemeColor.textOnAccent)
                         
                         // Winner announcement
                         if let winningTeam = gameState.winningTeam {
                             Text("\(teamName(for: winningTeam)) Wins!")
-                                .font(.system(size: GameConstants.UISizing.overlayGameOverSubtitleSize, weight: .semibold, design: .rounded))
+                                .font(.system(size: GameConstants.overlayGameOverSubtitleSize, weight: .semibold, design: .rounded))
                                 .foregroundColor(ThemeColor.textOnAccent)
                         }
                         
                         // Buttons - wrapped in container that consumes taps
-                        HStack(spacing: GameConstants.UISizing.handSpacing) {
+                        HStack(spacing: GameConstants.handSpacing) {
                             // Play Again Button
                             Button(action: {
                                 // Use callback if provided, otherwise handle directly
@@ -176,19 +176,19 @@ struct GameOverlayView: View {
                                 }
                             },
                                    label: {
-                                HStack(spacing: GameConstants.UISizing.iconSizeSmall / 4) {
+                                HStack(spacing: GameConstants.iconSizeSmall / 4) {
                                     Image(systemName: "arrow.clockwise")
-                                        .font(.system(size: GameConstants.UISizing.iconSizeSmall))
+                                        .font(.system(size: GameConstants.iconSizeSmall))
                                     Text("Play Again")
                                         .font(.caption2)
                                         .fontWeight(.semibold)
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, GameConstants.UISizing.handVerticalInsets)
-                                .padding(.horizontal, GameConstants.UISizing.handSpacing)
+                                .padding(.vertical, GameConstants.handVerticalInsets)
+                                .padding(.horizontal, GameConstants.handSpacing)
                                 .background(Color.white.opacity(0.25))
                                 .foregroundColor(.white)
-                                .cornerRadius(GameConstants.UISizing.cardCornerRadius)
+                                .cornerRadius(GameConstants.cardCornerRadius)
                             })
                             .buttonStyle(.plain)
                             .contentShape(Rectangle())
@@ -203,33 +203,41 @@ struct GameOverlayView: View {
                                 }
                             },
                                    label: {
-                                HStack(spacing: GameConstants.UISizing.iconSizeSmall / 4) {
+                                HStack(spacing: GameConstants.iconSizeSmall / 4) {
                                     Image(systemName: "plus.circle")
-                                        .font(.system(size: GameConstants.UISizing.iconSizeSmall))
+                                        .font(.system(size: GameConstants.iconSizeSmall))
                                     Text("New Game")
                                         .font(.caption2)
                                         .fontWeight(.semibold)
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, GameConstants.UISizing.handVerticalInsets)
-                                .padding(.horizontal, GameConstants.UISizing.handSpacing)
+                                .padding(.vertical, GameConstants.handVerticalInsets)
+                                .padding(.horizontal, GameConstants.handSpacing)
                                 .background(Color.white.opacity(0.25))
                                 .foregroundColor(ThemeColor.textOnAccent)
-                                .cornerRadius(GameConstants.UISizing.cardCornerRadius)
+                                .cornerRadius(GameConstants.cardCornerRadius)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: GameConstants.UISizing.cardCornerRadius)
-                                        .stroke(ThemeColor.textOnAccent.opacity(0.4), lineWidth: GameConstants.UISizing.standardBorderWidth)
+                                    RoundedRectangle(cornerRadius: GameConstants.cardCornerRadius)
+                                        .stroke(ThemeColor.textOnAccent.opacity(0.4), lineWidth: GameConstants.standardBorderWidth)
                                 )
                             })
                             .buttonStyle(.plain)
                         }
-                        .padding(.horizontal, GameConstants.UISizing.boardPadding)
-                        .padding(.top, GameConstants.UISizing.iconSizeSmall / 4)
+                        .padding(.horizontal, GameConstants.boardPadding)
+                        .padding(.top, GameConstants.iconSizeSmall / 4)
                         .contentShape(Rectangle())
                         .onTapGesture { } // Consume taps on button area to prevent propagation
                     }
                 }
             )
+        case .aITurnInProgress:
+            HexagonOverlay(
+                borderColor: borderColor, backgroundColor: backgroundColor) {
+                    VStack(spacing: GameConstants.overlayContentSpacing) {
+                        AITurnInProgressOverlay(teamColor: borderColor, text: "\(playerName) is thinking...")
+                    }
+                }
+            
         }
     }
     private func teamName(for color: TeamColor) -> String {

@@ -142,7 +142,7 @@ struct SequenceGameTests {
         let state = GameState()
         state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
 
-        let position = (row: 3, col: 3)
+        let position = Position(row: 3, col: 3)
         state.placeChip(at: position, teamColor: team.color)
 
         let tile = state.boardTiles[position.row][position.col]
@@ -157,7 +157,7 @@ struct SequenceGameTests {
         state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
 
         let start = state.players[state.currentPlayerIndex].cards.count
-        state.placeChip(at: (row: 2, col: 2), teamColor: team.color)
+        state.placeChip(at: Position(row: 2, col: 2), teamColor: team.color)
         #expect(state.players[state.currentPlayerIndex].cards.count == start)
     }
     
@@ -167,7 +167,7 @@ struct SequenceGameTests {
         let state = GameState()
         state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
         
-        let position = (row: 4, col: 4)
+        let position = Position(row: 4, col: 4)
         state.placeChip(at: position, teamColor: team.color)
         state.removeChip(at: position)
         
@@ -181,7 +181,7 @@ struct SequenceGameTests {
         let state = GameState()
         state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
         
-        let position = (row: 4, col: 4)
+        let position = Position(row: 4, col: 4)
         state.placeChip(at: position, teamColor: team.color)
         state.removeChip(at: position)
         
@@ -196,7 +196,7 @@ struct SequenceGameTests {
         state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
 
         let startIndex = state.currentPlayerIndex
-        state.placeChip(at: (row: 1, col: 1), teamColor: team.color)
+        state.placeChip(at: Position(row: 1, col: 1), teamColor: team.color)
         #expect(state.currentPlayerIndex == startIndex)
     }
     
@@ -246,7 +246,7 @@ struct SequenceGameTests {
         state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
 
         // Controlled setup
-        let position = (row: 4, col: 4)
+        let position = Position(row: 4, col: 4)
         let card = Card(cardFace: .ace, suit: .hearts)
         state.boardTiles[position.row][position.col].card = card
         state.boardTiles[position.row][position.col].isChipOn = false
@@ -260,7 +260,7 @@ struct SequenceGameTests {
         let state = GameState()
         state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
 
-        let position = (row: 5, col: 5)
+        let position = Position(row: 5, col: 5)
         let card = Card(cardFace: .ten, suit: .clubs)
         state.boardTiles[position.row][position.col].card = card
         state.boardTiles[position.row][position.col].isChipOn = true  // occupied
@@ -274,7 +274,7 @@ struct SequenceGameTests {
         let state = GameState()
         state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
 
-        let position = (row: 6, col: 6)
+        let position = Position(row: 6, col: 6)
         state.boardTiles[position.row][position.col].card = Card(cardFace: .queen, suit: .spades)
         state.boardTiles[position.row][position.col].isChipOn = false
 
@@ -290,7 +290,7 @@ struct SequenceGameTests {
         state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
 
         // Controlled board setup: choose a position and card that matches the tile
-        let position = (row: 3, col: 4)
+        let position = Position(row: 3, col: 4)
         let playableCard = Card(cardFace: .ten, suit: .hearts)
         state.boardTiles[position.row][position.col].card = playableCard
         state.boardTiles[position.row][position.col].isChipOn = false
@@ -530,8 +530,8 @@ struct SequenceGameTests {
         state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
         
         // Place some chips on the board
-        state.placeChip(at: (row: 3, col: 3), teamColor: .blue)
-        state.placeChip(at: (row: 5, col: 5), teamColor: .green)
+        state.placeChip(at: Position(row: 3, col: 3), teamColor: .blue)
+        state.placeChip(at: Position(row: 5, col: 5), teamColor: .green)
         
         let jackOfSpades = Card(cardFace: .jack, suit: .spades)
         let playableTiles = state.computePlayableTiles(for: jackOfSpades)
@@ -620,7 +620,7 @@ struct SequenceGameTests {
             #expect(Bool(false), "Expected at least one valid position"); return
         }
 
-        state.performPlay(atPos: (pos.row, pos.col), using: cardId)
+        state.performPlay(atPos: pos, using: cardId)
 
         // Selection should be cleared by performPlay
         #expect(state.selectedCardId == nil)
@@ -715,7 +715,7 @@ struct SequenceGameTests {
         for corner in GameConstants.cornerPositions {
             let before = state.boardTiles[corner.row][corner.col].isChipOn
             // Simulate the rule via guard in remove or canPlace path
-            state.removeChip(at: (corner.row, corner.col))
+            state.removeChip(at: Position(row: corner.row, col: corner.col))
             let after = state.boardTiles[corner.row][corner.col].isChipOn
             #expect(before == after) // no change for corners
         }
@@ -740,7 +740,7 @@ struct SequenceGameTests {
         state.boardTiles[0][0] = BoardTile(card: matchingCard, isEmpty: false, isChipOn: true, chip: Chip(color: .red, positionRow: 0, positionColumn: 0, isPlaced: true))
 
         // Same card cannot be placed on an occupied tile
-        let result = state.canPlace(at: (row: 0, col: 0), for: matchingCard)
+        let result = state.canPlace(at: Position(row: 0, col: 0), for: matchingCard)
         #expect(result == false)
     }
     
@@ -752,7 +752,7 @@ struct SequenceGameTests {
         state.boardTiles[0][1] = BoardTile(card: matchingCard, isEmpty: false, isChipOn: false, chip: nil)
 
         // Same card can be placed on an unoccupied matching tile
-        let result = state.canPlace(at: (row: 0, col: 1), for: matchingCard)
+        let result = state.canPlace(at: Position(row: 0, col: 1), for: matchingCard)
         #expect(result == true)
     }
     
@@ -768,8 +768,8 @@ struct SequenceGameTests {
                                        state.boardTiles[4][5]], position: Position(row: 4, col: 1), teamColor: .blue, sequenceType: .horizontal)
         state.detectedSequence.append(sequence)
         
-        let position = (row: 4, col: 6)
-        state.placeChip(at: (row: 4, col: 6), teamColor: .blue)
+        let position = Position(row: 4, col: 6)
+        state.placeChip(at: Position(row: 4, col: 6), teamColor: .blue)
         let isChipPlaced = state.boardTiles[position.row][position.col].isChipOn
         state.removeChip(at: position)
         
@@ -782,11 +782,11 @@ struct SequenceGameTests {
         let team = Team(color: .blue, numberOfPlayers: 1)
         let state = GameState()
         state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
-        state.placeChip(at: (row: 4, col: 1), teamColor: .blue)
-        state.placeChip(at: (row: 4, col: 2), teamColor: .blue)
-        state.placeChip(at: (row: 4, col: 3), teamColor: .blue)
-        state.placeChip(at: (row: 4, col: 4), teamColor: .blue)
-        state.placeChip(at: (row: 4, col: 5), teamColor: .blue)
+        state.placeChip(at: Position(row: 4, col: 1), teamColor: .blue)
+        state.placeChip(at: Position(row: 4, col: 2), teamColor: .blue)
+        state.placeChip(at: Position(row: 4, col: 3), teamColor: .blue)
+        state.placeChip(at: Position(row: 4, col: 4), teamColor: .blue)
+        state.placeChip(at: Position(row: 4, col: 5), teamColor: .blue)
         let sequence = Sequence(tiles: [state.boardTiles[4][1],
                                        state.boardTiles[4][2],
                                        state.boardTiles[4][3],
@@ -795,7 +795,7 @@ struct SequenceGameTests {
         state.detectedSequence.append(sequence)
         
         let sequenceCount =  state.detectedSequence.count
-        let position = (row: 4, col: 4)
+        let position = Position(row: 4, col: 4)
         state.removeChip(at: position)
         
         let tile = state.boardTiles[position.row][position.col]
@@ -809,13 +809,13 @@ struct SequenceGameTests {
         state.startGame(with: [Player(name: "P1", team: team), Player(name: "P2", team: team)])
         
         // Place some chips on the board
-        state.placeChip(at: (row: 3, col: 3), teamColor: .blue)
-        state.placeChip(at: (row: 5, col: 5), teamColor: .green)
-        state.placeChip(at: (row: 4, col: 1), teamColor: .blue)
-        state.placeChip(at: (row: 4, col: 2), teamColor: .blue)
-        state.placeChip(at: (row: 4, col: 3), teamColor: .blue)
-        state.placeChip(at: (row: 4, col: 4), teamColor: .blue)
-        state.placeChip(at: (row: 4, col: 5), teamColor: .blue)
+        state.placeChip(at: Position(row: 3, col: 3), teamColor: .blue)
+        state.placeChip(at: Position(row: 5, col: 5), teamColor: .green)
+        state.placeChip(at: Position(row: 4, col: 1), teamColor: .blue)
+        state.placeChip(at: Position(row: 4, col: 2), teamColor: .blue)
+        state.placeChip(at: Position(row: 4, col: 3), teamColor: .blue)
+        state.placeChip(at: Position(row: 4, col: 4), teamColor: .blue)
+        state.placeChip(at: Position(row: 4, col: 5), teamColor: .blue)
         let sequence = Sequence(tiles: [state.boardTiles[4][1],
                                        state.boardTiles[4][2],
                                        state.boardTiles[4][3],

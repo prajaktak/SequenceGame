@@ -13,9 +13,9 @@ struct SecondaryButtonStyle: ButtonStyle {
             .foregroundStyle(Color("TextPrimary"))
             .frame(maxWidth: .infinity, minHeight: 44)
             .background(Color("AccentPrimary").opacity(0.10))
-            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius,
+            .clipShape(RoundedRectangle(cornerRadius: GameConstants.buttonCornerRadius,
                                         style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius).stroke(Color("AccentPrimary"), lineWidth: GameConstants.UISizing.universalBorderWidth))
+            .overlay(RoundedRectangle(cornerRadius: GameConstants.buttonCornerRadius).stroke(Color("AccentPrimary"), lineWidth: GameConstants.universalBorderWidth))
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
     }

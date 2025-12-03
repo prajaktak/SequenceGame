@@ -72,6 +72,9 @@ final class GameState: ObservableObject {
     /// The winning team's color, set when a team achieves the required number of sequences.
     @Published var winningTeam: TeamColor?
     
+    /// AI turn boolean
+    @Published private(set) var isAITurnInProgress: Bool = false
+    
     /// Convenience computed property indicating whether a card is currently selected.
     var hasSelection: Bool { selectedCardId != nil }
 
@@ -137,6 +140,8 @@ final class GameState: ObservableObject {
         
         sequenceDetector.board = board
         overlayMode = .turnStart
+        // NEW: Check if first player is AI
+        handleAITurnIfNeeded()
     }
     
     /// Sets up the 10x10 game board using a temporary seeding deck.
@@ -170,20 +175,22 @@ final class GameState: ObservableObject {
     }
     /// Restarts the game with the same player configuration.
     ///
-    /// Preserves player names, teams, and player count, but resets all game progress.
+    /// Preserves player names, teams, player count, and AI settings, but resets all game progress.
     /// Used for "Play Again" and "Restart" features.
     func restartGame() throws {
         // Guard: Cannot restart with no players
         guard !players.isEmpty else {
             throw GameStateError.cannotRestartWithoutPlayers
         }
-        // Save current player configuration (names and teams)
+        // Save current player configuration (names, teams, and AI settings)
         let savedPlayers = players.map { player in
             Player(
                 name: player.name,
                 team: player.team,
                 isPlaying: false,
-                cards: []
+                cards: [],
+                isAI: player.isAI,
+                aiDifficulty: player.aiDifficulty
             )
         }
         
@@ -204,6 +211,7 @@ final class GameState: ObservableObject {
         AudioManager.shared.play(sound: .turnChange, haptic: .selection)
         currentPlayerIndex = (currentPlayerIndex + 1) % players.count
         overlayMode = .turnStart
+       
     }
     
     // MARK: - Card Selection
@@ -217,6 +225,8 @@ final class GameState: ObservableObject {
     func selectCard(_ cardId: UUID) {
         // Prevent card selection when game is over
         guard overlayMode != .gameOver else { return }
+        // Prevent selection during AI turn
+        guard !isAITurnInProgress else { return }
         
         AudioManager.shared.play(sound: .cardSelect, haptic: .light)
         selectedCardId = cardId
@@ -228,12 +238,13 @@ final class GameState: ObservableObject {
         }
     }
     
-    var validPositionsForSelectedCard: [(row: Int, col: Int)] {
+    var validPositionsForSelectedCard: [Position] {
         guard let card = selectedCard else { return [] }
         return computePlayableTiles(for: card)
     }
     
     func replaceDeadCard(_ cardId: UUID) {
+        guard !isAITurnInProgress else { return }
         guard let playerIndex = players.firstIndex(where: { $0.id == currentPlayer?.id }),
               let handIndex = players[playerIndex].cards.firstIndex(where: { $0.id == cardId }) else { return }
 
@@ -259,36 +270,33 @@ final class GameState: ObservableObject {
     // MARK: - Placement API (stubs)
     
     /// Helper function to detect protected tiles in sequence.
-    private func isPartOfCompletedSequence(position: (row: Int, col: Int)) -> Bool {
-        let pos = Position(row: position.row, col: position.col)
-        guard pos.isValid(rows: boardTiles.count, cols: boardTiles[0].count) else { return false }
-        let tile = boardTiles[pos.row][pos.col]
+    private func isPartOfCompletedSequence(position: Position) -> Bool {
+        guard position.isValid(rows: boardTiles.count, cols: boardTiles[0].count) else { return false }
+        let tile = boardTiles[position.row][position.col]
         return detectedSequence.contains { sequence in
             sequence.tiles.contains { $0.id == tile.id }
         }
     }
     
-    func computePlayableTiles(for card: Card) -> [(row: Int, col: Int)] {
+    func computePlayableTiles(for card: Card) -> [Position] {
         let validator = CardPlayValidator(boardTiles: boardTiles, detectedSequences: detectedSequence)
-        return validator.computePlayableTiles(for: card).map { (row: $0.row, col: $0.col) }
+        return validator.computePlayableTiles(for: card)
     }
 
-    func canPlace(at position: (row: Int, col: Int), for card: Card) -> Bool {
+    func canPlace(at position: Position, for card: Card) -> Bool {
         let validator = CardPlayValidator(boardTiles: boardTiles, detectedSequences: detectedSequence)
-        let pos = Position(row: position.row, col: position.col)
-        return validator.canPlace(at: pos, for: card)
+        return validator.canPlace(at: position, for: card)
     }
+
     // Sets a chip at the given position. No hand/turn changes.
-    func placeChip(at position: (row: Int, col: Int), teamColor: TeamColor) {
-        let pos = Position(row: position.row, col: position.col)
+    func placeChip(at position: Position, teamColor: TeamColor) {
         AudioManager.shared.play(sound: .chipPlace, haptic: .medium)
-        boardManager.placeChip(at: pos, teamColor: teamColor, tiles: &boardTiles)
+        boardManager.placeChip(at: position, teamColor: teamColor, tiles: &boardTiles)
     }
-    
+
     /// Removes a chip from the given position. No hand/turn changes.
-    func removeChip(at position: (row: Int, col: Int)) {
-        let pos = Position(row: position.row, col: position.col)
-        _ = boardManager.removeChip(at: pos, tiles: &boardTiles, detectedSequences: detectedSequence)
+    func removeChip(at position: Position) {
+        _ = boardManager.removeChip(at: position, tiles: &boardTiles, detectedSequences: detectedSequence)
     }
  
     //  Remove card from current players hand
@@ -329,20 +337,19 @@ final class GameState: ObservableObject {
     /// 6. Advances to the next turn
     ///
     /// - Parameters:
-    ///   - position: The board position (row, col) where the card is being played
+    ///   - position: The board position where the card is being played
     ///   - cardId: The UUID of the card being played from the current player's hand
-    func performPlay(atPos position: (row: Int, col: Int), using cardId: UUID) {
+    func performPlay(atPos position: Position, using cardId: UUID) {
         guard overlayMode != .gameOver else { return }
-        
+
         // Create validator once
         let validator = CardPlayValidator(boardTiles: boardTiles, detectedSequences: detectedSequence)
-        
+
         // 1) Remove the card from current player's hand
         guard let playedCard = removeCardFromHand(cardId: cardId) else { return }
 
         // 2) Validate placement for the played card
-        let pos = Position(row: position.row, col: position.col)
-        guard validator.canPlace(at: pos, for: playedCard) else {
+        guard validator.canPlace(at: position, for: playedCard) else {
             players[currentPlayerIndex].cards.append(playedCard)
             return
         }
@@ -359,20 +366,20 @@ final class GameState: ObservableObject {
             }
             placeChip(at: position, teamColor: teamColor)
         }
-        
+
         // 3.1) Check if sequence is completed && check winning condition
         if !(validator.classifyJack(playedCard) == .removeChip) {            // Only check sequences after chip placement (not removal)
             let previousSequenceCount = detectedSequence.count
             // Detect sequences at the placed position
             var detector = sequenceDetector
             _ = detector.detectSequence(
-                atPosition: (rowIndex: position.row, colIndex: position.col),
+                atPosition: position,
                 forPlayer: players[currentPlayerIndex],
                 gameState: self
             )
             sequenceDetector = detector
             let newSequenceCount = detectedSequence.count
-           
+
             // Check win condition
             let gameResult = evaluateGameState()
             switch gameResult {
@@ -387,19 +394,22 @@ final class GameState: ObservableObject {
                 if newSequenceCount > previousSequenceCount {
                     AudioManager.shared.play(sound: .sequenceComplete, haptic: .heavy)
                 }
-                
+
             }
         }
         //  This guard to prevent drawing and advancing turn after win
         guard overlayMode != .gameOver else { return }
-        
+
         // 4) Draw replacement
         drawReplacementForHand()
-        
+
         // 5) Advance turn
         advanceTurn()
-        
+
         clearSelection()
+        if !isAITurnInProgress {
+            handleAITurnIfNeeded()
+        }
     }
     var selectedCard: Card? {
         guard let selectedId = selectedCardId,
@@ -451,6 +461,45 @@ final class GameState: ObservableObject {
         tilesInSequences = Set(detectedSequence.flatMap { sequence in
             sequence.tiles.map { $0.id }
         })
+    }
+    
+    // MARK: - AI Player
+    private func handleAITurnIfNeeded() {
+        print("🤖 Handling AI turn if needed... \(currentPlayer?.isAI, default: "unknown")")
+        guard let currentPlayer = currentPlayer,
+              currentPlayer.isAI,
+              winningTeam == nil,
+              !isAITurnInProgress else {
+            return
+        }
+        
+        guard let difficulty = currentPlayer.aiDifficulty else {
+            print("❌ AI player has no difficulty set")
+            return
+        }
+        
+        isAITurnInProgress = true
+        overlayMode = .aITurnInProgress
+        
+        // Add delay to make AI feel natural
+        let delay = difficulty.thinkingDelay
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            guard let self = self else { return }
+            
+            let controller = AIPlayerController(difficulty: difficulty)
+            let success = controller.executeTurn(in: self)
+            
+            self.isAITurnInProgress = false
+            
+            if !success {
+                print("❌ AI turn failed")
+                // Could add retry logic here
+            } else {
+                // NEW: Check if first player is AI
+                handleAITurnIfNeeded()
+            }
+        }
     }
 
         // MARK: - Persistence

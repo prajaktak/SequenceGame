@@ -23,11 +23,11 @@ struct MainMenu: View {
                     endPoint: .bottomTrailing
                 )
                 .ignoresSafeArea()
-                VStack(spacing: GameConstants.UISizing.largeSpacing) {
+                VStack(spacing: GameConstants.largeSpacing) {
                     // Logo/Title Section
                     MainMenuHeaderView()
                     Spacer()
-                    VStack(spacing: GameConstants.UISizing.verticalSpacing) {
+                    VStack(spacing: GameConstants.verticalSpacing) {
                         // Resume Game button - always visible but disabled when no save exists
                         MenuButtonView(
                             title: "Resume Game",
@@ -65,12 +65,12 @@ struct MainMenu: View {
                             gradient: [ThemeColor.accentPrimary, ThemeColor.accentSecondary]
                         ) { CreditsView() }
                     }
-                    .padding(.horizontal, GameConstants.UISizing.horizontalPadding)
+                    .padding(.horizontal, GameConstants.horizontalPadding)
                     Spacer()
                     Text("v1.0") // Footer
                         .font(.caption)
                         .foregroundStyle(ThemeColor.textPrimary.opacity(0.5))
-                        .padding(.bottom, GameConstants.UISizing.footerBottomPadding)
+                        .padding(.bottom, GameConstants.footerBottomPadding)
                 }
             }
             .navigationTitle("")

@@ -17,7 +17,7 @@ struct SettingsOptionButton: View {
         Button(action: action) {
             HStack(spacing: 16) {
                 Image(systemName: icon)
-                    .font(.system(size: GameConstants.UISizing.iconSizeLarge))
+                    .font(.system(size: GameConstants.iconSizeLarge))
                     .foregroundStyle(
                         isSelected ? ThemeColor.accentPrimary : ThemeColor.textPrimary.opacity(0.5)
                     )
@@ -42,15 +42,15 @@ struct SettingsOptionButton: View {
                         .foregroundStyle(ThemeColor.accentPrimary)
                 }
             }
-            .padding(.horizontal, GameConstants.UISizing.horizontalPadding)
+            .padding(.horizontal, GameConstants.horizontalPadding)
             .padding(.vertical, 12)
             .background(ThemeColor.backgroundMenu)
-            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.mediumCornerRadius, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: GameConstants.mediumCornerRadius, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: GameConstants.UISizing.mediumCornerRadius)
+                RoundedRectangle(cornerRadius: GameConstants.mediumCornerRadius)
                     .stroke(
                         isSelected ? ThemeColor.accentPrimary : ThemeColor.border,
-                        lineWidth: isSelected ? GameConstants.UISizing.handCardBorderWidth : GameConstants.UISizing.universalBorderWidth
+                        lineWidth: isSelected ? GameConstants.handCardBorderWidth : GameConstants.universalBorderWidth
                     )
             )
             .shadow(

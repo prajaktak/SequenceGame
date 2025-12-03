@@ -18,7 +18,7 @@ struct CreditsLinkRow: View {
         Button(action: action ?? {}) {
             HStack(spacing: 16) {
                 Image(systemName: icon)
-                    .font(.system(size: GameConstants.UISizing.iconSizeLarge))
+                    .font(.system(size: GameConstants.iconSizeLarge))
                     .foregroundStyle(iconColor)
                     .frame(width: 50, height: 50)
                     .background(
@@ -41,13 +41,13 @@ struct CreditsLinkRow: View {
                     .font(.caption)
                     .foregroundStyle(ThemeColor.textPrimary.opacity(0.3))
             }
-            .padding(.horizontal, GameConstants.UISizing.horizontalPadding)
+            .padding(.horizontal, GameConstants.horizontalPadding)
             .padding(.vertical, 14)
             .background(ThemeColor.backgroundMenu)
-            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.mediumCornerRadius, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: GameConstants.mediumCornerRadius, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: GameConstants.UISizing.mediumCornerRadius)
-                    .stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth)
+                RoundedRectangle(cornerRadius: GameConstants.mediumCornerRadius)
+                    .stroke(ThemeColor.border, lineWidth: GameConstants.universalBorderWidth)
             )
             .shadow(color: .black.opacity(0.03), radius: 4, x: 0, y: 2)
         }

@@ -115,14 +115,14 @@ struct OnboardingView: View {
                             endPoint: .trailing
                         )
                     )
-                    .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: GameConstants.buttonCornerRadius, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius)
-                            .stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth)
+                        RoundedRectangle(cornerRadius: GameConstants.buttonCornerRadius)
+                            .stroke(ThemeColor.border, lineWidth: GameConstants.universalBorderWidth)
                     )
                     .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 1)
                 })
-                .padding(.horizontal, GameConstants.UISizing.horizontalPadding)
+                .padding(.horizontal, GameConstants.horizontalPadding)
                 .padding(.bottom, 40)
             }
         )

@@ -27,7 +27,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (1, 5),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 1, col: 5),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectation
         #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
@@ -53,7 +53,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 1),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 5, col: 1),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectation
@@ -80,7 +80,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 5),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 5, col: 5),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectation
         #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
@@ -105,7 +105,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 5),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 5, col: 5),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectatiom
@@ -131,7 +131,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (1, 5),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 1, col: 5),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectation
@@ -153,7 +153,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // Function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 1),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 5, col: 1),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectation
@@ -176,7 +176,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 5),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 5, col: 5),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectation
@@ -198,7 +198,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 5),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 5, col: 5),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectation
@@ -222,7 +222,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 1),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 5, col: 1),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectation
@@ -253,7 +253,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (5, 5),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 5, col: 5),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectation
         #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
@@ -278,7 +278,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (1, 2),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 1, col: 2),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectation
         #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
@@ -304,7 +304,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (3, 1),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 3, col: 1),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectation
@@ -331,7 +331,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (2, 2),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 2, col: 2),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectation
         #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
@@ -356,7 +356,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (6, 6),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 6, col: 6),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectatiom
@@ -382,7 +382,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (4, 0),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 4, col: 0),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectatiom
@@ -408,7 +408,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (2, 2),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 2, col: 2),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectatiom
         #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
@@ -432,7 +432,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (0, 0),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 0, col: 0),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectation
         #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
@@ -457,7 +457,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (0, 0),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 0, col: 0),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectation
@@ -483,7 +483,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (0, 0),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 0, col: 0),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectation
         #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
@@ -507,7 +507,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (9, 9),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 9, col: 9),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectatiom
@@ -532,7 +532,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (0, 9),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 0, col: 9),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         
         // expectatiom
@@ -557,7 +557,7 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (9, 0),
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 9, col: 0),
                                                                   forPlayer: currentPlayer, gameState: gameState)
         // expectatiom
         #expect(isSequenceComplete && gameState.detectedSequence.count == 1)
@@ -586,8 +586,8 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (9, 0), forPlayer: currentPlayer, gameState: gameState)
-        let isSequenceComplete2  = sequenceDetector.detectSequence(atPosition: (1, 0), forPlayer: currentPlayer, gameState: gameState)
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 9, col: 0), forPlayer: currentPlayer, gameState: gameState)
+        let isSequenceComplete2  = sequenceDetector.detectSequence(atPosition: Position(row: 1, col: 0), forPlayer: currentPlayer, gameState: gameState)
         // expectatiom
         #expect(isSequenceComplete && isSequenceComplete2 && gameState.detectedSequence.count == 2)
         #expect(isSequenceComplete && gameState.detectedSequence.count == 2)
@@ -619,8 +619,8 @@ struct SequenceDetectorTests {
         var sequenceDetector = SequenceDetector(board: board)
         
         // function call
-        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: (4, 0), forPlayer: currentPlayer, gameState: gameState)
-        let isSequenceComplete2  = sequenceDetector.detectSequence(atPosition: (0, 4), forPlayer: currentPlayer, gameState: gameState)
+        let isSequenceComplete  = sequenceDetector.detectSequence(atPosition: Position(row: 4, col: 0), forPlayer: currentPlayer, gameState: gameState)
+        let isSequenceComplete2  = sequenceDetector.detectSequence(atPosition: Position(row: 0, col: 4), forPlayer: currentPlayer, gameState: gameState)
         // expectatiom
         #expect(isSequenceComplete && isSequenceComplete2 && gameState.detectedSequence.count == 2)
         #expect(isSequenceComplete && gameState.detectedSequence.count == 2)

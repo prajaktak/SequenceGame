@@ -247,7 +247,7 @@ struct GameStateTests {
         // This makes the jack have no valid moves
         for rowIndex in 0..<state.boardTiles.count {
             for colIndex in 0..<state.boardTiles[rowIndex].count  where !state.boardTiles[rowIndex][colIndex].isEmpty {
-                    state.placeChip(at: (rowIndex, colIndex), teamColor: .blue)
+                state.placeChip(at: Position(row: rowIndex, col: colIndex), teamColor: .blue)
             }
         }
         
@@ -326,7 +326,7 @@ struct GameStateTests {
         let state = createTestGameState()
         
         // Place a chip
-        let occupiedPosition = (row: 5, col: 5)
+        let occupiedPosition = Position(row: 5, col: 5)
         state.placeChip(at: occupiedPosition, teamColor: .blue)
         
         // Select a card that matches that position
@@ -349,7 +349,7 @@ struct GameStateTests {
     @Test("placeChip sets chip on tile")
     func testPlaceChipSetsChip() {
         let state = createTestGameState()
-        let position = (row: 5, col: 5)
+        let position = Position(row: 5, col: 5)
         
         state.placeChip(at: position, teamColor: .blue)
         
@@ -362,7 +362,7 @@ struct GameStateTests {
     @Test("placeChip marks chip as placed")
     func testPlaceChipMarksPlaced() {
         let state = createTestGameState()
-        let position = (row: 5, col: 5)
+        let position = Position(row: 5, col: 5)
         
         state.placeChip(at: position, teamColor: .red)
         
@@ -373,7 +373,7 @@ struct GameStateTests {
     @Test("placeChip does not remove card from tile")
     func testPlaceChipKeepsCard() {
         let state = createTestGameState()
-        let position = (row: 5, col: 5)
+        let position = Position(row: 5, col: 5)
         let originalCard = state.boardTiles[position.row][position.col].card
         
         state.placeChip(at: position, teamColor: .blue)
@@ -388,7 +388,7 @@ struct GameStateTests {
     @Test("removeChip removes chip from tile")
     func testRemoveChipRemovesChip() {
         let state = createTestGameState()
-        let position = (row: 5, col: 5)
+        let position = Position(row: 5, col: 5)
         
         // Place chip first
         state.placeChip(at: position, teamColor: .blue)
@@ -405,7 +405,7 @@ struct GameStateTests {
     @Test("removeChip keeps card on tile")
     func testRemoveChipKeepsCard() {
         let state = createTestGameState()
-        let position = (row: 5, col: 5)
+        let position = Position(row: 5, col: 5)
         let originalCard = state.boardTiles[position.row][position.col].card
         
         state.placeChip(at: position, teamColor: .blue)
@@ -552,7 +552,7 @@ struct GameStateTests {
         }
         
         // Out of bounds position
-        let outOfBounds = (row: 20, col: 20)
+        let outOfBounds = Position(row: 20, col: 20)
         let canPlace = state.canPlace(at: outOfBounds, for: card)
         
         #expect(!canPlace)
@@ -564,7 +564,7 @@ struct GameStateTests {
         
         if let card = state.players[0].cards.first {
             for corner in GameConstants.cornerPositions {
-                let canPlace = state.canPlace(at: (row: corner.row, col: corner.col), for: card)
+                let canPlace = state.canPlace(at: Position(row: corner.row, col: corner.col), for: card)
                 #expect(!canPlace)
             }
         }
@@ -578,7 +578,7 @@ struct GameStateTests {
         let initialHandCount = state.players[0].cards.count
         
         if let card = state.players[0].cards.first {
-            state.performPlay(atPos: (5, 5), using: card.id)
+            state.performPlay(atPos: Position(row: 5, col: 5), using: card.id)
         }
         
         // Hand should not change
@@ -808,7 +808,7 @@ struct GameStateTests {
         
         // Try to perform play with non-existent card ID
         let fakeCardId = UUID()
-        state.performPlay(atPos: (5, 5), using: fakeCardId)
+        state.performPlay(atPos: Position(row: 5, col: 5), using: fakeCardId)
         
         // Hand should be unchanged
         #expect(state.currentPlayer?.cards.count == initialHandCount)
@@ -845,12 +845,12 @@ struct GameStateTests {
         let card = Card(cardFace: .ace, suit: .hearts)
         
         // Test negative indices
-        #expect(!state.canPlace(at: (-1, 5), for: card))
-        #expect(!state.canPlace(at: (5, -1), for: card))
+        #expect(!state.canPlace(at: Position(row: -1, col: 5), for: card))
+        #expect(!state.canPlace(at: Position(row: 5, col: -1), for: card))
         
         // Test indices beyond board size
-        #expect(!state.canPlace(at: (10, 5), for: card))
-        #expect(!state.canPlace(at: (5, 10), for: card))
+        #expect(!state.canPlace(at: Position(row: 10, col: 5), for: card))
+        #expect(!state.canPlace(at: Position(row: 5, col: 10), for: card))
     }
     
     @Test("evaluateGameState handles teams with no sequences")

@@ -22,13 +22,13 @@ struct TechInfoRow: View {
                 .foregroundStyle(ThemeColor.textPrimary)
                 .fontWeight(.semibold)
         }
-        .padding(.horizontal, GameConstants.UISizing.horizontalPadding)
+        .padding(.horizontal, GameConstants.horizontalPadding)
         .padding(.vertical, 10)
         .background(ThemeColor.backgroundMenu)
-        .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.smallCornerRadius, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: GameConstants.smallCornerRadius, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: GameConstants.UISizing.smallCornerRadius)
-                .stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth)
+            RoundedRectangle(cornerRadius: GameConstants.smallCornerRadius)
+                .stroke(ThemeColor.border, lineWidth: GameConstants.universalBorderWidth)
         )
     }
 }

@@ -26,12 +26,12 @@ struct HandView: View {
     /// Layout configuration values with defaults from GameConstants.
     /// These can be overridden at initialization for custom layouts or testing.
     
-    var horizontalInsets: CGFloat = GameConstants.UISizing.handHorizontalInsets
-    var verticalInsets: CGFloat = GameConstants.UISizing.handVerticalInsets
-    var spacing: CGFloat = GameConstants.UISizing.handSpacing
-    var minWidth: CGFloat = GameConstants.UISizing.handMinCardWidth
-    var maxWidth: CGFloat = GameConstants.UISizing.handMaxCardWidth
-    var aspect: CGFloat = GameConstants.UISizing.handCardAspect
+    var horizontalInsets: CGFloat = GameConstants.handHorizontalInsets
+    var verticalInsets: CGFloat = GameConstants.handVerticalInsets
+    var spacing: CGFloat = GameConstants.handSpacing
+    var minWidth: CGFloat = GameConstants.handMinCardWidth
+    var maxWidth: CGFloat = GameConstants.handMaxCardWidth
+    var aspect: CGFloat = GameConstants.handCardAspect
 
     // MARK: - Body
     
@@ -56,16 +56,16 @@ struct HandView: View {
                                 CardFaceView(card: handCard)
                                     .frame(width: size.width, height: size.height)
 
-                                RoundedRectangle(cornerRadius: GameConstants.UISizing.handCardCornerRadius)
-                                    .stroke(isSelected ? ThemeColor.accentGolden : .clear, lineWidth: GameConstants.UISizing.handCardBorderWidth)
+                                RoundedRectangle(cornerRadius: GameConstants.handCardCornerRadius)
+                                    .stroke(isSelected ? ThemeColor.accentGolden : .clear, lineWidth: GameConstants.handCardBorderWidth)
                                     .frame(width: size.width, height: size.height)
                             }
                             .contentShape(Rectangle())
-                            .offset(y: isSelected ? GameConstants.UISizing.handCardSelectedOffset : 0)
-                            .scaleEffect(isSelected ? GameConstants.UISizing.handCardSelectedScale : 1.0)
-                            .shadow(color: .black.opacity(isSelected ? GameConstants.UISizing.handCardShadowOpacity : 0.0),
-                                    radius: GameConstants.UISizing.handCardShadowRadius,
-                                    y: GameConstants.UISizing.handCardShadowY)
+                            .offset(y: isSelected ? GameConstants.handCardSelectedOffset : 0)
+                            .scaleEffect(isSelected ? GameConstants.handCardSelectedScale : 1.0)
+                            .shadow(color: .black.opacity(isSelected ? GameConstants.handCardShadowOpacity : 0.0),
+                                    radius: GameConstants.handCardShadowRadius,
+                                    y: GameConstants.handCardShadowY)
                             .zIndex(isSelected ? 1 : 0)
                             .animation(.spring(response: 0.25, dampingFraction: 0.8), value: gameState.selectedCardId)
                             .accessibilityElement(children: .ignore)
@@ -89,8 +89,8 @@ struct HandView: View {
             .padding(.vertical, verticalInsets)
             .padding(.horizontal, horizontalInsets / 2) // split total across sides
             .background(ThemeColor.boardFelt)
-            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.universalCornerRadius, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: GameConstants.UISizing.universalCornerRadius).stroke(ThemeColor.border, lineWidth: GameConstants.UISizing.universalBorderWidth))
+            .clipShape(RoundedRectangle(cornerRadius: GameConstants.universalCornerRadius, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: GameConstants.universalCornerRadius).stroke(ThemeColor.border, lineWidth: GameConstants.universalBorderWidth))
             .accessibilityIdentifier("playerHand")
         }
     }

@@ -49,7 +49,7 @@ struct ValidTileForCardIndicator: View {
             dashPhasePositive: CGFloat(2.0 * (tileSize.width) + 2.0 * (tileSize.height)),
             dashPhaseNegative: CGFloat(-(2.0 * (tileSize.width) + 2.0 * (tileSize.height))),
             animationDuration: 2.0,
-            borderWidth: GameConstants.UISizing.highlightBorderWidth
+            borderWidth: GameConstants.highlightBorderWidth
         )
         
         ShimmerBorder(shimmerBorderSetting: shimmerBorderSettings) {
