@@ -18,13 +18,13 @@ struct SettingsDifficultyButton: View {
         Button(action: action) {
             HStack(spacing: 16) {
                 Image(systemName: icon)
-                    .font(.system(size: GameConstants.UISizing.iconSizeLarge))
+                    .font(.system(size: GameConstants.iconSizeLarge))
                     .foregroundStyle(
                         isSelected ? ThemeColor.accentPrimary : ThemeColor.textPrimary.opacity(0.5)
                     )
                     .frame(width: 44, height: 44)
                     .background(
-                        RoundedRectangle(cornerRadius: GameConstants.UISizing.buttonCornerRadius)
+                        RoundedRectangle(cornerRadius: GameConstants.buttonCornerRadius)
                             .fill(
                                 isSelected ?
                                 ThemeColor.accentPrimary.opacity(0.15) :
@@ -48,15 +48,15 @@ struct SettingsDifficultyButton: View {
                         .foregroundStyle(ThemeColor.accentPrimary)
                 }
             }
-            .padding(.horizontal, GameConstants.UISizing.horizontalPadding)
+            .padding(.horizontal, GameConstants.horizontalPadding)
             .padding(.vertical, 12)
             .background(ThemeColor.backgroundMenu)
-            .clipShape(RoundedRectangle(cornerRadius: GameConstants.UISizing.mediumCornerRadius, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: GameConstants.mediumCornerRadius, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: GameConstants.UISizing.mediumCornerRadius)
+                RoundedRectangle(cornerRadius: GameConstants.mediumCornerRadius)
                     .stroke(
                         isSelected ? ThemeColor.accentPrimary : ThemeColor.border,
-                        lineWidth: isSelected ? GameConstants.UISizing.handCardBorderWidth : GameConstants.UISizing.universalBorderWidth
+                        lineWidth: isSelected ? GameConstants.handCardBorderWidth : GameConstants.universalBorderWidth
                     )
             )
             .shadow(
