@@ -1,0 +1,164 @@
+{
+  "color-space-for-untagged-svg-colors" : "display-p3",
+  "fill" : {
+    "automatic-gradient" : "display-p3:0.48562,0.66920,0.38625,1.00000",
+    "orientation" : {
+      "start" : {
+        "x" : 0.5,
+        "y" : 0
+      },
+      "stop" : {
+        "x" : 0.5,
+        "y" : 0.7
+      }
+    }
+  },
+  "groups" : [
+    {
+      "layers" : [
+
+      ],
+      "name" : "Group",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "layers" : [
+        {
+          "image-name" : "CLUB-11-JACK.svg",
+          "name" : "CLUB-11-JACK",
+          "position" : {
+            "scale" : 1.3,
+            "translation-in-points" : [
+              -162.46834266929125,
+              104.35377942921411
+            ]
+          }
+        },
+        {
+          "image-name" : "Poker_Chip_1_Inch_Green__20094.png",
+          "name" : "Poker_Chip_1_Inch_Green__20094",
+          "position" : {
+            "scale" : 0.5,
+            "translation-in-points" : [
+              -296.3298242125986,
+              -6.25
+            ]
+          }
+        },
+        {
+          "image-name" : "HEART-11-JACK.svg",
+          "name" : "HEART-11-JACK",
+          "position" : {
+            "scale" : 1.3,
+            "translation-in-points" : [
+              261.2734375,
+              -197.703125
+            ]
+          }
+        },
+        {
+          "image-name" : "HEART-3.svg",
+          "name" : "HEART-3",
+          "opacity" : 0.8,
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -297.6953125,
+              -257.359375
+            ]
+          }
+        },
+        {
+          "image-name" : "DIAMOND-11-JACK.svg",
+          "name" : "DIAMOND-11-JACK",
+          "opacity" : 0.8,
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -350.703125,
+              325.0390625
+            ]
+          }
+        },
+        {
+          "image-name" : "SPADE-13-KING.svg",
+          "name" : "SPADE-13-KING",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              418.637270334646,
+              137.75869767896938
+            ]
+          }
+        },
+        {
+          "image-name" : "RedChip.png",
+          "name" : "RedChip",
+          "opacity" : 0.8,
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              34.0078125,
+              319.515625
+            ]
+          }
+        },
+        {
+          "image-name" : "CLUB-2.svg",
+          "name" : "CLUB-2",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              197.8490322637797,
+              186.88376851328462
+            ]
+          }
+        },
+        {
+          "image-name" : "SPADE-2.svg",
+          "name" : "SPADE-2",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              29.0234375,
+              -152.0546875
+            ]
+          }
+        },
+        {
+          "image-name" : "blue-super-diamond-poker-chip.png",
+          "name" : "blue-super-diamond-poker-chip",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -29.6015625,
+              -374.6484375
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
