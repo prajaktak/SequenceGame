@@ -7,25 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F97A04312ED6182B00FC0FD4 /* ASSISTANT_RULES.md in Resources */ = {isa = PBXBuildFile; fileRef = F97A04302ED6182B00FC0FD4 /* ASSISTANT_RULES.md */; };
-		F97AFB652ECF3E6900FC0FD4 /* TODO_FROM_CODE_REVIEWS_2025-11-20.md in Resources */ = {isa = PBXBuildFile; fileRef = F97AFB642ECF3E6900FC0FD4 /* TODO_FROM_CODE_REVIEWS_2025-11-20.md */; };
-		F97AFC432ED08D1D00FC0FD4 /* UI_TEST_FIXES_2025-11-21.md in Resources */ = {isa = PBXBuildFile; fileRef = F97AFC422ED08D1D00FC0FD4 /* UI_TEST_FIXES_2025-11-21.md */; };
-		F9F3BEF42ECC981E00C65753 /* ci.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEF32ECC981E00C65753 /* ci.yml */; };
-		F9F3BEF62ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEF52ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md */; };
-		F9F3BEFB2ECC986400C65753 /* pr-checks.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEFA2ECC986400C65753 /* pr-checks.yml */; };
-		F9F3BEFC2ECC986400C65753 /* code-review.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEF72ECC986400C65753 /* code-review.yml */; };
-		F9F3BEFD2ECC986400C65753 /* deploy.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEF92ECC986400C65753 /* deploy.yml */; };
-		F9F3BEFE2ECC986400C65753 /* coverage.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEF82ECC986400C65753 /* coverage.yml */; };
 		F9F3BF002ECCA75300C65753 /* .gitattributes in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BEFF2ECCA75300C65753 /* .gitattributes */; };
-		F9F3BF022ECCA77300C65753 /* CI_TROUBLESHOOTING.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF012ECCA77300C65753 /* CI_TROUBLESHOOTING.md */; };
-		F9F3BF062ECCD98C00C65753 /* ci-simple.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF052ECCD98C00C65753 /* ci-simple.yml */; };
-		F9F3BF082ECCDD8600C65753 /* ci-final.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF072ECCDD8600C65753 /* ci-final.yml */; };
-		F9F3BF0C2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF0B2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md */; };
-		F9F3BF0E2ECD484400C65753 /* ci_claude.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF0D2ECD484400C65753 /* ci_claude.yml */; };
-		F9F3BF102ECD491600C65753 /* XCODE_PROJECT_SETTINGS_FOR_CI.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF0F2ECD491600C65753 /* XCODE_PROJECT_SETTINGS_FOR_CI.md */; };
-		F9F3BF142ECD4AD500C65753 /* CI_COMPARISON_ANALYSIS.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF132ECD4AD500C65753 /* CI_COMPARISON_ANALYSIS.md */; };
-		F9F3BF162ECD4BC000C65753 /* ALIGNMENT_CHECK.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BF152ECD4BC000C65753 /* ALIGNMENT_CHECK.md */; };
-		F9F3BFCA2ECD633C00C65753 /* projectGist.md in Resources */ = {isa = PBXBuildFile; fileRef = F9F3BFC92ECD633C00C65753 /* projectGist.md */; };
 		F9FE2CD02EA7B6AD00623663 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = F9FE2CCF2EA7B6AD00623663 /* .swiftlint.yml */; };
 /* End PBXBuildFile section */
 
@@ -47,27 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		F97A04302ED6182B00FC0FD4 /* ASSISTANT_RULES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ASSISTANT_RULES.md; sourceTree = "<group>"; };
-		F97AFB642ECF3E6900FC0FD4 /* TODO_FROM_CODE_REVIEWS_2025-11-20.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "TODO_FROM_CODE_REVIEWS_2025-11-20.md"; sourceTree = "<group>"; };
-		F97AFC422ED08D1D00FC0FD4 /* UI_TEST_FIXES_2025-11-21.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "UI_TEST_FIXES_2025-11-21.md"; sourceTree = "<group>"; };
-		F9F3BEF32ECC981E00C65753 /* ci.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = ci.yml; path = ../.github/workflows/ci.yml; sourceTree = SOURCE_ROOT; };
-		F9F3BEF52ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CI_WORKFLOW_VISUAL_GUIDE.md; sourceTree = "<group>"; };
-		F9F3BEF72ECC986400C65753 /* code-review.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = "code-review.yml"; path = "../.github/workflows/code-review.yml"; sourceTree = SOURCE_ROOT; };
-		F9F3BEF82ECC986400C65753 /* coverage.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = coverage.yml; path = ../.github/workflows/coverage.yml; sourceTree = SOURCE_ROOT; };
-		F9F3BEF92ECC986400C65753 /* deploy.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = deploy.yml; path = ../.github/workflows/deploy.yml; sourceTree = SOURCE_ROOT; };
-		F9F3BEFA2ECC986400C65753 /* pr-checks.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = "pr-checks.yml"; path = "../.github/workflows/pr-checks.yml"; sourceTree = SOURCE_ROOT; };
 		F9F3BEFF2ECCA75300C65753 /* .gitattributes */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitattributes; sourceTree = "<group>"; };
-		F9F3BF012ECCA77300C65753 /* CI_TROUBLESHOOTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CI_TROUBLESHOOTING.md; sourceTree = "<group>"; };
-		F9F3BF052ECCD98C00C65753 /* ci-simple.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "ci-simple.yml"; sourceTree = "<group>"; };
-		F9F3BF072ECCDD8600C65753 /* ci-final.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "ci-final.yml"; sourceTree = "<group>"; };
-		F9F3BF0B2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = GITHUB_ACTIONS_CI_RESEARCH.md; sourceTree = "<group>"; };
-		F9F3BF0D2ECD484400C65753 /* ci_claude.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = ci_claude.yml; sourceTree = "<group>"; };
-		F9F3BF0F2ECD491600C65753 /* XCODE_PROJECT_SETTINGS_FOR_CI.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = XCODE_PROJECT_SETTINGS_FOR_CI.md; sourceTree = "<group>"; };
-		F9F3BF132ECD4AD500C65753 /* CI_COMPARISON_ANALYSIS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CI_COMPARISON_ANALYSIS.md; sourceTree = "<group>"; };
-		F9F3BF152ECD4BC000C65753 /* ALIGNMENT_CHECK.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ALIGNMENT_CHECK.md; sourceTree = "<group>"; };
-		F9F3BFC92ECD633C00C65753 /* projectGist.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = projectGist.md; sourceTree = "<group>"; };
-		F9F3C1E22ECD862700C65753 /* ISSUES_AND_IMPROVEMENTS_2025-11-18.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "ISSUES_AND_IMPROVEMENTS_2025-11-18.md"; sourceTree = "<group>"; };
-		F9F3C1E42ECD876A00C65753 /* WORK_SESSION_2025-11-20.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "WORK_SESSION_2025-11-20.md"; sourceTree = "<group>"; };
 		F9FE2C6B2EA2665F00623663 /* SequenceGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SequenceGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9FE2C782EA2666100623663 /* SequenceGameTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequenceGameTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9FE2C822EA2666100623663 /* SequenceGameUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequenceGameUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -125,33 +87,13 @@
 		F9FE2C622EA2665F00623663 = {
 			isa = PBXGroup;
 			children = (
-				F9F3C1E22ECD862700C65753 /* ISSUES_AND_IMPROVEMENTS_2025-11-18.md */,
-				F9F3BEF72ECC986400C65753 /* code-review.yml */,
-				F9F3BEF82ECC986400C65753 /* coverage.yml */,
-				F9F3BEF92ECC986400C65753 /* deploy.yml */,
-				F9F3BEFA2ECC986400C65753 /* pr-checks.yml */,
-				F9F3BEF32ECC981E00C65753 /* ci.yml */,
 				F9C786772ECAEE7100BB94E5 /* nessesary file */,
 				F9FE2CCF2EA7B6AD00623663 /* .swiftlint.yml */,
 				F9FE2C6D2EA2665F00623663 /* SequenceGame */,
 				F9FE2C7B2EA2666100623663 /* SequenceGameTests */,
 				F9FE2C852EA2666100623663 /* SequenceGameUITests */,
 				F9FE2C6C2EA2665F00623663 /* Products */,
-				F9F3BEF52ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md */,
 				F9F3BEFF2ECCA75300C65753 /* .gitattributes */,
-				F9F3BF012ECCA77300C65753 /* CI_TROUBLESHOOTING.md */,
-				F9F3BF052ECCD98C00C65753 /* ci-simple.yml */,
-				F9F3BF072ECCDD8600C65753 /* ci-final.yml */,
-				F9F3BF0B2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md */,
-				F9F3BF0D2ECD484400C65753 /* ci_claude.yml */,
-				F9F3BF0F2ECD491600C65753 /* XCODE_PROJECT_SETTINGS_FOR_CI.md */,
-				F9F3BF132ECD4AD500C65753 /* CI_COMPARISON_ANALYSIS.md */,
-				F9F3BF152ECD4BC000C65753 /* ALIGNMENT_CHECK.md */,
-				F9F3BFC92ECD633C00C65753 /* projectGist.md */,
-				F9F3C1E42ECD876A00C65753 /* WORK_SESSION_2025-11-20.md */,
-				F97AFB642ECF3E6900FC0FD4 /* TODO_FROM_CODE_REVIEWS_2025-11-20.md */,
-				F97AFC422ED08D1D00FC0FD4 /* UI_TEST_FIXES_2025-11-21.md */,
-				F97A04302ED6182B00FC0FD4 /* ASSISTANT_RULES.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -287,26 +229,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F9F3BEF62ECC984E00C65753 /* CI_WORKFLOW_VISUAL_GUIDE.md in Resources */,
-				F9F3BEF42ECC981E00C65753 /* ci.yml in Resources */,
-				F97A04312ED6182B00FC0FD4 /* ASSISTANT_RULES.md in Resources */,
-				F9F3BEFB2ECC986400C65753 /* pr-checks.yml in Resources */,
-				F9F3BEFC2ECC986400C65753 /* code-review.yml in Resources */,
-				F9F3BEFD2ECC986400C65753 /* deploy.yml in Resources */,
-				F9F3BF0C2ECD477100C65753 /* GITHUB_ACTIONS_CI_RESEARCH.md in Resources */,
-				F97AFB652ECF3E6900FC0FD4 /* TODO_FROM_CODE_REVIEWS_2025-11-20.md in Resources */,
-				F9F3BEFE2ECC986400C65753 /* coverage.yml in Resources */,
-				F97AFC432ED08D1D00FC0FD4 /* UI_TEST_FIXES_2025-11-21.md in Resources */,
-				F9F3BF162ECD4BC000C65753 /* ALIGNMENT_CHECK.md in Resources */,
-				F9F3BF142ECD4AD500C65753 /* CI_COMPARISON_ANALYSIS.md in Resources */,
-				F9F3BFCA2ECD633C00C65753 /* projectGist.md in Resources */,
-				F9F3BF062ECCD98C00C65753 /* ci-simple.yml in Resources */,
-				F9F3BF082ECCDD8600C65753 /* ci-final.yml in Resources */,
-				F9F3BF102ECD491600C65753 /* XCODE_PROJECT_SETTINGS_FOR_CI.md in Resources */,
 				F9F3BF002ECCA75300C65753 /* .gitattributes in Resources */,
 				F9FE2CD02EA7B6AD00623663 /* .swiftlint.yml in Resources */,
-				F9F3BF022ECCA77300C65753 /* CI_TROUBLESHOOTING.md in Resources */,
-				F9F3BF0E2ECD484400C65753 /* ci_claude.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
