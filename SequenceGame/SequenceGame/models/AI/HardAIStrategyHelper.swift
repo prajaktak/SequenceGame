@@ -188,6 +188,50 @@ enum HardAIStrategyHelper {
         return potentialCount
     }
 
+    /// Finds positions where removing a chip would break an opponent's sequence of exactly 4 chips
+    /// (One chip away from completing a sequence, but not yet completed)
+    static func findCriticalOpponentChips(
+        opponentColor: TeamColor,
+        gameState: GameState
+    ) -> [Position] {
+        var criticalPositions: [Position] = []
+        let directions: [(Int, Int)] = [
+            (0, 1), (1, 0), (1, 1), (1, -1)
+        ]
+
+        for rowIndex in 0..<GameConstants.boardRows {
+            for colIndex in 0..<GameConstants.boardColumns {
+                let position = Position(row: rowIndex, col: colIndex)
+                let tile = gameState.boardTiles[rowIndex][colIndex]
+
+                // Skip if not opponent's chip or if protected in sequence
+                guard tile.isChipOn,
+                      tile.chip?.color == opponentColor,
+                      !gameState.tilesInSequences.contains(tile.id) else {
+                    continue
+                }
+
+                // Check if removing this chip would break a line of 4
+                for direction in directions {
+                    let count = countChipsInLine(
+                        from: position,
+                        direction: direction,
+                        teamColor: opponentColor,
+                        gameState: gameState
+                    )
+
+                    // Exactly 4 chips means opponent needs one more to complete
+                    if count == 4 {
+                        criticalPositions.append(position)
+                        break // Found critical chip, no need to check other directions
+                    }
+                }
+            }
+        }
+
+        return criticalPositions
+    }
+
     /// Counts chips of a team in a line through a position
     static func countChipsInLine(
         from position: Position,
@@ -204,10 +248,16 @@ enum HardAIStrategyHelper {
         while currentRow >= 0 && currentRow < GameConstants.boardRows &&
               currentCol >= 0 && currentCol < GameConstants.boardColumns {
             let tile = gameState.boardTiles[currentRow][currentCol]
+            let currentPos = Position(row: currentRow, col: currentCol)
 
             if tile.isChipOn && tile.chip?.color == teamColor {
+                // Own team's chip
                 count += 1
-            } else if !Position(row: currentRow, col: currentCol).isCorner {
+            } else if currentPos.isCorner {
+                // Corner acts as wildcard - counts for any team
+                count += 1
+            } else {
+                // Different color chip or empty non-corner tile
                 break
             }
 
@@ -222,10 +272,16 @@ enum HardAIStrategyHelper {
         while currentRow >= 0 && currentRow < GameConstants.boardRows &&
               currentCol >= 0 && currentCol < GameConstants.boardColumns {
             let tile = gameState.boardTiles[currentRow][currentCol]
+            let currentPos = Position(row: currentRow, col: currentCol)
 
             if tile.isChipOn && tile.chip?.color == teamColor {
+                // Own team's chip
                 count += 1
-            } else if !Position(row: currentRow, col: currentCol).isCorner {
+            } else if currentPos.isCorner {
+                // Corner acts as wildcard - counts for any team
+                count += 1
+            } else {
+                // Different color chip or empty non-corner tile
                 break
             }
 

@@ -29,27 +29,7 @@ struct HardAIStrategy: AIStrategy {
             return blockingCard.id
         }
 
-        // 3. Strategic one-eyed Jack usage (remove key opponent chips)
-        if let oneEyedJack = findStrategicOneEyedJack(from: cards, gameState: gameState) {
-            print("🧠👁️ Hard AI: Using one-eyed Jack to remove threat")
-            return oneEyedJack.id
-        }
-
-        // 4. Build toward sequences with two-eyed Jacks
-        let twoEyedJacks = cards.filter { card in
-            card.cardFace == .jack && (card.suit == .clubs || card.suit == .diamonds)
-        }
-        if !twoEyedJacks.isEmpty,
-           let bestJack = findBestTwoEyedJackOpportunity(
-               jacks: twoEyedJacks,
-               gameState: gameState,
-               teamColor: teamColor
-           ) {
-            print("🧠🃏 Hard AI: Using two-eyed Jack strategically")
-            return bestJack.id
-        }
-
-        // 5. Prioritize cards that extend sequences
+        // 3. Prioritize cards that extend sequences (MOVED UP - regular cards first)
         if let extendingCard = findBestSequenceExtendingCard(
             from: cards,
             gameState: gameState,
@@ -59,10 +39,32 @@ struct HardAIStrategy: AIStrategy {
             return extendingCard.id
         }
 
-        // 6. Block opponent's developing sequences
+        // 4. Block opponent's developing sequences (MOVED UP - regular cards first)
         if let blockingCard = findOpponentBlockingCard(from: cards, gameState: gameState) {
             print("🧠🚧 Hard AI: Blocking opponent development")
             return blockingCard.id
+        }
+
+        // 5. Strategic one-eyed Jack usage ONLY for critical threats (MOVED DOWN + improved)
+        // Only use if opponent has 4 in a row (one away from completing)
+        if let oneEyedJack = findStrategicOneEyedJack(from: cards, gameState: gameState) {
+            print("🧠👁️ Hard AI: Using one-eyed Jack to break opponent's 4-chip sequence")
+            return oneEyedJack.id
+        }
+
+        // 6. Use two-eyed Jacks as last resort wildcard (MOVED DOWN + improved)
+        // Only use when no better regular card is available
+        let twoEyedJacks = cards.filter { card in
+            card.cardFace == .jack && (card.suit == .clubs || card.suit == .diamonds)
+        }
+        if !twoEyedJacks.isEmpty,
+           let bestJack = findBestTwoEyedJackOpportunity(
+               jacks: twoEyedJacks,
+               gameState: gameState,
+               teamColor: teamColor
+           ) {
+            print("🧠🃏 Hard AI: Using two-eyed Jack as wildcard")
+            return bestJack.id
         }
 
         // 7. Fallback to any playable card
@@ -81,6 +83,30 @@ struct HardAIStrategy: AIStrategy {
         guard let teamColor = gameState.currentPlayer?.team.color else {
             return validPositions.randomElement()
         }
+
+        // Special handling for one-eyed Jack: Target critical opponent chips
+        if card.cardFace == .jack && (card.suit == .hearts || card.suit == .spades) {
+            // Find opponent chips that are part of 4-chip sequences
+            let opponents = gameState.players.filter { $0.team.color != teamColor }
+
+            for opponent in opponents {
+                let criticalChips = HardAIStrategyHelper.findCriticalOpponentChips(
+                    opponentColor: opponent.team.color,
+                    gameState: gameState
+                )
+
+                // Find the best critical chip that's in our valid positions
+                if let bestTarget = criticalChips.first(where: { validPositions.contains($0) }) {
+                    print("🧠💥 Hard AI: Removing critical chip from 4-chip sequence!")
+                    return bestTarget
+                }
+            }
+
+            // If no critical chips, just pick any valid position (shouldn't happen if logic is correct)
+            return validPositions.randomElement()
+        }
+
+        // Regular card or two-eyed Jack position selection
 
         // 1. Complete a sequence (WINNING MOVE)
         if let winningPosition = HardAIStrategyHelper.findPositionToCompleteSequence(
@@ -154,7 +180,8 @@ struct HardAIStrategy: AIStrategy {
                     teamColor: teamColor,
                     gameState: gameState
                 )
-                if currentSequences + 1 >= GameConstants.sequencesToWin {
+                // Use dynamic requiredSequencesToWin based on player count
+                if currentSequences + 1 >= gameState.requiredSequencesToWin {
                     return card
                 }
             }
@@ -174,8 +201,8 @@ struct HardAIStrategy: AIStrategy {
                 gameState: gameState
             )
 
-            // If opponent is one sequence away from winning
-            if opponentSequences >= GameConstants.sequencesToWin - 1 {
+            // If opponent is one sequence away from winning (use dynamic requiredSequencesToWin)
+            if opponentSequences >= gameState.requiredSequencesToWin - 1 {
                 // Find card that can block their potential winning position
                 for card in cards {
                     let positions = gameState.computePlayableTiles(for: card)
@@ -193,6 +220,7 @@ struct HardAIStrategy: AIStrategy {
     }
 
     /// Finds one-eyed Jack to remove strategic opponent chip
+    /// ONLY targets chips in sequences of exactly 4 (one away from completing)
     private func findStrategicOneEyedJack(from cards: [Card], gameState: GameState) -> Card? {
         let oneEyedJacks = cards.filter { card in
             card.cardFace == .jack && (card.suit == .hearts || card.suit == .spades)
@@ -200,32 +228,35 @@ struct HardAIStrategy: AIStrategy {
 
         guard !oneEyedJacks.isEmpty else { return nil }
 
-        // Find opponent chips that are close to forming sequences
+        // Find opponent chips that are part of 4-chip sequences (critical threat)
         let currentTeam = gameState.currentPlayer?.team.color
+        let opponents = gameState.players.filter { $0.team.color != currentTeam }
 
-        for rowIndex in 0..<GameConstants.boardRows {
-            for colIndex in 0..<GameConstants.boardColumns {
-                let position = Position(row: rowIndex, col: colIndex)
-                let tile = gameState.boardTiles[rowIndex][colIndex]
+        // Check each opponent
+        for opponent in opponents {
+            let criticalChips = HardAIStrategyHelper.findCriticalOpponentChips(
+                opponentColor: opponent.team.color,
+                gameState: gameState
+            )
 
-                // Skip if no chip or it's our chip
-                guard tile.isChipOn,
-                      let chipColor = tile.chip?.color,
-                      chipColor != currentTeam else { continue }
-
-                // Skip if in a completed sequence (protected)
-                if isInCompletedSequence(position: position, gameState: gameState) {
-                    continue
+            // If opponent has chips in 4-chip sequences, target them
+            if !criticalChips.isEmpty {
+                // Prioritize chips that are central to multiple potential sequences
+                let bestTarget = criticalChips.max { pos1, pos2 in
+                    let count1 = HardAIStrategyHelper.countPotentialSequences(
+                        at: pos1,
+                        teamColor: opponent.team.color,
+                        gameState: gameState
+                    )
+                    let count2 = HardAIStrategyHelper.countPotentialSequences(
+                        at: pos2,
+                        teamColor: opponent.team.color,
+                        gameState: gameState
+                    )
+                    return count1 < count2
                 }
 
-                // Check if removing this chip would break opponent's potential sequence
-                let adjacentOpponentChips = countAdjacentChips(
-                    at: position,
-                    teamColor: chipColor,
-                    in: gameState
-                )
-
-                if adjacentOpponentChips >= 2 {
+                if bestTarget != nil {
                     return oneEyedJacks.first
                 }
             }
@@ -235,6 +266,7 @@ struct HardAIStrategy: AIStrategy {
     }
 
     /// Finds best opportunity for two-eyed Jack
+    /// ONLY uses when can complete sequence or extend to 3+ chips (save as wildcard)
     private func findBestTwoEyedJackOpportunity(
         jacks: [Card],
         gameState: GameState,
@@ -244,20 +276,25 @@ struct HardAIStrategy: AIStrategy {
 
         let positions = gameState.computePlayableTiles(for: jack)
 
-        // Check if any position would complete or extend a sequence
-        for position in positions {
-            if HardAIStrategyHelper.wouldCompleteSequence(
-                at: position,
-                teamColor: teamColor,
-                gameState: gameState
-            ) {
-                return jack
-            }
-            if countAdjacentChips(at: position, teamColor: teamColor, in: gameState) >= 2 {
-                return jack
-            }
+        // Priority 1: Use to complete a sequence (4 → 5 chips)
+        for position in positions where HardAIStrategyHelper.wouldCompleteSequence(
+            at: position,
+            teamColor: teamColor,
+            gameState: gameState
+        ) {
+            return jack
         }
 
+        // Priority 2: Use to extend to 3+ chips (strong position)
+        for position in positions where countAdjacentChips(
+            at: position,
+            teamColor: teamColor,
+            in: gameState
+        ) >= 3 {
+            return jack
+        }
+
+        // Don't use for 2 or fewer adjacent chips - save the wildcard for better opportunities
         return nil
     }
 

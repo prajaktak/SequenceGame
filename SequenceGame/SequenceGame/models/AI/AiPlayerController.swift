@@ -40,6 +40,12 @@ struct AIPlayerController {
     /// - Parameter gameState: The current game state
     /// - Returns: true if move was made successfully, false otherwise
     func executeTurn(in gameState: GameState) -> Bool {
+        // CRITICAL: Don't execute AI turn if game is already over
+        guard gameState.overlayMode != .gameOver else {
+            print("❌ AI Controller: Game is over, cannot execute turn")
+            return false
+        }
+
         guard let currentPlayer = gameState.currentPlayer,
               currentPlayer.isAI else {
             print("❌ AI Controller: Current player is not AI")
@@ -60,10 +66,11 @@ struct AIPlayerController {
             print("❌ AI Controller: Selected card not found in hand")
             return false
         }
-        
+        gameState.overlayMode = .cardSelected
         let validPositions = gameState.computePlayableTiles(for: selectedCard)
         guard !validPositions.isEmpty else {
             print("❌ AI Controller: No valid positions for selected card")
+            gameState.overlayMode = .deadCard
             return handleDeadCard(in: gameState)
         }
         
@@ -77,7 +84,7 @@ struct AIPlayerController {
             return false
         }
         
-        // Step 4: Execute the play
+        // Step 4: Execute the play        
         gameState.performPlay(atPos: selectedPosition, using: selectedCardId)
         
         print("✅ AI Controller: Successfully executed move")

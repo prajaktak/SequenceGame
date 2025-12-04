@@ -156,6 +156,9 @@ struct SequenceDetector: Codable {
         isSequenceCompleteAntidiagonally = detectSequenceAntidiagonal(atPosition: atPosition, forPlayer: forPlayer, gameState: gameState)
         
         // true when any one sequence detected. false when no sequence detected.
+        if isSequenceCompleteDiagonally || isSequenceCompleteHorizontally || isSequenceCompleteVertically || isSequenceCompleteAntidiagonally {
+            print("Sequence completed team color: \(teamColor)")
+        }
         return isSequenceCompleteDiagonally || isSequenceCompleteHorizontally || isSequenceCompleteVertically || isSequenceCompleteAntidiagonally
     }
     

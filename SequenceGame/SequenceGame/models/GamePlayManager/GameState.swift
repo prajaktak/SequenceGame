@@ -208,10 +208,12 @@ final class GameState: ObservableObject {
     /// Wraps around to the first player after the last player. Resets overlay mode to `.turnStart`.
     func advanceTurn() {
         guard !players.isEmpty else { return }
+        // CRITICAL: Don't advance turn if game is over
+        guard overlayMode != .gameOver else { return }
+
         AudioManager.shared.play(sound: .turnChange, haptic: .selection)
         currentPlayerIndex = (currentPlayerIndex + 1) % players.count
         overlayMode = .turnStart
-       
     }
     
     // MARK: - Card Selection
@@ -245,6 +247,8 @@ final class GameState: ObservableObject {
     
     func replaceDeadCard(_ cardId: UUID) {
         guard !isAITurnInProgress else { return }
+        // CRITICAL: Don't replace cards if game is over
+        guard overlayMode != .gameOver else { return }
         guard let playerIndex = players.firstIndex(where: { $0.id == currentPlayer?.id }),
               let handIndex = players[playerIndex].cards.firstIndex(where: { $0.id == cardId }) else { return }
 
@@ -279,12 +283,18 @@ final class GameState: ObservableObject {
     }
     
     func computePlayableTiles(for card: Card) -> [Position] {
-        let validator = CardPlayValidator(boardTiles: boardTiles, detectedSequences: detectedSequence)
+        let validator = CardPlayValidator(
+            boardTiles: boardTiles,
+            detectedSequences: detectedSequence
+        )
         return validator.computePlayableTiles(for: card)
     }
 
     func canPlace(at position: Position, for card: Card) -> Bool {
-        let validator = CardPlayValidator(boardTiles: boardTiles, detectedSequences: detectedSequence)
+        let validator = CardPlayValidator(
+            boardTiles: boardTiles,
+            detectedSequences: detectedSequence
+        )
         return validator.canPlace(at: position, for: card)
     }
 
@@ -343,7 +353,10 @@ final class GameState: ObservableObject {
         guard overlayMode != .gameOver else { return }
 
         // Create validator once
-        let validator = CardPlayValidator(boardTiles: boardTiles, detectedSequences: detectedSequence)
+        let validator = CardPlayValidator(
+            boardTiles: boardTiles,
+            detectedSequences: detectedSequence
+        )
 
         // 1) Remove the card from current player's hand
         guard let playedCard = removeCardFromHand(cardId: cardId) else { return }
@@ -397,6 +410,7 @@ final class GameState: ObservableObject {
 
             }
         }
+
         //  This guard to prevent drawing and advancing turn after win
         guard overlayMode != .gameOver else { return }
 
@@ -428,10 +442,10 @@ final class GameState: ObservableObject {
     
     /// Evaluates the current game state and returns win or ongoing result
     func evaluateGameState() -> GameResult {
-        
+
         let requiredSequences = requiredSequencesToWin
         let uniqueTeamColors = Set(players.map { $0.team.color })
-        
+
         // Check each team's sequence count
         for teamColor in uniqueTeamColors {
             let teamSequenceCount = sequencesForTeam(teamColor: teamColor)
@@ -440,7 +454,7 @@ final class GameState: ObservableObject {
                 return .win(team: teamColor)
             }
         }
-        
+
         // No team has won yet
         winningTeam = nil
         return .ongoing
@@ -465,20 +479,19 @@ final class GameState: ObservableObject {
     
     // MARK: - AI Player
     private func handleAITurnIfNeeded() {
-        print("🤖 Handling AI turn if needed... \(currentPlayer?.isAI, default: "unknown")")
         guard let currentPlayer = currentPlayer,
               currentPlayer.isAI,
               winningTeam == nil,
               !isAITurnInProgress else {
             return
         }
-        
+
         guard let difficulty = currentPlayer.aiDifficulty else {
-            print("❌ AI player has no difficulty set")
             return
         }
-        
+
         isAITurnInProgress = true
+        guard overlayMode != .gameOver else { return }
         overlayMode = .aITurnInProgress
         
         // Add delay to make AI feel natural
@@ -486,17 +499,14 @@ final class GameState: ObservableObject {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
             guard let self = self else { return }
-            
+
             let controller = AIPlayerController(difficulty: difficulty)
             let success = controller.executeTurn(in: self)
-            
+
             self.isAITurnInProgress = false
-            
-            if !success {
-                print("❌ AI turn failed")
-                // Could add retry logic here
-            } else {
-                // NEW: Check if first player is AI
+
+            if success {
+                // Check if next player is also AI
                 handleAITurnIfNeeded()
             }
         }

@@ -51,7 +51,7 @@ import Foundation
 struct CardPlayValidator {
     /// The current board state (2D array of tiles)
     let boardTiles: [[BoardTile]]
-    
+
     /// All detected sequences (used to determine chip protection)
     let detectedSequences: [Sequence]
     
@@ -216,10 +216,10 @@ struct CardPlayValidator {
     
     /// Finds all valid positions for one-eyed Jacks (chip removal).
     ///
-    /// One-eyed Jacks (Jack of Hearts and Jack of Spades) can remove **opponent chips**
+    /// One-eyed Jacks (Jack of Hearts and Jack of Spades) can remove **any chip**
     /// from any tile **except** those that are part of completed sequences or corners.
     ///
-    /// - Returns: Array of positions with removable chips (unprotected opponents)
+    /// - Returns: Array of positions with removable chips (unprotected chips)
     ///
     /// ## Removal Rules
     ///
@@ -243,26 +243,30 @@ struct CardPlayValidator {
     ///   - Tile (0,0): Corner with chip → INVALID ❌
     /// ```
     ///
+    /// ## Note for AI Strategy
+    /// This validator returns ALL removable chips. AI strategies should filter
+    /// to only target opponent chips for smart play.
+    ///
     /// - Complexity: O(n² × m) where m is the number of detected sequences
     private func computePlayableTilesForOneEyedJack() -> [Position] {
         var positions: [Position] = []
-        
+
         for rowIndex in boardTiles.indices {
             for colIndex in boardTiles[rowIndex].indices {
                 let position = Position(row: rowIndex, col: colIndex)
                 let tile = boardTiles[rowIndex][colIndex]
-                
+
                 // Check if tile is part of a completed sequence
                 let isProtected = detectedSequences.contains { sequence in
                     sequence.tiles.contains { $0.id == tile.id }
                 }
-                
+
                 if !position.isCorner && tile.isChipOn && tile.chip != nil && !isProtected {
                     positions.append(position)
                 }
             }
         }
-        
+
         return positions
     }
     

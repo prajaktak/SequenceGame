@@ -252,13 +252,17 @@ struct GameView: View {
                 guard !isNavigatingAway else {
                     return
                 }
-                
+
                 // During initial setup, let onAppear handle overlay visibility to avoid race conditions
                 // Only process overlay changes after setup is complete
                 guard hasFinishedSetup else {
                     return
                 }
-                
+
+                // CRITICAL: Cancel any pending auto-dismiss timers first (before any early returns)
+                overlayDismissWork?.cancel()
+                overlayDismissWork = nil
+
                 if newMode == .gameOver {
                     isOverlayPresent = true
                     // Delete saved game since the game is finished
@@ -266,12 +270,11 @@ struct GameView: View {
                     // Don't auto-dismiss game over overlay
                     return
                 }
+
                 isOverlayPresent = true
-                overlayDismissWork?.cancel()
-                overlayDismissWork = nil
                 if newMode != .deadCard {
-                    let work = DispatchWorkItem { 
-                        isOverlayPresent = false 
+                    let work = DispatchWorkItem {
+                        isOverlayPresent = false
                     }
                     overlayDismissWork = work
                     DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.overlayAutoDismissDelay, execute: work)
