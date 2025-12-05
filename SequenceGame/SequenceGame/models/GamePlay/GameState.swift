@@ -402,6 +402,12 @@ final class GameState: ObservableObject {
                 winningTeam = teamColor
                 // Play win sound and success haptic
                 AudioManager.shared.play(sound: .gameWin, haptic: .success)
+            case .draw:
+                overlayMode = .gameOver
+                // No winner in draw
+                winningTeam = nil
+                // Play game over sound
+                AudioManager.shared.play(sound: .gameWin, haptic: .warning)
             case .ongoing:
                 // Continue game
                 if newSequenceCount > previousSequenceCount {
@@ -440,7 +446,7 @@ final class GameState: ObservableObject {
         detectedSequence.filter { $0.teamColor == teamColor }.count
     }
     
-    /// Evaluates the current game state and returns win or ongoing result
+    /// Evaluates the current game state and returns win, draw, or ongoing result
     func evaluateGameState() -> GameResult {
 
         let requiredSequences = requiredSequencesToWin
@@ -455,9 +461,39 @@ final class GameState: ObservableObject {
             }
         }
 
-        // No team has won yet
+        // Check if board is full (draw/stalemate)
+        if isBoardFull() {
+            winningTeam = nil
+            return .draw
+        }
+
+        // No team has won yet and board is not full
         winningTeam = nil
         return .ongoing
+    }
+
+    /// Checks if the board is completely full (all non-corner tiles have chips)
+    /// Used to detect draw/stalemate conditions
+    private func isBoardFull() -> Bool {
+        for rowIndex in 0..<GameConstants.boardRows {
+            for colIndex in 0..<GameConstants.boardColumns {
+                let position = Position(row: rowIndex, col: colIndex)
+                let tile = boardTiles[rowIndex][colIndex]
+
+                // Skip corner tiles (they never have chips)
+                if position.isCorner {
+                    continue
+                }
+
+                // If we find any non-corner tile without a chip, board is not full
+                if !tile.isChipOn {
+                    return false
+                }
+            }
+        }
+
+        // All non-corner tiles have chips
+        return true
     }
     
     // MARK: - Performance Optimization

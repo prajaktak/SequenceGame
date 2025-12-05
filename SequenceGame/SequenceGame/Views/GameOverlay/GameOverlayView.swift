@@ -148,12 +148,19 @@ struct GameOverlayView: View {
                         Text("Game Over!")
                             .font(.system(size: GameConstants.overlayGameOverTitleSize, weight: .bold, design: .rounded))
                             .foregroundColor(ThemeColor.textOnAccent)
-                        
-                        // Winner announcement
+
+                        // Winner announcement or draw message
                         if let winningTeam = gameState.winningTeam {
                             Text("\(teamName(for: winningTeam)) Wins!")
                                 .font(.system(size: GameConstants.overlayGameOverSubtitleSize, weight: .semibold, design: .rounded))
                                 .foregroundColor(ThemeColor.textOnAccent)
+                        } else if case .draw = gameState.evaluateGameState() {
+                            Text("It's a Draw!")
+                                .font(.system(size: GameConstants.overlayGameOverSubtitleSize, weight: .semibold, design: .rounded))
+                                .foregroundColor(ThemeColor.textOnAccent)
+                            Text("Board is full - No winner")
+                                .font(.system(size: GameConstants.overlayInstructionFontSize, weight: .medium, design: .rounded))
+                                .foregroundColor(ThemeColor.textOnAccent.opacity(0.7))
                         }
                         
                         // Buttons - wrapped in container that consumes taps

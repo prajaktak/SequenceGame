@@ -9,5 +9,6 @@ import Foundation
 
 enum GameResult {
     case ongoing                    // Game continues
-    case win(team: TeamColor)          // A team has won
+    case win(team: TeamColor)       // A team has won
+    case draw                       // Board is full, no winner (stalemate)
 }

@@ -156,7 +156,7 @@ enum GameConstants {
     static let cardSelectionDuration: Double = 0.15
     
     // Overlay
-    static let overlayAutoDismissDelay: Double = 2.0
+    static let overlayAutoDismissDelay: Double = 0.2
     static let overlaySpringResponse: Double = 0.35
     static let overlaySpringDamping: Double = 0.8
     

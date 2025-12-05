@@ -29,7 +29,22 @@ struct HardAIStrategy: AIStrategy {
             return blockingCard.id
         }
 
-        // 3. Prioritize cards that extend sequences (MOVED UP - regular cards first)
+        // 3. Check if two-eyed Jack can extend sequence (3+ chips)
+        // Prioritize two-eyed Jacks BEFORE regular cards when they create strong positions
+        let twoEyedJacks = cards.filter { card in
+            card.cardFace == .jack && (card.suit == .clubs || card.suit == .diamonds)
+        }
+        if !twoEyedJacks.isEmpty,
+           let strongJackMove = findStrongTwoEyedJackMove(
+               jacks: twoEyedJacks,
+               gameState: gameState,
+               teamColor: teamColor
+           ) {
+            print("🧠🃏✨ Hard AI: Using two-eyed Jack to extend sequence (3+ chips)")
+            return strongJackMove.id
+        }
+
+        // 4. Prioritize regular cards that extend sequences
         if let extendingCard = findBestSequenceExtendingCard(
             from: cards,
             gameState: gameState,
@@ -39,35 +54,31 @@ struct HardAIStrategy: AIStrategy {
             return extendingCard.id
         }
 
-        // 4. Block opponent's developing sequences (MOVED UP - regular cards first)
+        // 5. Block opponent's developing sequences
         if let blockingCard = findOpponentBlockingCard(from: cards, gameState: gameState) {
             print("🧠🚧 Hard AI: Blocking opponent development")
             return blockingCard.id
         }
 
-        // 5. Strategic one-eyed Jack usage ONLY for critical threats (MOVED DOWN + improved)
+        // 6. Strategic one-eyed Jack usage ONLY for critical threats
         // Only use if opponent has 4 in a row (one away from completing)
         if let oneEyedJack = findStrategicOneEyedJack(from: cards, gameState: gameState) {
             print("🧠👁️ Hard AI: Using one-eyed Jack to break opponent's 4-chip sequence")
             return oneEyedJack.id
         }
 
-        // 6. Use two-eyed Jacks as last resort wildcard (MOVED DOWN + improved)
-        // Only use when no better regular card is available
-        let twoEyedJacks = cards.filter { card in
-            card.cardFace == .jack && (card.suit == .clubs || card.suit == .diamonds)
-        }
+        // 7. Use two-eyed Jacks for weaker positions (2 chips) as fallback
         if !twoEyedJacks.isEmpty,
-           let bestJack = findBestTwoEyedJackOpportunity(
+           let weakJackMove = findWeakTwoEyedJackMove(
                jacks: twoEyedJacks,
                gameState: gameState,
                teamColor: teamColor
            ) {
             print("🧠🃏 Hard AI: Using two-eyed Jack as wildcard")
-            return bestJack.id
+            return weakJackMove.id
         }
 
-        // 7. Fallback to any playable card
+        // 8. Fallback to any playable card
         let playableCards = cards.filter { !gameState.computePlayableTiles(for: $0).isEmpty }
         print("🧠🎲 Hard AI: Playing random card")
         return playableCards.randomElement()?.id
@@ -165,9 +176,11 @@ struct HardAIStrategy: AIStrategy {
     // MARK: - Card Selection Helpers
 
     /// Finds a card that can complete a sequence and win
+    /// Now includes two-eyed Jacks as they can be used as wildcards to win
     private func findWinningCard(from cards: [Card], gameState: GameState) -> Card? {
         guard let teamColor = gameState.currentPlayer?.team.color else { return nil }
 
+        // Check all cards including two-eyed Jacks
         for card in cards {
             let positions = gameState.computePlayableTiles(for: card)
             for position in positions where HardAIStrategyHelper.wouldCompleteSequence(
@@ -265,9 +278,9 @@ struct HardAIStrategy: AIStrategy {
         return nil
     }
 
-    /// Finds best opportunity for two-eyed Jack
-    /// ONLY uses when can complete sequence or extend to 3+ chips (save as wildcard)
-    private func findBestTwoEyedJackOpportunity(
+    /// Finds strong two-eyed Jack move (3+ adjacent chips or completes sequence)
+    /// This should be prioritized BEFORE regular card sequence extension
+    private func findStrongTwoEyedJackMove(
         jacks: [Card],
         gameState: GameState,
         teamColor: TeamColor
@@ -277,6 +290,7 @@ struct HardAIStrategy: AIStrategy {
         let positions = gameState.computePlayableTiles(for: jack)
 
         // Priority 1: Use to complete a sequence (4 → 5 chips)
+        // This is already handled by findWinningCard, but check here too for safety
         for position in positions where HardAIStrategyHelper.wouldCompleteSequence(
             at: position,
             teamColor: teamColor,
@@ -294,7 +308,31 @@ struct HardAIStrategy: AIStrategy {
             return jack
         }
 
-        // Don't use for 2 or fewer adjacent chips - save the wildcard for better opportunities
+        // Don't use for 2 or fewer adjacent chips - save for later priority
+        return nil
+    }
+
+    /// Finds weak two-eyed Jack move (2 adjacent chips)
+    /// Used as fallback when no better moves are available
+    private func findWeakTwoEyedJackMove(
+        jacks: [Card],
+        gameState: GameState,
+        teamColor: TeamColor
+    ) -> Card? {
+        guard let jack = jacks.first else { return nil }
+
+        let positions = gameState.computePlayableTiles(for: jack)
+
+        // Use for positions with 2 adjacent chips
+        for position in positions where countAdjacentChips(
+            at: position,
+            teamColor: teamColor,
+            in: gameState
+        ) >= 2 {
+            return jack
+        }
+
+        // Don't use for 1 or fewer adjacent chips - completely save the wildcard
         return nil
     }
 

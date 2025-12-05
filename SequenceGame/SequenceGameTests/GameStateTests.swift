@@ -970,19 +970,140 @@ struct GameStateTests {
     @Test("hasSelection computed property works correctly")
     func testHasSelectionComputedProperty() {
         let state = createTestGameState()
-        
+
         // Initially no selection
         #expect(!state.hasSelection)
-        
+
         // Select a card
         if let firstCard = state.currentPlayer?.cards.first {
             state.selectCard(firstCard.id)
             #expect(state.hasSelection)
         }
-        
+
         // Clear selection
         state.clearSelection()
         #expect(!state.hasSelection)
+    }
+
+    @Test("evaluateGameState detects draw when board is full with no winner")
+    func testEvaluateGameStateDrawFullBoard() {
+        let state = createTestGameState()
+
+        // Fill all non-corner tiles with chips
+        for rowIndex in 0..<GameConstants.boardRows {
+            for colIndex in 0..<GameConstants.boardColumns {
+                let position = Position(row: rowIndex, col: colIndex)
+
+                // Skip corners
+                if position.isCorner {
+                    continue
+                }
+
+                // Place alternating blue and red chips to prevent sequences
+                let chipColor: TeamColor = (rowIndex + colIndex) % 2 == 0 ? .blue : .red
+                let chip = Chip(color: chipColor)
+                state.boardTiles[rowIndex][colIndex].chip = chip
+                state.boardTiles[rowIndex][colIndex].isChipOn = true
+            }
+        }
+
+        // Ensure no sequences detected
+        state.detectedSequence = []
+
+        let result = state.evaluateGameState()
+
+        // Should return draw
+        if case .draw = result {
+            #expect(true)
+            #expect(state.winningTeam == nil)
+        } else {
+            #expect(Bool(false), "Should return .draw when board is full with no winner")
+        }
+    }
+
+    @Test("evaluateGameState returns ongoing when board is not full")
+    func testEvaluateGameStateOngoingBoardNotFull() {
+        let state = createTestGameState()
+
+        // Fill most tiles but leave one empty
+        for rowIndex in 0..<GameConstants.boardRows {
+            for colIndex in 0..<GameConstants.boardColumns {
+                let position = Position(row: rowIndex, col: colIndex)
+
+                // Skip corners and last non-corner tile
+                if position.isCorner || (rowIndex == 9 && colIndex == 8) {
+                    continue
+                }
+
+                let chip = Chip(color: .blue)
+                state.boardTiles[rowIndex][colIndex].chip = chip
+                state.boardTiles[rowIndex][colIndex].isChipOn = true
+            }
+        }
+
+        // Ensure no sequences
+        state.detectedSequence = []
+
+        let result = state.evaluateGameState()
+
+        // Should return ongoing, not draw
+        if case .ongoing = result {
+            #expect(true)
+        } else {
+            #expect(Bool(false), "Should return .ongoing when board has empty spaces")
+        }
+    }
+
+    @Test("evaluateGameState prioritizes win over draw")
+    func testEvaluateGameStatePrioritizesWinOverDraw() {
+        let state = createTestGameState()
+
+        // Fill all non-corner tiles
+        for rowIndex in 0..<GameConstants.boardRows {
+            for colIndex in 0..<GameConstants.boardColumns {
+                let position = Position(row: rowIndex, col: colIndex)
+
+                if position.isCorner {
+                    continue
+                }
+
+                let chip = Chip(color: .blue)
+                state.boardTiles[rowIndex][colIndex].chip = chip
+                state.boardTiles[rowIndex][colIndex].isChipOn = true
+            }
+        }
+
+        // Add winning sequences for blue team
+        let dummyTiles1 = [
+            BoardTile(card: Card(cardFace: .ace, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .two, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .three, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .four, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .five, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil)
+        ]
+
+        let dummyTiles2 = [
+            BoardTile(card: Card(cardFace: .six, suit: .diamonds), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .seven, suit: .diamonds), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .eight, suit: .diamonds), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .nine, suit: .diamonds), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .ten, suit: .diamonds), isEmpty: false, isChipOn: false, chip: nil)
+        ]
+
+        let sequence1 = Sequence(tiles: dummyTiles1, position: Position(row: 0, col: 0), teamColor: .blue, sequenceType: .horizontal)
+        let sequence2 = Sequence(tiles: dummyTiles2, position: Position(row: 1, col: 0), teamColor: .blue, sequenceType: .horizontal)
+
+        state.detectedSequence = [sequence1, sequence2]
+
+        let result = state.evaluateGameState()
+
+        // Should return win, not draw, even though board is full
+        if case .win(let team) = result {
+            #expect(team == .blue)
+            #expect(state.winningTeam == .blue)
+        } else {
+            #expect(Bool(false), "Should detect win over draw when both conditions met")
+        }
     }
 }
 // swiftlint:enable type_body_length
