@@ -100,22 +100,38 @@ struct BoardView: View {
     @ViewBuilder
     private func sequenceHighlight(_ isInSequence: Bool, teamColor: Color, tileSize: (width: CGFloat, height: CGFloat)) -> some View {
         if isInSequence {
+            // Calculate perimeter for dash animation
+            let perimeter = 2.0 * (tileSize.width + tileSize.height)
+
             let shimmerBorderSettings = ShimmerBorderSettings(
                 teamColor: teamColor,
                 frameWidth: tileSize.width,
                 frameHeight: tileSize.height,
-                dashArray: [tileSize.width, 2*tileSize.height+tileSize.width],
-                dashPhasePositive: CGFloat(2.0*(tileSize.width) + 2.0*(tileSize.height)),
-                dashPhaseNegative: CGFloat(-(2.0*(tileSize.width) + 2.0*(tileSize.height))),
-                animationDuration: 2.0,
-                borderWidth: 3
+                dashArray: [tileSize.width / 2, perimeter - tileSize.width / 2],
+                dashPhasePositive: perimeter,
+                dashPhaseNegative: -perimeter,
+                animationDuration: 3.0,
+                borderWidth: 2
             )
-            ShimmerBorder(shimmerBorderSetting: shimmerBorderSettings) {
+
+            ZStack {
                 // Background fill with shimmer effect
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(teamColor.opacity(0.3))
-                    .frame(width: tileSize.width, height: tileSize.height)
-                    .modifier(Shimmer(teamColor: teamColor))
+                ZStack {
+                    // Base colored background
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(teamColor.opacity(0.25))
+
+                    // Shimmer overlay on background
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(teamColor.opacity(0.5))
+                        .modifier(Shimmer(teamColor: teamColor))
+                }
+                .border(teamColor, width: 2)
+                // Animated shimmer border on top
+                ShimmerBorder(shimmerBorderSetting: shimmerBorderSettings) {
+                    Color.clear
+                        
+                }
             }
         } else {
             EmptyView()

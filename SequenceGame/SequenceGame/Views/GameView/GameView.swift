@@ -271,6 +271,12 @@ struct GameView: View {
                     return
                 }
 
+                if newMode == .replayFinished {
+                    isOverlayPresent = true
+                    // Don't auto-dismiss replay finished overlay
+                    return
+                }
+
                 isOverlayPresent = true
                 if newMode != .deadCard {
                     let work = DispatchWorkItem {
@@ -332,7 +338,7 @@ struct GameView: View {
                     )
                     .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isOverlayPresent)
                     .transition(.scale.combined(with: .opacity))
-                    .allowsHitTesting(gameState.overlayMode == .deadCard ||  gameState.overlayMode == .gameOver)
+                    .allowsHitTesting(gameState.overlayMode == .deadCard ||  gameState.overlayMode == .gameOver || gameState.overlayMode == .replayFinished)
                     .overlay(content: {
                         if gameState.overlayMode == .deadCard {
                             Color.clear

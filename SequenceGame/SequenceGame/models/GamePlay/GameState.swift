@@ -4,7 +4,7 @@
 //
 //  Created by Prajakta Kulkarni on 29/10/2025.
 //
-
+// swiftlint:disable type_body_length
 import Foundation
 
 /// The authoritative source of truth for all game state and logic.
@@ -74,7 +74,15 @@ final class GameState: ObservableObject {
     
     /// AI turn boolean
     @Published private(set) var isAITurnInProgress: Bool = false
-    
+
+    /// Replay recorder for capturing game moves
+    @Published private(set) var replayRecorder: ReplayRecorder = ReplayRecorder()
+
+    /// Replay controller for playback
+    private(set) lazy var replayController: ReplayController = {
+        ReplayController(recorder: replayRecorder, gameState: self)
+    }()
+
     /// Convenience computed property indicating whether a card is currently selected.
     var hasSelection: Bool { selectedCardId != nil }
 
@@ -126,7 +134,10 @@ final class GameState: ObservableObject {
         winningTeam = nil
         detectedSequence = []
         tilesInSequences = []  // Clear sequence cache
-        
+
+        // Clear replay recording
+        replayRecorder.clearMoves()
+
         self.players = players
         currentPlayerIndex = 0
 
@@ -137,7 +148,7 @@ final class GameState: ObservableObject {
 
         let handCount = GameConstants.cardsPerPlayer(playerCount: players.count)
         deck.deal(handCount: handCount, to: &self.players)
-        
+
         sequenceDetector.board = board
         overlayMode = .turnStart
         // NEW: Check if first player is AI
@@ -152,6 +163,18 @@ final class GameState: ObservableObject {
         boardTiles = boardManager.setupBoard()
         board = Board(row: 10, col: 10)
     }
+
+    /// Clears all chips from the board for replay
+    func clearBoardForReplay() {
+        for rowIndex in 0..<boardTiles.count {
+            for colIndex in 0..<boardTiles[rowIndex].count {
+                boardTiles[rowIndex][colIndex].isChipOn = false
+                boardTiles[rowIndex][colIndex].chip = nil
+            }
+        }
+        detectedSequence = []
+        tilesInSequences = []
+    }
     /// Completely resets all game state to initial values.
     ///
     /// Use this when returning to game settings or starting a completely new game.
@@ -165,11 +188,14 @@ final class GameState: ObservableObject {
         detectedSequence = []
         tilesInSequences = []
         overlayMode = .turnStart
-        
+
+        // Clear replay recording
+        replayRecorder.clearMoves()
+
         // Reset board
         board = Board()
         boardTiles = Board().boardTiles
-        
+
         // Reset deck
         deck = DoubleDeck()
     }
@@ -368,9 +394,11 @@ final class GameState: ObservableObject {
         }
 
         // 3) Check if this is a one-eyed jack (remove chip) or regular/two-eyed jack (place chip)
+        let moveType: MoveType
         if let jackRule = validator.classifyJack(playedCard), jackRule == .removeChip {
             // One-eyed jack: remove chip
             removeChip(at: position)
+            moveType = .removeChip
         } else {
             // Regular card or two-eyed jack: place chip
             guard let teamColor = currentPlayer?.team.color else {
@@ -378,6 +406,23 @@ final class GameState: ObservableObject {
                 return
             }
             placeChip(at: position, teamColor: teamColor)
+            moveType = .placeChip
+        }
+
+        // Record move for replay
+        if let player = currentPlayer {
+            let playerInfo = PlayerMoveInfo(
+                playerId: player.id,
+                playerName: player.name,
+                teamColor: player.team.color
+            )
+            replayRecorder.recordMove(
+                position: position,
+                card: playedCard,
+                playerInfo: playerInfo,
+                moveType: moveType,
+                sequencesCompleted: detectedSequence.count
+            )
         }
 
         // 3.1) Check if sequence is completed && check winning condition
@@ -575,3 +620,4 @@ final class GameState: ObservableObject {
     }
         
 }
+// swiftlint:enable type_body_length

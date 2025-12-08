@@ -165,28 +165,19 @@ struct GameOverlayView: View {
                         
                         // Buttons - wrapped in container that consumes taps
                         HStack(spacing: GameConstants.handSpacing) {
-                            // Play Again Button
+                            // Replay Button
                             Button(action: {
-                                // Use callback if provided, otherwise handle directly
-                                if let onRestart = onRestart {
-                                    onRestart()
-                                } else {
-                                    // Fallback: Close overlay and restart
-                                    onClose()
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        do {
-                                            try gameState.restartGame()
-                                        } catch {
-                                            // Silently fail
-                                        }
-                                    }
+                                // Close overlay and start replay
+                                onClose()
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                    gameState.replayController.startReplay()
                                 }
                             },
                                    label: {
                                 HStack(spacing: GameConstants.iconSizeSmall / 4) {
-                                    Image(systemName: "arrow.clockwise")
+                                    Image(systemName: "play.rectangle.fill")
                                         .font(.system(size: GameConstants.iconSizeSmall))
-                                    Text("Play Again")
+                                    Text("Replay")
                                         .font(.caption2)
                                         .fontWeight(.semibold)
                                 }
@@ -199,7 +190,7 @@ struct GameOverlayView: View {
                             })
                             .buttonStyle(.plain)
                             .contentShape(Rectangle())
-                            
+
                             // New Game Button
                             Button(action: {
                                 // Use callback if provided, otherwise just close overlay
@@ -244,7 +235,49 @@ struct GameOverlayView: View {
                         AITurnInProgressOverlay(teamColor: borderColor, text: "\(playerName) is thinking...")
                     }
                 }
-            
+
+        case .replayFinished:
+            HexagonOverlay(
+                borderColor: borderColor,
+                backgroundColor: backgroundColor,
+                allowsHitTesting: true,
+                content: {
+                    VStack(spacing: GameConstants.overlayGameOverSpacing) {
+                        // Title
+                        Text("Replay Complete")
+                            .font(.system(size: GameConstants.overlayGameOverTitleSize, weight: .bold, design: .rounded))
+                            .foregroundColor(ThemeColor.textOnAccent)
+
+                        // Exit button
+                        Button(
+                            action: {
+                                if let onNewGame = onNewGame {
+                                    onNewGame()
+                                } else {
+                                    onClose()
+                                }
+                            },
+                            label: {
+                                HStack(spacing: GameConstants.iconSizeSmall / 4) {
+                                    Image(systemName: "xmark.circle")
+                                        .font(.system(size: GameConstants.iconSizeSmall))
+                                    Text("Exit Game")
+                                        .font(.caption2)
+                                        .fontWeight(.semibold)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, GameConstants.handVerticalInsets)
+                                .padding(.horizontal, GameConstants.handSpacing)
+                                .background(Color.white.opacity(0.25))
+                                .foregroundColor(ThemeColor.textOnAccent)
+                                .cornerRadius(GameConstants.cardCornerRadius)
+                            }
+                        )
+                        .buttonStyle(.plain)
+                        .padding(.horizontal, GameConstants.boardPadding)
+                    }
+                }
+            )
         }
     }
     private func teamName(for color: TeamColor) -> String {

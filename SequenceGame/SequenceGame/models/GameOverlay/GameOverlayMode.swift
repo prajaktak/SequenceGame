@@ -16,5 +16,6 @@ enum GameOverlayMode: Codable, Equatable {
     case jackRemoveChip                // One‑eyed Jack flow
     case paused                        // Pause/options
     case gameOver                      // Winner dialog
-    case aITurnInProgress              // AI Player turn progress 
+    case aITurnInProgress              // AI Player turn progress
+    case replayFinished                // Replay completed, show exit option
 }

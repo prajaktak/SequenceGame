@@ -46,6 +46,7 @@ struct HandView: View {
                         availableWidth: availableWidth,
                         cardCount: cards.count
                     )
+                    let isAIPlayer = currentPlayer.isAI
 
                     HStack(spacing: spacing) {
                         ForEach(cards) { handCard in
@@ -55,6 +56,7 @@ struct HandView: View {
                             ZStack {
                                 CardFaceView(card: handCard)
                                     .frame(width: size.width, height: size.height)
+                                    .opacity(isAIPlayer ? 0.01 : 1.0)
 
                                 RoundedRectangle(cornerRadius: GameConstants.handCardCornerRadius)
                                     .stroke(isSelected ? ThemeColor.accentGolden : .clear, lineWidth: GameConstants.handCardBorderWidth)
