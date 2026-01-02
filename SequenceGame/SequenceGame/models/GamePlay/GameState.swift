@@ -113,8 +113,9 @@ final class GameState: ObservableObject {
     /// - 3+ players: 1 sequence required
     var requiredSequencesToWin: Int {
         let playerCount = players.count
+        let uniqueTeamColors = Set(players.map { $0.team.color })
         
-        if playerCount == 2 {
+        if playerCount == 2 ||  uniqueTeamColors .count == 2 {
             return 2
         } else {
             return 1  // 3, 4, 6, 8, 9, 10, 12 players all need 1 sequence
@@ -160,8 +161,8 @@ final class GameState: ObservableObject {
     /// Populates all non-corner tiles with cards (excluding Jacks per game rules).
     /// Called once during game start.
     func setupBoard() {
-        boardTiles = boardManager.setupBoard()
         board = Board(row: 10, col: 10)
+        boardTiles = boardManager.setupBoard()
     }
 
     /// Clears all chips from the board for replay

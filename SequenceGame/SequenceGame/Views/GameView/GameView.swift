@@ -157,21 +157,24 @@ struct GameView: View {
 //                saveGame()
 //            }
             .onChange(of: gameState.currentPlayerIndex) { _, _ in
-                // Don't save if game is over
-                if gameState.overlayMode != .gameOver {
+                // Don't save if game is over or replay finished
+                // Also don't save if we're navigating away (returning to menu)
+                if !isNavigatingAway && gameState.overlayMode != .gameOver && gameState.overlayMode != .replayFinished {
                     saveGame()
                 }
             }
             .onDisappear {
-                // Only save if setup is complete and game is not over
+                // Only save if setup is complete and game is not over or replay finished
+                // Also prevent saving if we're navigating away (e.g., returning to menu after game over/replay)
                 // Also prevent saving immediately after setup completes (within 0.5 seconds) to avoid view refresh issues
                 let timeSinceSetup = setupCompletedAt.map { Date().timeIntervalSince($0) } ?? 999
-                if hasFinishedSetup && gameState.overlayMode != .gameOver && timeSinceSetup > 0.5 {
+                if hasFinishedSetup && !isNavigatingAway && gameState.overlayMode != .gameOver && gameState.overlayMode != .replayFinished && timeSinceSetup > 0.5 {
                     saveGame()
                 }
             }
             .onChange(of: scenePhase) { _, newPhase in
-                if newPhase == .background && gameState.overlayMode != .gameOver {
+                // Don't save if navigating away or game is finished
+                if !isNavigatingAway && newPhase == .background && gameState.overlayMode != .gameOver && gameState.overlayMode != .replayFinished {
                     saveGame()
                 }
             }
@@ -193,10 +196,16 @@ struct GameView: View {
                 InGameMenuView(onNewGame: {
                     // Close the menu sheet first
                     showGameMenu = false
-                    
+
+                    // Set flag to prevent onChange handler from showing overlay and saving game
+                    isNavigatingAway = true
+
+                    // Delete saved game before resetting
+                    GamePersistence.deleteSavedGame()
+
                     // Reset game state
                     gameState.resetGame()
-                    
+
                     // Dismiss GameView (back to GameSettingsView or MainMenu)
                     dismiss()
                 })
@@ -273,6 +282,8 @@ struct GameView: View {
 
                 if newMode == .replayFinished {
                     isOverlayPresent = true
+                    // Delete saved game since the replay is finished (game was already over)
+                    GamePersistence.deleteSavedGame()
                     // Don't auto-dismiss replay finished overlay
                     return
                 }
@@ -298,7 +309,11 @@ struct GameView: View {
                         borderColor: teamOverlayBorderColor,
                         backgroundColor: overlayBackgroundColor,
                         onHelp: { /* present help */ },
-                        onClose: { isOverlayPresent = false },
+                        onClose: { isOverlayPresent = false
+                            if gameState.overlayMode == .gameOver {
+                                /// this will delete the saved game on winning or draw condition.
+                                GamePersistence.deleteSavedGame()
+                            } },
                         onRestart: {
                             // Set flag FIRST to prevent tap gesture from firing
                             isRestartingGame = true
@@ -323,6 +338,8 @@ struct GameView: View {
                             isNavigatingAway = true
                             // Close overlay first to prevent it from briefly reappearing
                             isOverlayPresent = false
+                            // Delete saved game to prevent corrupted resume state
+                            GamePersistence.deleteSavedGame()
                             // Small delay to let overlay close, then reset and navigate
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
                                 // Reset game state
