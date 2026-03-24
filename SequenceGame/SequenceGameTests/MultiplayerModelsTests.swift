@@ -100,8 +100,8 @@ struct DiscardEventTests {
         #expect(decoded == event)
     }
 
-    @Test("DiscardEvent preserves player name")
-    func testDiscardEvent_playerName_isPreserved() throws {
+    @Test("DiscardEvent encodeDecode preserves player name")
+    func testDiscardEvent_encodeDecode_preservesPlayerName() throws {
         let card = Card(cardFace: .ace, suit: .hearts)
         let event = DiscardEvent(playerName: "Bob", teamColor: .red, card: card)
         let encoded = try JSONEncoder().encode(event)
@@ -109,8 +109,8 @@ struct DiscardEventTests {
         #expect(decoded.playerName == "Bob")
     }
 
-    @Test("DiscardEvent preserves team color")
-    func testDiscardEvent_teamColor_isPreserved() throws {
+    @Test("DiscardEvent encodeDecode preserves team color")
+    func testDiscardEvent_encodeDecode_preservesTeamColor() throws {
         let card = Card(cardFace: .king, suit: .spades)
         let event = DiscardEvent(playerName: "Carol", teamColor: .green, card: card)
         let encoded = try JSONEncoder().encode(event)
@@ -152,8 +152,8 @@ struct PlayerInfoTests {
         #expect(decoded.peerId == nil)
     }
 
-    @Test("PlayerInfo card count is preserved")
-    func testPlayerInfo_cardCount_isPreserved() throws {
+    @Test("PlayerInfo encodeDecode preserves card count")
+    func testPlayerInfo_encodeDecode_preservesCardCount() throws {
         let info = PlayerInfo(id: UUID(), name: "Frank", teamColor: .green, cardCount: 7, peerId: nil)
         let encoded = try JSONEncoder().encode(info)
         let decoded = try JSONDecoder().decode(PlayerInfo.self, from: encoded)
@@ -267,16 +267,16 @@ struct MultiplayerGameStateBroadcastTests {
         #expect(decoded == broadcast)
     }
 
-    @Test("MultiplayerGameStateBroadcast preserves currentPlayerIndex")
-    func testBroadcast_currentPlayerIndex_isPreserved() throws {
+    @Test("MultiplayerGameStateBroadcast encodeDecode preserves currentPlayerIndex")
+    func testBroadcast_encodeDecode_preservesCurrentPlayerIndex() throws {
         let broadcast = makeBroadcast(currentPlayerIndex: 3)
         let encoded = try JSONEncoder().encode(broadcast)
         let decoded = try JSONDecoder().decode(MultiplayerGameStateBroadcast.self, from: encoded)
         #expect(decoded.currentPlayerIndex == 3)
     }
 
-    @Test("MultiplayerGameStateBroadcast preserves myCards")
-    func testBroadcast_myCards_arePreserved() throws {
+    @Test("MultiplayerGameStateBroadcast encodeDecode preserves myCards")
+    func testBroadcast_encodeDecode_preservesMyCards() throws {
         let cards = [Card(cardFace: .ace, suit: .hearts), Card(cardFace: .king, suit: .spades)]
         let broadcast = makeBroadcast(myCards: cards)
         let encoded = try JSONEncoder().encode(broadcast)
@@ -284,8 +284,8 @@ struct MultiplayerGameStateBroadcastTests {
         #expect(decoded.myCards == cards)
     }
 
-    @Test("MultiplayerGameStateBroadcast preserves validPositions")
-    func testBroadcast_validPositions_arePreserved() throws {
+    @Test("MultiplayerGameStateBroadcast encodeDecode preserves validPositions")
+    func testBroadcast_encodeDecode_preservesValidPositions() throws {
         let positions = [Position(row: 1, col: 2), Position(row: 5, col: 8)]
         let broadcast = makeBroadcast(validPositions: positions)
         let encoded = try JSONEncoder().encode(broadcast)
@@ -293,8 +293,8 @@ struct MultiplayerGameStateBroadcastTests {
         #expect(decoded.validPositions == positions)
     }
 
-    @Test("MultiplayerGameStateBroadcast preserves pendingPosition")
-    func testBroadcast_pendingPosition_isPreserved() throws {
+    @Test("MultiplayerGameStateBroadcast encodeDecode preserves pendingPosition")
+    func testBroadcast_encodeDecode_preservesPendingPosition() throws {
         let position = Position(row: 4, col: 6)
         let broadcast = makeBroadcast(pendingPosition: position)
         let encoded = try JSONEncoder().encode(broadcast)
@@ -302,16 +302,16 @@ struct MultiplayerGameStateBroadcastTests {
         #expect(decoded.pendingPosition == position)
     }
 
-    @Test("MultiplayerGameStateBroadcast preserves nil pendingPosition")
-    func testBroadcast_nilPendingPosition_isPreserved() throws {
+    @Test("MultiplayerGameStateBroadcast encodeDecode preserves nil pendingPosition")
+    func testBroadcast_encodeDecode_preservesNilPendingPosition() throws {
         let broadcast = makeBroadcast(pendingPosition: nil)
         let encoded = try JSONEncoder().encode(broadcast)
         let decoded = try JSONDecoder().decode(MultiplayerGameStateBroadcast.self, from: encoded)
         #expect(decoded.pendingPosition == nil)
     }
 
-    @Test("MultiplayerGameStateBroadcast preserves lastDiscardEvent")
-    func testBroadcast_lastDiscardEvent_isPreserved() throws {
+    @Test("MultiplayerGameStateBroadcast encodeDecode preserves lastDiscardEvent")
+    func testBroadcast_encodeDecode_preservesLastDiscardEvent() throws {
         let card = Card(cardFace: .two, suit: .diamonds)
         let event = DiscardEvent(playerName: "Grace", teamColor: .blue, card: card)
         let broadcast = makeBroadcast(lastDiscardEvent: event)
@@ -320,16 +320,16 @@ struct MultiplayerGameStateBroadcastTests {
         #expect(decoded.lastDiscardEvent == event)
     }
 
-    @Test("MultiplayerGameStateBroadcast preserves winning team")
-    func testBroadcast_winningTeam_isPreserved() throws {
+    @Test("MultiplayerGameStateBroadcast encodeDecode preserves winning team")
+    func testBroadcast_encodeDecode_preservesWinningTeam() throws {
         let broadcast = makeBroadcast(winningTeam: .red)
         let encoded = try JSONEncoder().encode(broadcast)
         let decoded = try JSONDecoder().decode(MultiplayerGameStateBroadcast.self, from: encoded)
         #expect(decoded.winningTeam == .red)
     }
 
-    @Test("MultiplayerGameStateBroadcast preserves team scores")
-    func testBroadcast_teamScores_arePreserved() throws {
+    @Test("MultiplayerGameStateBroadcast encodeDecode preserves team scores")
+    func testBroadcast_encodeDecode_preservesTeamScores() throws {
         let scores = ["blue": 2, "red": 1, "green": 0]
         let broadcast = makeBroadcast(teamScores: scores)
         let encoded = try JSONEncoder().encode(broadcast)
