@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Sequence: Codable, Identifiable {
+struct Sequence: Codable, Identifiable, Equatable {
     var id = UUID()
     var tiles: [BoardTile]
     var position: Position
