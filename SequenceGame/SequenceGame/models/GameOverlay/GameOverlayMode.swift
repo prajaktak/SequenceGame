@@ -18,4 +18,5 @@ enum GameOverlayMode: Codable, Equatable {
     case gameOver                      // Winner dialog
     case aITurnInProgress              // AI Player turn progress
     case replayFinished                // Replay completed, show exit option
+    case waitingForPlayer             // Multiplayer: waiting for an iPhone player to act
 }

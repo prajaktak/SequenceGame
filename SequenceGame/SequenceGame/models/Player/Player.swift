@@ -13,10 +13,14 @@ struct Player: Codable, Identifiable {
     let team: Team
     var isPlaying: Bool = false
     var cards: [Card] = []
-    
-    // NEW: AI support
-   var isAI: Bool = false
+
+    // AI support
+    var isAI: Bool = false
     var aiDifficulty: AIDifficulty?
+
+    /// MultipeerConnectivity peer ID string for multiplayer mode.
+    /// `nil` for single-device (local) players.
+    var peerID: String?
 }
 
 // Add this to Player.swift
