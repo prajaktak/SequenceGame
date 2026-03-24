@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum SequenceType: Codable {
+enum SequenceType: Codable, Equatable {
     case horizontal
     case vertical
     case diagonal
