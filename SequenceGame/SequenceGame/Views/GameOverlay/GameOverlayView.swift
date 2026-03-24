@@ -236,6 +236,17 @@ struct GameOverlayView: View {
                     }
                 }
 
+        case .waitingForPlayer:
+            HexagonOverlay(
+                borderColor: borderColor, backgroundColor: backgroundColor) {
+                    VStack(spacing: GameConstants.overlayContentSpacing) {
+                        AITurnInProgressOverlay(
+                            teamColor: borderColor,
+                            text: "Waiting for \(playerName)..."
+                        )
+                    }
+                }
+
         case .replayFinished:
             HexagonOverlay(
                 borderColor: borderColor,

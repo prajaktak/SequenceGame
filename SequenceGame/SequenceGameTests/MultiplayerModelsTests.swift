@@ -225,14 +225,14 @@ struct MultiplayerGameStateBroadcastTests {
 
     private func makeBroadcast(
         currentPlayerIndex: Int = 0,
-        currentPlayerId: UUID = UUID(),
+        currentPlayerId: UUID? = UUID(),
         currentPlayerPeerId: String? = "peer-1",
         overlayMode: GameOverlayMode = .turnStart,
         boardTiles: [[BoardTile]] = [],
         detectedSequences: [Sequence] = [],
         teamScores: [String: Int] = ["blue": 0, "red": 0],
         playerInfoList: [PlayerInfo] = [],
-        receivingPlayerId: UUID = UUID(),
+        receivingPlayerId: UUID? = UUID(),
         myCards: [Card] = [],
         validPositions: [Position] = [],
         selectedCardId: UUID? = nil,

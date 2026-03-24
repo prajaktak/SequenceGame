@@ -20,7 +20,7 @@ struct MultiplayerGameStateBroadcast: Codable, Equatable {
     let currentPlayerIndex: Int
 
     /// The `Player.id` of the player whose turn it is.
-    let currentPlayerId: UUID
+    let currentPlayerId: UUID?
 
     /// Peer ID string of the device that should act this turn. `nil` if it's a host-managed slot.
     let currentPlayerPeerId: String?
@@ -48,7 +48,7 @@ struct MultiplayerGameStateBroadcast: Codable, Equatable {
 
     /// The `Player.id` of the device this broadcast was personalised for.
     /// Each iPhone ignores `myCards` if this doesn't match their assigned player.
-    let receivingPlayerId: UUID
+    let receivingPlayerId: UUID?
 
     /// The hand cards for the receiving player only.
     let myCards: [Card]

@@ -1,0 +1,121 @@
+//
+//  MultiplayerClient.swift
+//  SequenceGame
+//
+//  iPhone-side client. Decodes MultiplayerGameStateBroadcast messages received
+//  from the iPad host and exposes state via @Published properties. Sends
+//  PlayerAction messages back to the host peer.
+//
+
+import Foundation
+import MultipeerConnectivity
+
+/// iPhone-side client for local multiplayer.
+///
+/// Responsibilities:
+/// - Decodes `MultiplayerGameStateBroadcast` messages from the iPad host.
+/// - Publishes decoded state for iPhone views to observe.
+/// - Sends `PlayerAction` messages to the host via `MultipeerSessionManager`.
+final class MultiplayerClient: ObservableObject {
+
+    // MARK: - Published State
+
+    /// The most recently received game state broadcast from the host.
+    @Published private(set) var latestBroadcast: MultiplayerGameStateBroadcast?
+
+    /// Whether it is currently this iPhone player's turn.
+    @Published private(set) var isMyTurn: Bool = false
+
+    // MARK: - Private Properties
+
+    private let sessionManager: MultipeerSessionManager
+    private let localPlayerId: UUID
+    private let encoder: JSONEncoder = JSONEncoder()
+    private let decoder: JSONDecoder = JSONDecoder()
+
+    // MARK: - Init
+
+    init(sessionManager: MultipeerSessionManager, localPlayerId: UUID) {
+        self.sessionManager = sessionManager
+        self.localPlayerId = localPlayerId
+    }
+
+    // MARK: - Receiving State
+
+    /// Decode and store a raw broadcast received from the host peer.
+    ///
+    /// Views should forward data by calling this method whenever
+    /// `MultipeerSessionManager.receivedData` changes.
+    func handleReceivedData(_ data: Data) {
+        guard let broadcast = try? decoder.decode(MultiplayerGameStateBroadcast.self, from: data) else { return }
+        latestBroadcast = broadcast
+        isMyTurn = broadcast.currentPlayerId == localPlayerId
+    }
+
+    // MARK: - Sending Actions
+
+    /// Send a `PlayerAction` to the host iPad.
+    func send(action: PlayerAction) {
+        guard let data = try? encoder.encode(action) else { return }
+        sessionManager.send(data)
+    }
+
+    /// Convenience: tell the host the player selected a card.
+    func selectCard(_ cardId: UUID) {
+        send(action: .selectCard(cardId: cardId))
+    }
+
+    /// Convenience: tell the host the player deselected the current card.
+    func deselectCard() {
+        send(action: .deselectCard)
+    }
+
+    /// Convenience: send a position selection (first tap — highlights on board).
+    func selectPosition(_ position: Position) {
+        send(action: .selectPosition(position: position))
+    }
+
+    /// Convenience: confirm chip placement after the confirmation dialog.
+    func confirmPlacement(position: Position, cardId: UUID) {
+        send(action: .confirmPlacement(position: position, cardId: cardId))
+    }
+
+    /// Convenience: cancel the pending placement.
+    func cancelPlacement() {
+        send(action: .cancelPlacement)
+    }
+
+    /// Convenience: replace a dead card.
+    func replaceDeadCard(cardId: UUID) {
+        send(action: .replaceDeadCard(cardId: cardId))
+    }
+
+    // MARK: - Convenience Accessors
+
+    /// The cards in this player's hand (decoded from the latest broadcast).
+    var myCards: [Card] { latestBroadcast?.myCards ?? [] }
+
+    /// Valid positions for the currently selected card.
+    var validPositions: [Position] { latestBroadcast?.validPositions ?? [] }
+
+    /// The currently selected card ID on the host.
+    var selectedCardId: UUID? { latestBroadcast?.selectedCardId }
+
+    /// Board tiles from the latest broadcast.
+    var boardTiles: [[BoardTile]] { latestBroadcast?.boardTiles ?? [] }
+
+    /// Detected sequences from the latest broadcast.
+    var detectedSequences: [Sequence] { latestBroadcast?.detectedSequences ?? [] }
+
+    /// Player info list from the latest broadcast.
+    var playerInfoList: [PlayerInfo] { latestBroadcast?.playerInfoList ?? [] }
+
+    /// Team scores from the latest broadcast.
+    var teamScores: [String: Int] { latestBroadcast?.teamScores ?? [:] }
+
+    /// The current overlay mode from the latest broadcast.
+    var overlayMode: GameOverlayMode? { latestBroadcast?.overlayMode }
+
+    /// The winning team from the latest broadcast.
+    var winningTeam: TeamColor? { latestBroadcast?.winningTeam }
+}
