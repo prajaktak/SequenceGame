@@ -43,7 +43,14 @@ struct MainMenu: View {
                             iconSystemName: "play.circle.fill",
                             gradient: [ThemeColor.accentPrimary, ThemeColor.accentSecondary]
                         ) { GameSettingsView() }
-                        
+
+                        MenuButtonView(
+                            title: "Multiplayer",
+                            subtitle: "Local Wi-Fi / Bluetooth game",
+                            iconSystemName: "person.2.circle.fill",
+                            gradient: [ThemeColor.accentSecondary, ThemeColor.accentTertiary]
+                        ) { MultiplayerModeSelectionView() }
+
                         MenuButtonView(
                             title: "How to Play",
                             subtitle: "Game rules and tips",
