@@ -475,11 +475,11 @@ struct GameStateTests {
         #expect(state.requiredSequencesToWin == 2)
     }
     
-    @Test("requiredSequencesToWin returns 1 for 3+ players")
+    @Test("requiredSequencesToWin returns 2 for 2-team multi-player game")
     func testRequiredSequencesMultiplePlayers() {
-        let state = createFourPlayerGameState() // 4 players
+        let state = createFourPlayerGameState() // 4 players, 2 teams
         
-        #expect(state.requiredSequencesToWin == 1)
+        #expect(state.requiredSequencesToWin == 2)
     }
     
     @Test("sequencesForTeam counts team sequences")
@@ -903,28 +903,36 @@ struct GameStateTests {
         }
     }
     
-    @Test("evaluateGameState detects win for 3+ player game")
+    @Test("evaluateGameState detects win for 2-team multi-player game")
     func testEvaluateGameStateWinMultiplePlayers() {
         let state = createFourPlayerGameState()
         
-        // Create 1 sequence for red team (required for 4-player game)
-        let dummyTiles = [
+        // 4 players with 2 teams requires 2 sequences to win
+        let dummyTiles1 = [
             BoardTile(card: Card(cardFace: .ace, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
             BoardTile(card: Card(cardFace: .two, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
             BoardTile(card: Card(cardFace: .three, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
             BoardTile(card: Card(cardFace: .four, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
             BoardTile(card: Card(cardFace: .five, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil)
         ]
+        let dummyTiles2 = [
+            BoardTile(card: Card(cardFace: .six, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .seven, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .eight, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .nine, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil),
+            BoardTile(card: Card(cardFace: .ten, suit: .hearts), isEmpty: false, isChipOn: false, chip: nil)
+        ]
         
-        let sequence = Sequence(tiles: dummyTiles, position: Position(row: 0, col: 0), teamColor: .red, sequenceType: .horizontal)
-        state.detectedSequence = [sequence]
+        let sequence1 = Sequence(tiles: dummyTiles1, position: Position(row: 0, col: 0), teamColor: .red, sequenceType: .horizontal)
+        let sequence2 = Sequence(tiles: dummyTiles2, position: Position(row: 1, col: 0), teamColor: .red, sequenceType: .horizontal)
+        state.detectedSequence = [sequence1, sequence2]
         
         let result = state.evaluateGameState()
         
         if case .win(let team) = result {
             #expect(team == .red)
         } else {
-            #expect(Bool(false), "Should detect win for red team with 1 sequence")
+            #expect(Bool(false), "Should detect win for red team with 2 sequences")
         }
     }
     

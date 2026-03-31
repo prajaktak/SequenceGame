@@ -114,11 +114,11 @@ final class GameState: ObservableObject {
     var requiredSequencesToWin: Int {
         let playerCount = players.count
         let uniqueTeamColors = Set(players.map { $0.team.color })
-        
-        if playerCount == 2 ||  uniqueTeamColors .count == 2 {
+
+        if playerCount == 2 || uniqueTeamColors.count == 2 {
             return 2
         } else {
-            return 1  // 3, 4, 6, 8, 9, 10, 12 players all need 1 sequence
+            return 1  // 3, 4, 6, 8, 9, 10, 12 players with 3 teams need 1 sequence
         }
     }
 
