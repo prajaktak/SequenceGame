@@ -11,6 +11,12 @@ import SwiftUI
 /// Entry point for local multiplayer — choose Host or Join.
 struct MultiplayerModeSelectionView: View {
 
+    // MARK: - Device Detection
+
+    private var isIPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+
     // MARK: - Body
 
     var body: some View {
@@ -60,18 +66,20 @@ struct MultiplayerModeSelectionView: View {
         VStack(spacing: GameConstants.verticalSpacing) {
             MenuButtonView(
                 title: "Host a Game",
-                subtitle: "Set up a game on this iPad",
+                subtitle: isIPad ? "Set up a game on this iPad" : "Only available on iPad",
                 iconSystemName: "desktopcomputer",
-                gradient: [ThemeColor.accentPrimary, ThemeColor.accentSecondary]
+                gradient: [ThemeColor.accentPrimary, ThemeColor.accentSecondary],
+                isEnabled: isIPad
             ) {
                 HostLobbyView()
             }
 
             MenuButtonView(
                 title: "Join a Game",
-                subtitle: "Connect to a host iPad as a player",
+                subtitle: isIPad ? "Only available on iPhone" : "Connect to a host iPad as a player",
                 iconSystemName: "iphone",
-                gradient: [ThemeColor.accentSecondary, ThemeColor.accentTertiary]
+                gradient: [ThemeColor.accentSecondary, ThemeColor.accentTertiary],
+                isEnabled: !isIPad
             ) {
                 PlayerLobbyView()
             }
