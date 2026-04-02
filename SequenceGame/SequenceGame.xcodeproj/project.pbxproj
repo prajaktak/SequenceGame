@@ -442,6 +442,8 @@
 				ENABLE_PREVIEWS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSBonjourServices = "_sequence-game._tcp _sequence-game._udp";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "SequenceGame uses your local network to find and connect with nearby players for multiplayer games.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -477,6 +479,8 @@
 				DEVELOPMENT_TEAM = F8HDNS2LH8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSBonjourServices = "_sequence-game._tcp _sequence-game._udp";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "SequenceGame uses your local network to find and connect with nearby players for multiplayer games.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
