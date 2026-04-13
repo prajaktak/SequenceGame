@@ -29,7 +29,8 @@ final class MultiplayerClient: ObservableObject {
     // MARK: - Private Properties
 
     private let sessionManager: MultipeerSessionManager
-    private let localPlayerId: UUID
+    // Updated from receivingPlayerId on first broadcast so it matches the host-assigned UUID.
+    private var localPlayerId: UUID
     private let encoder: JSONEncoder = JSONEncoder()
     private let decoder: JSONDecoder = JSONDecoder()
 
@@ -48,6 +49,10 @@ final class MultiplayerClient: ObservableObject {
     /// `MultipeerSessionManager.receivedData` changes.
     func handleReceivedData(_ data: Data) {
         guard let broadcast = try? decoder.decode(MultiplayerGameStateBroadcast.self, from: data) else { return }
+        // Adopt the host-assigned player ID so isMyTurn comparisons work correctly.
+        if let receivingId = broadcast.receivingPlayerId {
+            localPlayerId = receivingId
+        }
         latestBroadcast = broadcast
         isMyTurn = broadcast.currentPlayerId == localPlayerId
     }
