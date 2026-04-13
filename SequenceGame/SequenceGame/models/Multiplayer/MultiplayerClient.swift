@@ -7,6 +7,7 @@
 //  PlayerAction messages back to the host peer.
 //
 
+import Combine
 import Foundation
 import MultipeerConnectivity
 
@@ -33,12 +34,28 @@ final class MultiplayerClient: ObservableObject {
     private var localPlayerId: UUID
     private let encoder: JSONEncoder = JSONEncoder()
     private let decoder: JSONDecoder = JSONDecoder()
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Init
 
     init(sessionManager: MultipeerSessionManager, localPlayerId: UUID) {
         self.sessionManager = sessionManager
         self.localPlayerId = localPlayerId
+        setupDataReceiver(sessionManager: sessionManager)
+    }
+
+    // MARK: - Setup
+
+    private func setupDataReceiver(sessionManager: MultipeerSessionManager) {
+        // Subscribe directly to the session manager so broadcasts are processed
+        // regardless of which view is currently on screen. Relying on the view
+        // layer's onReceive breaks after NavigationStack pushes MultiplayerPlayerView.
+        sessionManager.$receivedData
+            .compactMap { $0 }
+            .sink { [weak self] pair in
+                self?.handleReceivedData(pair.data)
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Receiving State

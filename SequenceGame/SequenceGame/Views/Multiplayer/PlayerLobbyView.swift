@@ -76,9 +76,6 @@ struct PlayerLobbyView: View {
             .onAppear { sessionManager.startBrowsing() }
             .onDisappear { sessionManager.stopBrowsing() }
             .onChange(of: sessionManager.connectedPeers) { updateStatus() }
-            .onReceive(sessionManager.$receivedData) { pair in
-                if let pair { client.handleReceivedData(pair.data) }
-            }
             .onChange(of: client.latestBroadcast) { broadcast in
                 if broadcast != nil { isGameActive = true }
             }
