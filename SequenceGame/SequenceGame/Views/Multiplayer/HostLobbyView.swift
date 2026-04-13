@@ -189,7 +189,10 @@ struct HostLobbyView: View {
                 peerNames[key] = "Player \(playerNumber)"
             }
             if peerTeams[key] == nil {
-                peerTeams[key] = .blue
+                // Assign distinct default team colors: 1st player blue, 2nd red, 3rd green.
+                let defaultColors: [TeamColor] = [.blue, .red, .green]
+                let assignedIndex = peerTeams.count % defaultColors.count
+                peerTeams[key] = defaultColors[assignedIndex]
             }
         }
         // Remove entries for disconnected peers.
