@@ -183,7 +183,9 @@ struct HostLobbyView: View {
         for peer in sessionManager.connectedPeers {
             let key = peer.displayName
             if peerNames[key] == nil {
-                peerNames[key] = key
+                // Strip the unique suffix appended by PlayerLobbyView (format: "Name|XXXXXXXX")
+                let humanName = key.components(separatedBy: "|").first ?? key
+                peerNames[key] = humanName
             }
             if peerTeams[key] == nil {
                 peerTeams[key] = .blue

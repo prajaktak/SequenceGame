@@ -30,7 +30,11 @@ struct PlayerLobbyView: View {
     // MARK: - Init
 
     init(localPlayerId: UUID = UUID()) {
-        let manager = MultipeerSessionManager(displayName: UIDevice.current.name)
+        // Append a short device-unique suffix so two iPhones with the same
+        // name ("iPhone") produce distinct peer display names in the host session map.
+        let deviceSuffix = UIDevice.current.identifierForVendor?.uuidString.prefix(8) ?? UUID().uuidString.prefix(8)
+        let uniqueDisplayName = "\(UIDevice.current.name)|\(deviceSuffix)"
+        let manager = MultipeerSessionManager(displayName: uniqueDisplayName)
         _sessionManager = StateObject(wrappedValue: manager)
         _client = StateObject(wrappedValue: MultiplayerClient(
             sessionManager: manager,
