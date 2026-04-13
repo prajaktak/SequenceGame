@@ -36,10 +36,12 @@ final class MultipeerSessionManager: NSObject, ObservableObject {
 
     init(displayName: String) {
         localPeerID = MCPeerID(displayName: displayName)
+        // Use .optional — .required causes TLS handshake failures when a second
+        // peer tries to connect while the first is already establishing a session.
         session = MCSession(
             peer: localPeerID,
             securityIdentity: nil,
-            encryptionPreference: .required
+            encryptionPreference: .optional
         )
         super.init()
         session.delegate = self

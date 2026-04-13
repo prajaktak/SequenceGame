@@ -7,6 +7,7 @@
 //  GameState, and broadcasts MultiplayerGameStateBroadcast after every change.
 //
 
+import Combine
 import Foundation
 import MultipeerConnectivity
 
@@ -35,6 +36,7 @@ final class MultiplayerCoordinator: ObservableObject {
     private var session: MultiplayerSession = MultiplayerSession()
     private let encoder: JSONEncoder = JSONEncoder()
     private let decoder: JSONDecoder = JSONDecoder()
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Init
 
@@ -46,8 +48,12 @@ final class MultiplayerCoordinator: ObservableObject {
     // MARK: - Setup
 
     private func setupDataReceiver() {
-        // Observe receivedData via polling in handle method — called by view layer.
-        // Views should forward received data by calling handleReceivedData(_:from:).
+        sessionManager.$receivedData
+            .compactMap { $0 }
+            .sink { [weak self] pair in
+                self?.handleReceivedData(pair.data, from: pair.from)
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Session Management

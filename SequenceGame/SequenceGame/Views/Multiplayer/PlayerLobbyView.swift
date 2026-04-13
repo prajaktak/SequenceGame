@@ -21,6 +21,10 @@ struct PlayerLobbyView: View {
     // MARK: - State
 
     @State private var connectionStatus: String = "Searching for host…"
+
+    /// Triggers navigation to the in-game view once the host starts the game.
+    @State private var isGameActive: Bool = false
+
     @Environment(\.dismiss) private var dismiss
 
     // MARK: - Init
@@ -69,6 +73,13 @@ struct PlayerLobbyView: View {
             .onChange(of: sessionManager.connectedPeers) { updateStatus() }
             .onReceive(sessionManager.$receivedData) { pair in
                 if let pair { client.handleReceivedData(pair.data) }
+            }
+            .onChange(of: client.latestBroadcast) { broadcast in
+                if broadcast != nil { isGameActive = true }
+            }
+            .navigationDestination(isPresented: $isGameActive) {
+                MultiplayerPlayerView(client: client)
+                    .navigationBarBackButtonHidden(true)
             }
         }
     }

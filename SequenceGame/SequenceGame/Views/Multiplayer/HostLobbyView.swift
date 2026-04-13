@@ -30,6 +30,9 @@ struct HostLobbyView: View {
     /// Whether the host is ready to start (all peers assigned).
     @State private var isStartEnabled: Bool = false
 
+    /// Triggers navigation to the game board once the game has started.
+    @State private var isGameActive: Bool = false
+
     @Environment(\.dismiss) private var dismiss
 
     // MARK: - Init
@@ -74,6 +77,10 @@ struct HostLobbyView: View {
             .onChange(of: sessionManager.connectedPeers) { updatePeerDefaults() }
             .onChange(of: peerNames) { updateStartEnabled() }
             .onChange(of: peerTeams) { updateStartEnabled() }
+            .navigationDestination(isPresented: $isGameActive) {
+                MultiplayerBoardHostView(coordinator: coordinator)
+                    .navigationBarBackButtonHidden(true)
+            }
         }
     }
 
@@ -211,6 +218,7 @@ struct HostLobbyView: View {
         }
 
         coordinator.startGame(players: players)
+        isGameActive = true
     }
 }
 
