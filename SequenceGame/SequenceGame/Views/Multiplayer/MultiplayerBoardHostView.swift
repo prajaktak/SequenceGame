@@ -53,9 +53,12 @@ struct MultiplayerBoardHostView: View {
         GeometryReader { geometry in
             ZStack {
                 // Full game board — driven by coordinator.gameState via @EnvironmentObject.
+                // Hit testing is disabled: the iPad is a spectator in multiplayer;
+                // all moves are sent by iPhones via MultiplayerClient.
                 BoardView(
                     currentPlayer: .constant(coordinator.gameState.currentPlayer)
                 )
+                .allowsHitTesting(false)
 
                 // Pending position highlight — shown while iPhone player has selected
                 // a position but hasn't confirmed.

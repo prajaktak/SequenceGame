@@ -4,8 +4,8 @@
 //
 //  Shown on iPhone when a card is selected and valid positions are available.
 //  Displays a list of tappable position buttons (e.g. "Row 3, Column 5").
-//  Tapping a position sends .selectPosition to the host; the confirmation
-//  sheet appears after the host echoes back the pendingPosition.
+//  Tapping a position sends .confirmPlacement directly to the host —
+//  no nested sheet is used, avoiding a SwiftUI sheet-inside-sheet limitation.
 //
 
 import SwiftUI
@@ -13,8 +13,9 @@ import SwiftUI
 /// iPhone view showing tappable position buttons for the currently selected card.
 ///
 /// Appears after the player selects a card and the host broadcasts `validPositions`.
-/// Each button sends `.selectPosition` to the host, which then echoes back a
-/// `pendingPosition` and triggers `MultiplayerConfirmPlacementView`.
+/// Tapping a position immediately sends `.confirmPlacement` to the host, which
+/// executes the play and broadcasts updated state. The parent sheet dismisses
+/// automatically once `selectedCardId` becomes nil in the next broadcast.
 struct MultiplayerPositionSelectorView: View {
 
     // MARK: - Input
@@ -22,16 +23,11 @@ struct MultiplayerPositionSelectorView: View {
     /// Valid positions for the currently selected card.
     let validPositions: [Position]
 
-    /// The card ID the player selected (passed through to confirmation sheet).
+    /// The card ID the player selected.
     let selectedCardId: UUID
 
     /// The client used to send actions to the host.
     @ObservedObject var client: MultiplayerClient
-
-    // MARK: - State
-
-    /// The position the player tapped; drives the confirmation sheet.
-    @State private var pendingPosition: Position?
 
     // MARK: - Body
 
@@ -50,17 +46,6 @@ struct MultiplayerPositionSelectorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(ThemeColor.backgroundMenu, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-            .sheet(item: $pendingPosition) { position in
-                MultiplayerConfirmPlacementView(
-                    position: position,
-                    cardId: selectedCardId,
-                    client: client
-                )
-                .presentationDetents([.medium])
-            }
-            .onChange(of: client.latestBroadcast?.pendingPosition) { newPending in
-                pendingPosition = newPending
-            }
         }
     }
 
@@ -98,22 +83,23 @@ struct MultiplayerPositionSelectorView: View {
                 .font(.system(.body, design: .rounded).weight(.medium))
                 .foregroundStyle(ThemeColor.textPrimary)
             Spacer()
-            Image(systemName: "chevron.right")
+            Image(systemName: "checkmark.circle.fill")
                 .font(.caption)
-                .foregroundStyle(ThemeColor.textPrimary.opacity(0.4))
+                .foregroundStyle(ThemeColor.accentSecondary.opacity(0.7))
         }
         .padding(GameConstants.verticalSpacing)
         .background(ThemeColor.accentPrimary.opacity(0.06))
         .clipShape(RoundedRectangle(cornerRadius: GameConstants.largeCornerRadius))
-        return Button(action: { selectPosition(position) }, label: { label })
+        return Button(action: { confirmPosition(position) }, label: { label })
     }
 
     // MARK: - Actions
 
-    private func selectPosition(_ position: Position) {
-        client.selectPosition(position)
-        // The sheet will open once the host echoes back pendingPosition
-        // via onChange(of: client.latestBroadcast?.pendingPosition).
+    private func confirmPosition(_ position: Position) {
+        // Send confirmPlacement directly — avoids a nested sheet (sheet-inside-sheet
+        // is unreliable in SwiftUI). The host executes the play and broadcasts the
+        // updated state; the parent sheet dismisses once selectedCardId becomes nil.
+        client.confirmPlacement(position: position, cardId: selectedCardId)
     }
 }
 
