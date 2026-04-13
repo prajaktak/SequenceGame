@@ -12,7 +12,7 @@ import SwiftUI
 /// Root iPhone in-game view for local multiplayer.
 ///
 /// Derives all display data from `MultiplayerClient.latestBroadcast`.
-/// - When it's this player's turn: shows hand + position selector sheet.
+/// - When it's this player's turn: shows hand + inline position list when a card is selected.
 /// - When it's another player's turn: shows `MultiplayerWaitingView`.
 /// - Shows a discard toast when a dead-card event is broadcast.
 struct MultiplayerPlayerView: View {
@@ -23,7 +23,6 @@ struct MultiplayerPlayerView: View {
 
     // MARK: - State
 
-    @State private var showPositionSelector: Bool = false
     @State private var showDiscardToast: Bool = false
 
     // MARK: - Body
@@ -51,19 +50,6 @@ struct MultiplayerPlayerView: View {
                 showDiscardToastBriefly()
             }
         }
-        .onChange(of: client.latestBroadcast?.selectedCardId) { cardId in
-            showPositionSelector = (cardId != nil) && client.isMyTurn
-        }
-        .sheet(isPresented: $showPositionSelector) {
-            if let cardId = client.selectedCardId {
-                MultiplayerPositionSelectorView(
-                    validPositions: client.validPositions,
-                    selectedCardId: cardId,
-                    client: client
-                )
-                .presentationDetents([.medium, .large])
-            }
-        }
     }
 
     // MARK: - Subviews
@@ -72,7 +58,12 @@ struct MultiplayerPlayerView: View {
         VStack(spacing: 0) {
             teamScoresBar
             turnBanner
-            Spacer()
+            // When a card is selected show positions inline — no sheet needed.
+            if let cardId = client.selectedCardId, !client.validPositions.isEmpty {
+                inlinePositionList(cardId: cardId)
+            } else {
+                Spacer()
+            }
             handSection
         }
     }
@@ -120,13 +111,39 @@ struct MultiplayerPlayerView: View {
                 .font(.system(.headline, design: .rounded).weight(.bold))
                 .foregroundStyle(ThemeColor.textPrimary)
             Spacer()
-            Text("Tap a card to play")
+            Text(client.selectedCardId == nil ? "Tap a card to play" : "Choose a position")
                 .font(.caption)
                 .foregroundStyle(ThemeColor.textPrimary.opacity(0.6))
         }
         .padding(.horizontal, GameConstants.horizontalPadding)
         .padding(.vertical, GameConstants.overlayContentSpacing)
         .background(ThemeColor.accentSecondary.opacity(0.12))
+    }
+
+    private func inlinePositionList(cardId: UUID) -> some View {
+        ScrollView {
+            LazyVStack(spacing: GameConstants.overlayContentSpacing) {
+                ForEach(client.validPositions, id: \.self) { position in
+                    Button(action: { client.confirmPlacement(position: position, cardId: cardId) }) {
+                        HStack {
+                            Image(systemName: "mappin.circle.fill")
+                                .foregroundStyle(ThemeColor.accentPrimary)
+                            Text("Row \(position.row + 1), Column \(position.col + 1)")
+                                .font(.system(.body, design: .rounded).weight(.medium))
+                                .foregroundStyle(ThemeColor.textPrimary)
+                            Spacer()
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(ThemeColor.accentSecondary)
+                        }
+                        .padding(GameConstants.verticalSpacing)
+                        .background(ThemeColor.accentPrimary.opacity(0.06))
+                        .clipShape(RoundedRectangle(cornerRadius: GameConstants.largeCornerRadius))
+                    }
+                }
+            }
+            .padding(.horizontal, GameConstants.horizontalPadding)
+            .padding(.vertical, GameConstants.verticalSpacing)
+        }
     }
 
     private var handSection: some View {
