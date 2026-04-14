@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct CardPipsView: View {
-    var pipViewMaxWidth: CGFloat = 10
-    var pipviewMaxHeight: CGFloat = 7
+    var pipViewMaxWidth: CGFloat = 20
+    var pipviewMaxHeight: CGFloat = 14
     let card: Card
     
     private enum LayoutAxis { case rows, columns }
@@ -32,9 +32,9 @@ struct CardPipsView: View {
             
             Group {
                 if layout.axis == .rows {
-                    VStack(spacing: max(1, pipSize * 0.2)) {
+                    VStack(spacing: max(1, pipSize)) {
                         ForEach(Array(counts.enumerated()), id: \.offset) { _, pipsInRow in
-                            HStack(spacing: max(1, pipSize * 0.2)) {
+                            HStack(spacing: max(1, pipSize)) {
                                 Spacer(minLength: 0)
                                 ForEach(0..<pipsInRow, id: \.self) { _ in
                                     Image(systemName: card.suit.systemImageName)
@@ -48,9 +48,9 @@ struct CardPipsView: View {
                         }
                     }
                 } else { // columns
-                    HStack(spacing: max(1, pipSize * 0.2)) {
+                    HStack(spacing: max(1, pipSize)) {
                         ForEach(Array(counts.enumerated()), id: \.offset) { _, pipsInColumn in
-                            VStack(spacing: max(1, pipSize * 0.2)) {
+                            VStack(spacing: max(1, pipSize)) {
                                 Spacer(minLength: 0)
                                 ForEach(0..<pipsInColumn, id: \.self) { _ in
                                     Image(systemName: card.suit.systemImageName)
@@ -75,23 +75,23 @@ struct CardPipsView: View {
         case .ace:
             return (.rows, [1])
         case .two:
-            return (.rows, [1, 1])           // vertical stack
+            return (.rows, [1, 1])
         case .three:
-            return (.rows, [1, 1, 1])        // vertical stack
+            return (.rows, [1, 1, 1])
         case .four:
-            return (.rows, [2, 2])           // corners per row
+            return (.rows, [2, 2])
         case .five:
-            return (.rows, [2, 1, 2])        // corners + center
+            return (.rows, [2, 1, 2])
         case .six:
-            return (.columns, [3, 3])        // two columns of three
+            return (.columns, [3, 3])
         case .seven:
-            return (.columns, [3, 1, 3])     // 3-1-3 columns
+            return (.columns, [3, 1, 3])
         case .eight:
-            return (.columns, [3, 2, 3])     // 3-2-3 columns
+            return (.columns, [3, 2, 3])
         case .nine:
-            return (.rows, [3, 3, 3])        // 3x3 grid
+            return (.rows, [3, 3, 3])
         case .ten:
-            return (.columns, [4, 2, 4])     // 4-2-4 columns (vertical 4s)
+            return (.columns, [4, 2, 4])
         default:
             return (.rows, [1])
         }
@@ -120,8 +120,8 @@ struct CardPipsView: View {
             heightPerPip = (availableHeight * verticalPaddingFactor) / CGFloat(max(1, maxPipsPerLine))
         }
         
-        var size = min(widthPerPip, heightPerPip) * 0.8
-        size = min(max(size, 4), 12)
+        var size = min(widthPerPip, heightPerPip)
+        size = min(max(size, 7), 20)
         return size
     }
 }
