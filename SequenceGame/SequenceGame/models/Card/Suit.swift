@@ -15,7 +15,7 @@ enum Suit: String, Codable, CaseIterable {
     
     var systemImageName: String {
         switch self {
-        case .hearts: return "heart.fill"
+        case .hearts: return "suit.heart.fill"
         case .spades: return "suit.spade.fill"
         case .diamonds: return "suit.diamond.fill"
         case .clubs: return "suit.club.fill"

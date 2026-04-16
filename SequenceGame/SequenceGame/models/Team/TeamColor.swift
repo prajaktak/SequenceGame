@@ -11,7 +11,7 @@ import Foundation
 ///
 /// Use this enum in models instead of SwiftUI.Color to maintain separation of concerns.
 /// Map to actual UI colors in views using the theme system.
-enum TeamColor: Codable, CaseIterable, Equatable {
+enum TeamColor: Codable, CaseIterable, Equatable, Hashable {
     case blue
     case green
     case red

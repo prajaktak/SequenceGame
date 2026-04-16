@@ -24,6 +24,8 @@ final class MultipeerSessionManager: NSObject, ObservableObject {
 
     @Published private(set) var connectedPeers: [MCPeerID] = []
     @Published private(set) var receivedData: (data: Data, from: MCPeerID)?
+    /// The most recently disconnected peer, set when a peer transitions to `.notConnected`.
+    @Published private(set) var lastDisconnectedPeer: MCPeerID?
 
     // MARK: - Private Properties
 
@@ -117,6 +119,9 @@ extension MultipeerSessionManager: MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         DispatchQueue.main.async {
             self.connectedPeers = session.connectedPeers
+            if state == .notConnected {
+                self.lastDisconnectedPeer = peerID
+            }
         }
     }
 

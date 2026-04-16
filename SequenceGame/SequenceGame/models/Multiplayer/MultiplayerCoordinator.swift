@@ -30,6 +30,15 @@ final class MultiplayerCoordinator: ObservableObject {
     /// Set when an iPhone sends `.selectPosition`; cleared on confirm or cancel.
     @Published private(set) var pendingPosition: Position?
 
+    /// Name of the player who most recently disconnected, if any.
+    @Published private(set) var disconnectedPlayerName: String?
+
+    /// True after the 2-minute disconnection grace period expires with no reconnection.
+    @Published private(set) var showEndGameButton: Bool = false
+
+    /// True once `endGame()` has been called; views observe this to navigate back to main menu.
+    @Published private(set) var isGameEnded: Bool = false
+
     // MARK: - Private Properties
 
     private let sessionManager: MultipeerSessionManager
@@ -37,6 +46,8 @@ final class MultiplayerCoordinator: ObservableObject {
     private let encoder: JSONEncoder = JSONEncoder()
     private let decoder: JSONDecoder = JSONDecoder()
     private var cancellables = Set<AnyCancellable>()
+    private var disconnectedPeerId: String?
+    private var disconnectionTimer: DispatchWorkItem?
 
     // MARK: - Init
 
@@ -52,6 +63,19 @@ final class MultiplayerCoordinator: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] pair in
                 self?.handleReceivedData(pair.data, from: pair.from)
+            }
+            .store(in: &cancellables)
+
+        sessionManager.$lastDisconnectedPeer
+            .compactMap { $0 }
+            .sink { [weak self] peer in
+                self?.handlePeerDisconnected(peer)
+            }
+            .store(in: &cancellables)
+
+        sessionManager.$connectedPeers
+            .sink { [weak self] peers in
+                self?.handleConnectedPeersChanged(peers)
             }
             .store(in: &cancellables)
     }
@@ -91,6 +115,9 @@ final class MultiplayerCoordinator: ObservableObject {
             guard isCurrentTurnPeer(peerId) else { return }
         case .selectCard, .selectPosition, .confirmPlacement, .replaceDeadCard:
             guard isCurrentTurnPeer(peerId) else { return }
+        case .leaveGame, .requestRestart:
+            // These are always allowed regardless of whose turn it is.
+            break
         }
 
         switch action {
@@ -123,6 +150,12 @@ final class MultiplayerCoordinator: ObservableObject {
             gameState.replaceDeadCard(cardId)
             pendingPosition = nil
             broadcastState()
+
+        case .leaveGame:
+            endGame()
+
+        case .requestRestart:
+            restartGame()
         }
     }
 
@@ -143,13 +176,96 @@ final class MultiplayerCoordinator: ObservableObject {
         }
     }
 
-    /// Send the current state to a single peer (e.g., after they first connect).
+    /// Send the current state to a single peer (e.g., after they first connect or reconnect).
     func sendState(to peer: MCPeerID) {
         let peerId = peer.displayName
         let recipientPlayerId = session.playerId(for: peerId)
         let broadcast = buildBroadcast(for: recipientPlayerId)
         if let data = try? encoder.encode(broadcast) {
             sessionManager.send(data, to: peer)
+        }
+    }
+
+    /// Broadcast a game-ended signal to all connected peers so they navigate back to the main menu.
+    private func broadcastGameEnded() {
+        let connectedPeers = sessionManager.connectedPeers
+        for peer in connectedPeers {
+            let peerId = peer.displayName
+            let recipientPlayerId = session.playerId(for: peerId)
+            let broadcast = buildBroadcast(for: recipientPlayerId, isGameEnded: true)
+            if let data = try? encoder.encode(broadcast) {
+                sessionManager.send(data, to: peer)
+            }
+        }
+    }
+
+    // MARK: - Game Control
+
+    /// Restart the game with the same players and broadcast the new board to all iPhones.
+    func restartGame() {
+        try? gameState.restartGame()
+        pendingPosition = nil
+        broadcastRestart()
+    }
+
+    /// Broadcast a restart signal so iPhones show the "Host restarted" banner and sync the new board.
+    private func broadcastRestart() {
+        for peer in sessionManager.connectedPeers {
+            let peerId = peer.displayName
+            let recipientPlayerId = session.playerId(for: peerId)
+            let broadcast = buildBroadcast(for: recipientPlayerId, isGameRestarted: true)
+            if let data = try? encoder.encode(broadcast) {
+                sessionManager.send(data, to: peer)
+            }
+        }
+    }
+
+    // MARK: - Game End
+
+    /// End the game for all connected players and disconnect.
+    func endGame() {
+        disconnectionTimer?.cancel()
+        disconnectionTimer = nil
+        broadcastGameEnded()
+        sessionManager.disconnect()
+        isGameEnded = true
+    }
+
+    // MARK: - Disconnection Handling
+
+    private func handlePeerDisconnected(_ peer: MCPeerID) {
+        let peerId = peer.displayName
+        disconnectedPeerId = peerId
+        if let playerId = session.playerId(for: peerId),
+           let player = gameState.players.first(where: { $0.id == playerId }) {
+            disconnectedPlayerName = player.name
+        } else {
+            disconnectedPlayerName = peer.displayName
+        }
+        showEndGameButton = false
+        // Re-advertise so the peer can reconnect.
+        sessionManager.startAdvertising()
+        // After 2 minutes with no reconnection, show the "End Game" button.
+        disconnectionTimer?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            self?.showEndGameButton = true
+        }
+        disconnectionTimer = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 120, execute: work)
+    }
+
+    private func handleConnectedPeersChanged(_ peers: [MCPeerID]) {
+        guard let disconnectedId = disconnectedPeerId else { return }
+        guard peers.map({ $0.displayName }).contains(disconnectedId) else { return }
+        // Peer reconnected — cancel the timer and clear the banner.
+        disconnectionTimer?.cancel()
+        disconnectionTimer = nil
+        disconnectedPlayerName = nil
+        showEndGameButton = false
+        disconnectedPeerId = nil
+        // Re-send state so the reconnected peer catches up.
+        if let peer = peers.first(where: { $0.displayName == disconnectedId }) {
+            sendState(to: peer)
         }
     }
 
@@ -160,7 +276,7 @@ final class MultiplayerCoordinator: ObservableObject {
         return session.peerId(for: currentPlayer.id) == peerId
     }
 
-    private func buildBroadcast(for recipientPlayerId: UUID?) -> MultiplayerGameStateBroadcast {
+    private func buildBroadcast(for recipientPlayerId: UUID?, isGameEnded: Bool = false, isGameRestarted: Bool = false) -> MultiplayerGameStateBroadcast {
         let players = gameState.players
         let currentPlayer = gameState.currentPlayer
         let currentPeerId = currentPlayer.flatMap { session.peerId(for: $0.id) }
@@ -175,7 +291,6 @@ final class MultiplayerCoordinator: ObservableObject {
             )
         }
 
-        // Only send the recipient's own cards.
         let myCards: [Card]
         if let recipientId = recipientPlayerId,
            let player = players.first(where: { $0.id == recipientId }) {
@@ -208,7 +323,9 @@ final class MultiplayerCoordinator: ObservableObject {
             selectedCardId: gameState.selectedCardId,
             pendingPosition: pendingPosition,
             lastDiscardEvent: nil,
-            winningTeam: gameState.winningTeam
+            winningTeam: gameState.winningTeam,
+            isGameEnded: isGameEnded,
+            isGameRestarted: isGameRestarted
         )
     }
 }

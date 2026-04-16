@@ -74,4 +74,14 @@ struct MultiplayerGameStateBroadcast: Codable, Equatable {
 
     /// The winning team's color, set when the game ends.
     let winningTeam: TeamColor?
+
+    // MARK: - Session End
+
+    /// Set to `true` when the host ends the game early (disconnect, host quit, player left).
+    /// iPhones should navigate back to the lobby when this is `true`.
+    let isGameEnded: Bool
+
+    /// Set to `true` in the single broadcast sent immediately after the host restarts the game.
+    /// iPhones should show a "Host restarted the game" banner and resume with the new board.
+    let isGameRestarted: Bool
 }

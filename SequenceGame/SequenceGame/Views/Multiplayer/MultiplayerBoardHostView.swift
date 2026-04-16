@@ -3,43 +3,210 @@
 //  SequenceGame
 //
 //  iPad in-game screen for multiplayer host mode.
-//  Shows the full game board, turn banner, and seating ring.
-//  Highlights the pending position when an iPhone player has tapped a tile
-//  but hasn't confirmed yet.
-//  Shows a waitingForPlayer overlay when it's an iPhone player's turn.
+//  Mirrors GameView exactly (minus hand): turn banner → board with static seating ring.
+//  The seating ring shows all players; current player is highlighted but the ring does not rotate.
+//  Team scores are shown above the turn banner.
 //
 
 import SwiftUI
+import UIKit
 
 /// iPad in-game view for local multiplayer.
 ///
-/// Wraps the existing `BoardView` and `TurnBannerView`.
-/// Receives live state from `MultiplayerCoordinator` (which owns `GameState`).
-/// Does not show a hand — the iPad is a board-only display in multiplayer.
+/// Mirrors `GameView` structure exactly, minus the hand section.
+/// Shows team scores above the turn banner, a full board, and a static seating ring
+/// where the current player is highlighted but the ring does not rotate.
 struct MultiplayerBoardHostView: View {
 
     // MARK: - Dependencies
 
     @ObservedObject var coordinator: MultiplayerCoordinator
+    @Environment(\.dismiss) private var dismiss
+
+    // MARK: - State
+
+    @State private var showMenuSheet: Bool = false
+    @State private var showGameOverOverlay: Bool = false
+    @State private var disconnectionSecondsRemaining: Int = 120
+
+    // MARK: - Computed Properties
+
+    private var seats: [Seat] {
+        SeatingLayout.computeSeats(for: coordinator.gameState.players.count)
+    }
+
+    /// Players anchored so the current player is at index 0.
+    private var anchoredPlayers: [Player] {
+        let players = coordinator.gameState.players
+        let currentIndex = coordinator.gameState.currentPlayerIndex
+        guard !players.isEmpty, currentIndex < players.count else { return players }
+        return Array(players[currentIndex...]) + Array(players[..<currentIndex])
+    }
 
     // MARK: - Body
 
     var body: some View {
-        ZStack {
-            ThemeColor.backgroundGame.ignoresSafeArea()
-
+        GeometryReader { geometry in
             VStack(spacing: 0) {
-                turnBanner
-                boardArea
+                // Team Scores + Turn Banner in a compact horizontal bar
+                topBar
+
+                // Game Board with static seating ring
+                ZStack {
+                    BoardView(currentPlayer: .constant(coordinator.gameState.currentPlayer))
+                        .allowsHitTesting(false)
+
+                    SeatingRingOverlay(
+                        seats: seats,
+                        players: anchoredPlayers,
+                        currentPlayerIndex: 0,
+                        rotatesToCurrentPlayer: false
+                    )
+                    .allowsHitTesting(false)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+        .toolbarBackground(ThemeColor.boardFelt, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Menu") { showMenuSheet = true }
+                    .foregroundStyle(ThemeColor.textOnAccent)
+            }
+        }
+        .sheet(isPresented: $showMenuSheet) {
+            InGameMenuView(
+                onNewGame: {
+                    showMenuSheet = false
+                    coordinator.endGame()
+                },
+                onRestart: {
+                    coordinator.restartGame()
+                }
+            )
+            .environmentObject(coordinator.gameState)
+        }
+        .overlay {
+            if coordinator.disconnectedPlayerName != nil {
+                disconnectionBanner
+            }
+        }
+        .overlay {
+            if showGameOverOverlay, let currentPlayer = coordinator.gameState.currentPlayer {
+                let teamColor = ThemeColor.getTeamColor(for: currentPlayer.team.color)
+                GameOverlayView(
+                    playerName: currentPlayer.name,
+                    teamColor: teamColor,
+                    borderColor: ThemeColor.getTeamOverlayColor(for: teamColor),
+                    backgroundColor: teamColor,
+                    onHelp: {},
+                    onClose: { showGameOverOverlay = false },
+                    onNewGame: { showGameOverOverlay = false; coordinator.endGame() },
+                    onReplayOverride: { showGameOverOverlay = false; coordinator.restartGame() },
+                    mode: .gameOver
+                )
+                .allowsHitTesting(true)
+                .transition(.scale.combined(with: .opacity))
+            }
+        }
+        .onChange(of: coordinator.gameState.overlayMode) { _, mode in
+            showGameOverOverlay = (mode == .gameOver)
+        }
+        .onChange(of: coordinator.isGameEnded) { _, ended in
+            if ended { dismiss() }
+        }
+        .onAppear {
+            UIApplication.shared.isIdleTimerDisabled = true
+        }
+        .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
         }
         .environmentObject(coordinator.gameState)
     }
 
+    // MARK: - Disconnection Banner
+
+    private var disconnectionBanner: some View {
+        let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+        let playerName = coordinator.disconnectedPlayerName ?? "A player"
+
+        return HexagonOverlay(
+            borderColor: ThemeColor.accentGolden,
+            backgroundColor: ThemeColor.boardFelt,
+            allowsHitTesting: coordinator.showEndGameButton
+        ) {
+            VStack(spacing: GameConstants.overlayContentSpacing) {
+                HStack(spacing: 6) {
+                    Image(systemName: "wifi.slash")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(ThemeColor.accentGolden)
+                    Text("\(playerName) disconnected")
+                        .font(.system(.subheadline, design: .rounded).weight(.bold))
+                        .foregroundStyle(ThemeColor.textOnAccent)
+                }
+
+                if coordinator.showEndGameButton {
+                    Button {
+                        coordinator.endGame()
+                    } label: {
+                        Text("End Game")
+                            .font(.system(.caption, design: .rounded).weight(.semibold))
+                            .foregroundStyle(ThemeColor.textOnAccent)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 6)
+                            .background(ThemeColor.accentTertiary)
+                            .clipShape(Capsule())
+                    }
+                } else {
+                    Text("Waiting… \(disconnectionSecondsRemaining)s")
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(ThemeColor.textOnAccent.opacity(0.7))
+                        .onReceive(timer) { _ in
+                            if disconnectionSecondsRemaining > 0 {
+                                disconnectionSecondsRemaining -= 1
+                            }
+                        }
+                }
+            }
+        }
+        .onChange(of: coordinator.disconnectedPlayerName) { _, name in
+            if name != nil {
+                disconnectionSecondsRemaining = 120
+            }
+        }
+    }
+
     // MARK: - Subviews
 
-    private var turnBanner: some View {
-        Group {
+    /// Compact single-row bar combining team scores on the left and the turn banner on the right.
+    private var topBar: some View {
+        let scores = Dictionary(
+            grouping: coordinator.gameState.detectedSequence,
+            by: { $0.teamColor }
+        ).mapValues { $0.count }
+
+        let uniqueTeamColors = Array(Set(coordinator.gameState.players.map { $0.team.color }))
+            .sorted { $0.stringValue < $1.stringValue }
+
+        return HStack {
+            HStack(spacing: 6) {
+                ForEach(uniqueTeamColors, id: \.self) { teamColor in
+                    let count = scores[teamColor] ?? 0
+                    Text("\(teamColor.accessibilityName): \(count)")
+                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .foregroundStyle(ThemeColor.textOnAccent)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(ThemeColor.getTeamColor(for: teamColor))
+                        .clipShape(Capsule())
+                }
+            }
+
+            Spacer()
+
             if let currentPlayer = coordinator.gameState.currentPlayer {
                 TurnBannerView(
                     playerName: currentPlayer.name,
@@ -47,64 +214,8 @@ struct MultiplayerBoardHostView: View {
                 )
             }
         }
-    }
-
-    private var boardArea: some View {
-        GeometryReader { geometry in
-            ZStack {
-                // Full game board — driven by coordinator.gameState via @EnvironmentObject.
-                // Hit testing is disabled: the iPad is a spectator in multiplayer;
-                // all moves are sent by iPhones via MultiplayerClient.
-                BoardView(
-                    currentPlayer: .constant(coordinator.gameState.currentPlayer)
-                )
-                .allowsHitTesting(false)
-
-                // Pending position highlight — shown while iPhone player has selected
-                // a position but hasn't confirmed.
-                if let pending = coordinator.pendingPosition {
-                    pendingHighlight(for: pending, in: geometry)
-                }
-
-                // Waiting overlay — shown when an iPhone player must act.
-                if coordinator.gameState.overlayMode == .waitingForPlayer {
-                    waitingOverlay
-                }
-            }
-        }
-        .padding(GameConstants.boardPadding)
-    }
-
-    /// A semi-transparent pulsing highlight drawn over the pending tile.
-    private func pendingHighlight(for position: Position, in geometry: GeometryProxy) -> some View {
-        let columns = GameConstants.boardColumns
-        let rows = GameConstants.boardRows
-        let tileWidth = (geometry.size.width - GameConstants.boardPadding * 2) / CGFloat(columns)
-        let tileHeight = (geometry.size.height - GameConstants.boardPadding * 2) / CGFloat(rows)
-        let offsetX = tileWidth * CGFloat(position.col) + tileWidth / 2
-        let offsetY = tileHeight * CGFloat(position.row) + tileHeight / 2
-
-        return Circle()
-            .fill(ThemeColor.accentPrimary.opacity(0.35))
-            .frame(width: tileWidth * 0.85, height: tileHeight * 0.85)
-            .position(x: offsetX, y: offsetY)
-    }
-
-    private var waitingOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.15)
-            VStack(spacing: GameConstants.overlayContentSpacing) {
-                ProgressView()
-                    .tint(ThemeColor.textOnAccent)
-                    .scaleEffect(1.5)
-                Text("Waiting for player…")
-                    .font(.system(.headline, design: .rounded).weight(.semibold))
-                    .foregroundStyle(ThemeColor.textOnAccent)
-            }
-            .padding(GameConstants.largeSpacing)
-            .background(ThemeColor.accentPrimary.opacity(0.85))
-            .clipShape(RoundedRectangle(cornerRadius: GameConstants.largeCornerRadius))
-        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
     }
 }
 

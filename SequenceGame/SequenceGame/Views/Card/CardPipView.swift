@@ -8,121 +8,31 @@
 import SwiftUI
 
 struct CardPipsView: View {
-    var pipViewMaxWidth: CGFloat = 20
-    var pipviewMaxHeight: CGFloat = 14
     let card: Card
-    
-    private enum LayoutAxis { case rows, columns }
-    
+
     var body: some View {
         GeometryReader { geometry in
-            let layout = pipLayout(card.cardFace)
-            let counts = layout.counts
-            let rowCount = counts.count
-            let maxPipsPerLine = counts.max() ?? 1
-            
-            // Compute a responsive pip size based on available space and layout density
-            let pipSize = calculatePipSize(
-                availableWidth: geometry.size.width,
-                availableHeight: geometry.size.height,
-                maxPipsPerLine: maxPipsPerLine,
-                lineCount: rowCount,
-                axis: layout.axis
-            )
-            
-            Group {
-                if layout.axis == .rows {
-                    VStack(spacing: max(1, pipSize)) {
-                        ForEach(Array(counts.enumerated()), id: \.offset) { _, pipsInRow in
-                            HStack(spacing: max(1, pipSize)) {
-                                Spacer(minLength: 0)
-                                ForEach(0..<pipsInRow, id: \.self) { _ in
-                                    Image(systemName: card.suit.systemImageName)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: pipSize, height: pipSize)
-                                        .foregroundColor(ThemeColor.getSuitColor(for: card.suit) )
-                                }
-                                Spacer(minLength: 0)
-                            }
-                        }
-                    }
-                } else { // columns
-                    HStack(spacing: max(1, pipSize)) {
-                        ForEach(Array(counts.enumerated()), id: \.offset) { _, pipsInColumn in
-                            VStack(spacing: max(1, pipSize)) {
-                                Spacer(minLength: 0)
-                                ForEach(0..<pipsInColumn, id: \.self) { _ in
-                                    Image(systemName: card.suit.systemImageName)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: pipSize, height: pipSize)
-                                        .foregroundColor(ThemeColor.getSuitColor(for: card.suit))
-                                }
-                                Spacer(minLength: 0)
-                            }
-                        }
-                    }
-                }
+            let pipSize = min(geometry.size.width * 0.9, geometry.size.height * 0.85)
+            let rankFontSize = pipSize * 0.45
+
+            // Diamonds fill less of their SF Symbol bounding box than the other suits,
+            // so scale them up to match the visual size of hearts/spades/clubs.
+            let imageScale: CGFloat = card.suit == .diamonds ? 1.2 : 1.0
+
+            ZStack {
+                Image(systemName: card.suit.systemImageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: pipSize, height: pipSize)
+                    .scaleEffect(imageScale)
+                    .foregroundColor(ThemeColor.getSuitColor(for: card.suit))
+
+                Text(card.cardFace.displayValue)
+                    .font(.system(size: rankFontSize, weight: .black))
+                    .foregroundColor(.white)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(width: geometry.size.width, height: geometry.size.height)
         }
-    }
-    
-    // Data-driven pip patterns (line counts) with axis selection
-    private func pipLayout(_ face: CardFace) -> (axis: LayoutAxis, counts: [Int]) {
-        switch face {
-        case .ace:
-            return (.rows, [1])
-        case .two:
-            return (.rows, [1, 1])
-        case .three:
-            return (.rows, [1, 1, 1])
-        case .four:
-            return (.rows, [2, 2])
-        case .five:
-            return (.rows, [2, 1, 2])
-        case .six:
-            return (.columns, [3, 3])
-        case .seven:
-            return (.columns, [3, 1, 3])
-        case .eight:
-            return (.columns, [3, 2, 3])
-        case .nine:
-            return (.rows, [3, 3, 3])
-        case .ten:
-            return (.columns, [4, 2, 4])
-        default:
-            return (.rows, [1])
-        }
-    }
-    
-    private func calculatePipSize(
-        availableWidth: CGFloat,
-        availableHeight: CGFloat,
-        maxPipsPerLine: Int,
-        lineCount: Int,
-        axis: LayoutAxis
-    ) -> CGFloat {
-        // Reserve some breathing room so pips do not touch edges or corner numbers
-        let horizontalPaddingFactor: CGFloat = 0.85
-        let verticalPaddingFactor: CGFloat = 0.80
-        
-        // Determine limiting dimension based on axis
-        let widthPerPip: CGFloat
-        let heightPerPip: CGFloat
-        if axis == .rows {
-            widthPerPip = (availableWidth * horizontalPaddingFactor) / CGFloat(max(1, maxPipsPerLine))
-            heightPerPip = (availableHeight * verticalPaddingFactor) / CGFloat(max(1, lineCount))
-        } else { // columns
-            // Swap logic because we are laying out columns of VStacks
-            widthPerPip = (availableWidth * horizontalPaddingFactor) / CGFloat(max(1, lineCount))
-            heightPerPip = (availableHeight * verticalPaddingFactor) / CGFloat(max(1, maxPipsPerLine))
-        }
-        
-        var size = min(widthPerPip, heightPerPip)
-        size = min(max(size, 7), 20)
-        return size
     }
 }
 

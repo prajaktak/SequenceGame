@@ -12,7 +12,7 @@ struct BigCardView: View {
     @State var tappedCard: Card
     var body: some View {
         NavigationStack {
-            CardFaceView(pipViewMaxWidth: 100, pipViewMaxHeight: 100, card: tappedCard)
+            CardFaceView(card: tappedCard)
                 .frame(width: 200, height: 300)
             Button("Close me") {
                 dismiss()

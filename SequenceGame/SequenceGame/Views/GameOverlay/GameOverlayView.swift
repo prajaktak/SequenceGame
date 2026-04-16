@@ -17,6 +17,9 @@ struct GameOverlayView: View {
     var onClose: () -> Void = {}
     var onRestart: (() -> Void)?
     var onNewGame: (() -> Void)?
+    /// When provided, replaces the default replay-controller action on the Replay button.
+    /// Used by multiplayer to restart the game instead of starting a replay.
+    var onReplayOverride: (() -> Void)?
     @State private var shimmerOffset: CGFloat = -60
     @State private var textWidth: CGFloat = 160
     let mode: GameOverlayMode
@@ -167,10 +170,13 @@ struct GameOverlayView: View {
                         HStack(spacing: GameConstants.handSpacing) {
                             // Replay Button
                             Button(action: {
-                                // Close overlay and start replay
-                                onClose()
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                    gameState.replayController.startReplay()
+                                if let onReplayOverride = onReplayOverride {
+                                    onReplayOverride()
+                                } else {
+                                    onClose()
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                        gameState.replayController.startReplay()
+                                    }
                                 }
                             },
                                    label: {

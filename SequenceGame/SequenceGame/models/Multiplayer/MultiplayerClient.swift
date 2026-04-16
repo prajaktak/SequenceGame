@@ -27,6 +27,9 @@ final class MultiplayerClient: ObservableObject {
     /// Whether it is currently this iPhone player's turn.
     @Published private(set) var isMyTurn: Bool = false
 
+    /// Whether this device is currently connected to the iPad host.
+    @Published private(set) var isConnectedToHost: Bool = true
+
     // MARK: - Private Properties
 
     private let sessionManager: MultipeerSessionManager
@@ -54,6 +57,12 @@ final class MultiplayerClient: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] pair in
                 self?.handleReceivedData(pair.data)
+            }
+            .store(in: &cancellables)
+
+        sessionManager.$connectedPeers
+            .sink { [weak self] peers in
+                self?.isConnectedToHost = !peers.isEmpty
             }
             .store(in: &cancellables)
     }
@@ -112,6 +121,22 @@ final class MultiplayerClient: ObservableObject {
         send(action: .replaceDeadCard(cardId: cardId))
     }
 
+    /// Ask the host to restart the game with the same players.
+    func requestRestart() {
+        send(action: .requestRestart)
+    }
+
+    /// Tell the host this player is leaving, then disconnect.
+    func leaveGame() {
+        send(action: .leaveGame)
+        sessionManager.disconnect()
+    }
+
+    /// Attempt to reconnect to the iPad host after a disconnection.
+    func reconnect() {
+        sessionManager.startBrowsing()
+    }
+
     // MARK: - Convenience Accessors
 
     /// The cards in this player's hand (decoded from the latest broadcast).
@@ -140,4 +165,10 @@ final class MultiplayerClient: ObservableObject {
 
     /// The winning team from the latest broadcast.
     var winningTeam: TeamColor? { latestBroadcast?.winningTeam }
+
+    /// True when the host has ended the game early (e.g., player left or host quit).
+    var isGameEnded: Bool { latestBroadcast?.isGameEnded ?? false }
+
+    /// True in the single broadcast sent right after the host restarts the game.
+    var isGameRestarted: Bool { latestBroadcast?.isGameRestarted ?? false }
 }

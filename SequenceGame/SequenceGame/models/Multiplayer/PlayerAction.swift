@@ -27,4 +27,10 @@ enum PlayerAction: Codable, Equatable {
 
     /// Player replaces a dead card (no valid positions exist for that card).
     case replaceDeadCard(cardId: UUID)
+
+    /// Player voluntarily leaves the game mid-session.
+    case leaveGame
+
+    /// Player requests the host to restart the game with the same players.
+    case requestRestart
 }

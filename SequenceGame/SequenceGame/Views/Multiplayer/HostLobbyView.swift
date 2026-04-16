@@ -134,14 +134,14 @@ struct HostLobbyView: View {
             get: { peerTeams[peerName] ?? .blue },
             set: { peerTeams[peerName] = $0 }
         )
-        return HStack(spacing: GameConstants.handSpacing) {
+        return HStack(spacing: 8) {
             Image(systemName: "iphone")
                 .foregroundStyle(ThemeColor.accentSecondary)
-                .frame(width: 28)
+                .frame(width: 24)
 
             TextField("Player name", text: bindingName)
                 .textFieldStyle(.roundedBorder)
-                .frame(maxWidth: .infinity)
+                .layoutPriority(-1)
 
             Picker("Team", selection: bindingTeam) {
                 Text("Blue").tag(TeamColor.blue)
@@ -149,7 +149,8 @@ struct HostLobbyView: View {
                 Text("Red").tag(TeamColor.red)
             }
             .pickerStyle(.menu)
-            .frame(width: 80)
+            .fixedSize(horizontal: true, vertical: false)
+            .tint(ThemeColor.getTeamColor(for: bindingTeam.wrappedValue))
         }
         .padding(GameConstants.overlayContentSpacing)
         .background(ThemeColor.accentPrimary.opacity(0.06))
@@ -203,7 +204,7 @@ struct HostLobbyView: View {
     }
 
     private func updateStartEnabled() {
-        isStartEnabled = !sessionManager.connectedPeers.isEmpty
+        isStartEnabled = sessionManager.connectedPeers.count >= 2
     }
 
     private func startGame() {

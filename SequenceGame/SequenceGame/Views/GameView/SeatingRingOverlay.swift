@@ -11,6 +11,9 @@ struct SeatingRingOverlay: View {
     let seats: [Seat]                  // 1-based index
     let players: [Player]
     let currentPlayerIndex: Int
+    /// When true (default), the ring rotates so the current player always appears at the bottom.
+    /// When false, the ring stays fixed; only the highlight changes.
+    var rotatesToCurrentPlayer: Bool = true
 
     var body: some View {
         GeometryReader { geometry in
@@ -25,7 +28,7 @@ struct SeatingRingOverlay: View {
                 }
                 return 0
             }()
-            let angleOffset = bottomAngle - currentSeatAngle
+            let angleOffset = rotatesToCurrentPlayer ? (bottomAngle - currentSeatAngle) : 0
 
             ZStack {
                 ForEach(seats, id: \.id) { seat in

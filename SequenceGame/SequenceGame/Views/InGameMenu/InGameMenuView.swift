@@ -21,6 +21,9 @@ struct InGameMenuView: View {
     @State private var showRestartConfirmation = false
     @State private var showRestartError = false
     var onNewGame: () -> Void
+    /// When provided, replaces the default `gameState.restartGame()` action.
+    /// Used by multiplayer so the host can broadcast the restart to all iPhones.
+    var onRestart: (() -> Void)?
     
     var body: some View {
         NavigationStack {
@@ -117,12 +120,17 @@ struct InGameMenuView: View {
             .alert("Restart Game?", isPresented: $showRestartConfirmation) {
                 Button("Cancel", role: .cancel) { }
                 Button("Restart", role: .destructive) {
-                    do {
-        try gameState.restartGame()
-        dismiss()
-    } catch {
-        showRestartError = true
-    }
+                    if let onRestart = onRestart {
+                        onRestart()
+                        dismiss()
+                    } else {
+                        do {
+                            try gameState.restartGame()
+                            dismiss()
+                        } catch {
+                            showRestartError = true
+                        }
+                    }
                 }
             } message: {
                 Text("Current progress will be lost. Start over with the same players?")

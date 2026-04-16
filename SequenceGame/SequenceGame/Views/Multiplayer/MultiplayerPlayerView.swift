@@ -3,200 +3,412 @@
 //  SequenceGame
 //
 //  iPhone in-game root view for a multiplayer player.
-//  Shows the player's hand, team scores, turn status, and routes to
-//  waiting screen or position selector as appropriate.
+//  Mirrors GameView layout: turn banner → board with rotating seating ring → hand.
+//  Board state is driven by a local GameState kept in sync with every
+//  MultiplayerGameStateBroadcast received from the iPad host.
+//  All moves are sent to the host via MultiplayerClient.
 //
 
 import SwiftUI
+import UIKit
 
 /// Root iPhone in-game view for local multiplayer.
 ///
-/// Derives all display data from `MultiplayerClient.latestBroadcast`.
-/// - When it's this player's turn: shows hand + inline position list when a card is selected.
-/// - When it's another player's turn: shows `MultiplayerWaitingView`.
-/// - Shows a discard toast when a dead-card event is broadcast.
+/// Layout matches single-player `GameView`: turn banner → board → hand.
+/// The board tap overlay uses a GeometryReader placed **inside the board ZStack**
+/// so its tile-size calculation matches `BoardView`'s own inner GeometryReader exactly.
 struct MultiplayerPlayerView: View {
 
     // MARK: - Dependencies
 
     @ObservedObject var client: MultiplayerClient
 
+    // MARK: - Environment
+
+    @Environment(\.dismiss) var dismiss
+
     // MARK: - State
 
-    @State private var showDiscardToast: Bool = false
+    /// Local game state synced from each broadcast, used only for BoardView rendering.
+    @StateObject private var localGameState = GameState()
+
+    @State private var showMenuSheet: Bool = false
+    @State private var reconnectSecondsRemaining: Int = 120
+    @State private var showRestartedBanner: Bool = false
+
+    // MARK: - Computed Properties
+
+    private var seats: [Seat] {
+        SeatingLayout.computeSeats(for: localGameState.players.count)
+    }
+
+    /// Players anchored so the current player is at index 0 (mirrors GameView anchoring).
+    private var anchoredPlayers: [Player] {
+        let players = localGameState.players
+        let currentIndex = localGameState.currentPlayerIndex
+        guard !players.isEmpty, currentIndex < players.count else { return players }
+        return Array(players[currentIndex...]) + Array(players[..<currentIndex])
+    }
+
+    private var hasSelection: Bool {
+        localGameState.selectedCardId != nil
+    }
 
     // MARK: - Body
 
     var body: some View {
-        ZStack(alignment: .top) {
-            ThemeColor.backgroundGame.ignoresSafeArea()
-
-            if client.isMyTurn {
-                myTurnContent
-            } else {
-                waitingContent
-            }
-
-            // Discard toast — layered on top of everything.
-            if showDiscardToast, let event = client.latestBroadcast?.lastDiscardEvent {
-                MultiplayerDiscardToastView(event: event)
-                    .padding(.horizontal, GameConstants.horizontalPadding)
-                    .padding(.top, GameConstants.verticalSpacing)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-            }
-        }
-        .onChange(of: client.latestBroadcast?.lastDiscardEvent) { event in
-            if event != nil {
-                showDiscardToastBriefly()
-            }
-        }
-    }
-
-    // MARK: - Subviews
-
-    private var myTurnContent: some View {
-        VStack(spacing: 0) {
-            teamScoresBar
+        VStack(spacing: 3) {
+            // Turn Banner
             turnBanner
-            // When a card is selected show positions inline — no sheet needed.
-            if let cardId = client.selectedCardId, !client.validPositions.isEmpty {
-                inlinePositionList(cardId: cardId)
-            } else {
-                Spacer()
-            }
-            handSection
-        }
-    }
 
-    private var waitingContent: some View {
-        Group {
-            if let broadcast = client.latestBroadcast,
-               let currentInfo = broadcast.playerInfoList.first(where: { $0.id == broadcast.currentPlayerId }) {
-                MultiplayerWaitingView(
-                    currentPlayerName: currentInfo.name,
-                    currentPlayerTeamColor: currentInfo.teamColor
+            // Game Board with seating ring and tap overlay
+            // The GeometryReader is placed INSIDE the ZStack so boardTapOverlay
+            // calculates tile sizes from the board area, matching BoardView exactly.
+            ZStack {
+                BoardView(currentPlayer: .constant(localGameState.currentPlayer))
+                    .environmentObject(localGameState)
+                    .allowsHitTesting(false)
+
+                SeatingRingOverlay(
+                    seats: seats,
+                    players: anchoredPlayers,
+                    currentPlayerIndex: 0,
+                    rotatesToCurrentPlayer: true
                 )
-            } else {
-                MultiplayerWaitingView(
-                    currentPlayerName: "Other player",
-                    currentPlayerTeamColor: .blue
-                )
-            }
-        }
-    }
+                .allowsHitTesting(false)
+                .opacity(hasSelection ? 0 : 1)
+                .animation(.easeInOut(duration: GameConstants.cardSelectionDuration), value: hasSelection)
 
-    private var teamScoresBar: some View {
-        HStack(spacing: GameConstants.handSpacing) {
-            ForEach(Array(client.teamScores.keys.sorted()), id: \.self) { teamKey in
-                let score = client.teamScores[teamKey] ?? 0
-                Text("\(teamKey.capitalized): \(score)")
-                    .font(.system(.caption, design: .rounded).weight(.semibold))
-                    .foregroundStyle(ThemeColor.textOnAccent)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(ThemeColor.accentPrimary.opacity(0.8))
-                    .clipShape(Capsule())
-            }
-        }
-        .padding(.horizontal, GameConstants.horizontalPadding)
-        .padding(.top, GameConstants.overlayContentSpacing)
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private var turnBanner: some View {
-        HStack {
-            Image(systemName: "star.circle.fill")
-                .foregroundStyle(ThemeColor.accentSecondary)
-            Text("Your Turn!")
-                .font(.system(.headline, design: .rounded).weight(.bold))
-                .foregroundStyle(ThemeColor.textPrimary)
-            Spacer()
-            Text(client.selectedCardId == nil ? "Tap a card to play" : "Choose a position")
-                .font(.caption)
-                .foregroundStyle(ThemeColor.textPrimary.opacity(0.6))
-        }
-        .padding(.horizontal, GameConstants.horizontalPadding)
-        .padding(.vertical, GameConstants.overlayContentSpacing)
-        .background(ThemeColor.accentSecondary.opacity(0.12))
-    }
-
-    private func inlinePositionList(cardId: UUID) -> some View {
-        ScrollView {
-            LazyVStack(spacing: GameConstants.overlayContentSpacing) {
-                ForEach(client.validPositions, id: \.self) { position in
-                    Button(action: { client.confirmPlacement(position: position, cardId: cardId) }) {
-                        HStack {
-                            Image(systemName: "mappin.circle.fill")
-                                .foregroundStyle(ThemeColor.accentPrimary)
-                            Text("Row \(position.row + 1), Column \(position.col + 1)")
-                                .font(.system(.body, design: .rounded).weight(.medium))
-                                .foregroundStyle(ThemeColor.textPrimary)
-                            Spacer()
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(ThemeColor.accentSecondary)
-                        }
-                        .padding(GameConstants.verticalSpacing)
-                        .background(ThemeColor.accentPrimary.opacity(0.06))
-                        .clipShape(RoundedRectangle(cornerRadius: GameConstants.largeCornerRadius))
+                // Transparent tap grid — uses board-area geometry so tile targets
+                // align with the tiles rendered by BoardView.
+                if client.isMyTurn, let cardId = client.selectedCardId {
+                    GeometryReader { boardGeometry in
+                        boardTapOverlay(cardId: cardId, in: boardGeometry)
                     }
                 }
             }
-            .padding(.horizontal, GameConstants.horizontalPadding)
-            .padding(.vertical, GameConstants.verticalSpacing)
-        }
-    }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-    private var handSection: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: GameConstants.handSpacing) {
-                ForEach(client.myCards) { card in
-                    cardButton(for: card)
+            // Player Hand
+            multiplayerHandView
+                .frame(height: 100)
+                .disabled(!client.isMyTurn)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .environmentObject(localGameState)
+        .toolbarBackground(ThemeColor.boardFelt, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Menu") { showMenuSheet = true }
+                    .foregroundStyle(ThemeColor.textOnAccent)
+            }
+        }
+        .sheet(isPresented: $showMenuSheet) {
+            InGameMenuView(onNewGame: {
+                showMenuSheet = false
+                client.leaveGame()
+                dismiss()
+            })
+            .environmentObject(localGameState)
+        }
+        .onChange(of: client.latestBroadcast) { _, broadcast in
+            if let broadcast = broadcast {
+                syncLocalState(from: broadcast)
+                if broadcast.isGameRestarted {
+                    showRestartedBanner = true
                 }
             }
-            .padding(.horizontal, GameConstants.horizontalPadding)
-            .padding(.vertical, GameConstants.verticalSpacing)
         }
-        .frame(height: GameConstants.handMaxCardWidth * GameConstants.handCardAspect + GameConstants.verticalSpacing * 2)
-        .background(ThemeColor.backgroundMenu)
+        .onChange(of: client.isGameEnded) { _, ended in
+            if ended { dismiss() }
+        }
+        .overlay {
+            if !client.isConnectedToHost {
+                disconnectionOverlay
+            }
+        }
+        .onAppear {
+            UIApplication.shared.isIdleTimerDisabled = true
+        }
+        .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
+        }
+        // Game-over overlay.
+        .overlay {
+            if localGameState.overlayMode == .gameOver,
+               let activePlayer = localGameState.currentPlayer {
+                let teamColor = ThemeColor.getTeamColor(for: activePlayer.team.color)
+                GameOverlayView(
+                    playerName: activePlayer.name,
+                    teamColor: teamColor,
+                    borderColor: ThemeColor.getTeamOverlayColor(for: teamColor),
+                    backgroundColor: teamColor,
+                    onHelp: {},
+                    onClose: {},
+                    onNewGame: { client.leaveGame(); dismiss() },
+                    onReplayOverride: { client.requestRestart() },
+                    mode: .gameOver
+                )
+                .allowsHitTesting(true)
+                .transition(.scale.combined(with: .opacity))
+            }
+        }
+        // "Host restarted" banner — appears once after the host calls restartGame().
+        .overlay {
+            if showRestartedBanner {
+                HexagonOverlay(
+                    borderColor: ThemeColor.accentGolden,
+                    backgroundColor: ThemeColor.boardFelt,
+                    allowsHitTesting: true
+                ) {
+                    VStack(spacing: GameConstants.overlayContentSpacing) {
+                        Text("Host restarted the game")
+                            .font(.system(.subheadline, design: .rounded).weight(.bold))
+                            .foregroundStyle(ThemeColor.textOnAccent)
+                        Button("OK") {
+                            showRestartedBanner = false
+                        }
+                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .foregroundStyle(ThemeColor.textOnAccent)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 4)
+                        .background(ThemeColor.accentPrimary)
+                        .clipShape(Capsule())
+                    }
+                }
+                .transition(.scale.combined(with: .opacity))
+            }
+        }
+        // Dead-card overlay: shown when it's the player's turn and the selected card is dead.
+        .overlay {
+            if client.isMyTurn,
+               localGameState.overlayMode == .deadCard,
+               let deadCardId = localGameState.selectedCardId,
+               let activePlayer = localGameState.currentPlayer {
+                let teamColor = ThemeColor.getTeamColor(for: activePlayer.team.color)
+                GameOverlayView(
+                    playerName: activePlayer.name,
+                    teamColor: teamColor,
+                    borderColor: ThemeColor.getTeamOverlayColor(for: teamColor),
+                    backgroundColor: teamColor,
+                    onHelp: {},
+                    onClose: {},
+                    mode: .deadCard
+                )
+                .allowsHitTesting(true)
+                .onTapGesture {
+                    client.replaceDeadCard(cardId: deadCardId)
+                }
+                .transition(.scale.combined(with: .opacity))
+            }
+        }
     }
 
-    private func cardButton(for card: Card) -> some View {
-        let isSelected = client.selectedCardId == card.id
-        let cardLabel = CardFaceView(card: card)
-            .frame(
-                width: GameConstants.handMaxCardWidth,
-                height: GameConstants.handMaxCardWidth * GameConstants.handCardAspect
-            )
-            .clipShape(RoundedRectangle(cornerRadius: GameConstants.cardCornerRadius))
-            .overlay(
-                RoundedRectangle(cornerRadius: GameConstants.cardCornerRadius)
-                    .stroke(isSelected ? ThemeColor.accentPrimary : Color.clear, lineWidth: 2)
-            )
-            .scaleEffect(isSelected ? 1.05 : 1.0)
-            .animation(.spring(response: 0.3), value: isSelected)
-        return Button(action: { selectCard(card) }, label: { cardLabel })
-            .disabled(!client.isMyTurn)
-    }
+    // MARK: - Disconnection Overlay
 
-    // MARK: - Actions
+    private var disconnectionOverlay: some View {
+        let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
-    private func selectCard(_ card: Card) {
-        if client.selectedCardId == card.id {
-            client.deselectCard()
-        } else {
-            client.selectCard(card.id)
+        return HexagonOverlay(
+            borderColor: ThemeColor.accentGolden,
+            backgroundColor: ThemeColor.boardFelt,
+            allowsHitTesting: true
+        ) {
+            VStack(spacing: GameConstants.overlayContentSpacing) {
+                HStack(spacing: 6) {
+                    Image(systemName: "wifi.slash")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(ThemeColor.accentGolden)
+                    Text("Disconnected from host")
+                        .font(.system(.subheadline, design: .rounded).weight(.bold))
+                        .foregroundStyle(ThemeColor.textOnAccent)
+                }
+
+                Text("Reconnecting… \(reconnectSecondsRemaining)s")
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundStyle(ThemeColor.textOnAccent.opacity(0.7))
+                    .onReceive(timer) { _ in
+                        guard !client.isConnectedToHost else { return }
+                        if reconnectSecondsRemaining > 0 {
+                            reconnectSecondsRemaining -= 1
+                        } else {
+                            dismiss()
+                        }
+                    }
+
+                Button {
+                    reconnectSecondsRemaining = 120
+                    client.reconnect()
+                } label: {
+                    Text("Reconnect Now")
+                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .foregroundStyle(ThemeColor.textOnAccent)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 4)
+                        .background(ThemeColor.accentPrimary)
+                        .clipShape(Capsule())
+                }
+            }
+        }
+        .onChange(of: client.isConnectedToHost) { _, connected in
+            if !connected {
+                reconnectSecondsRemaining = 120
+                client.reconnect()
+            }
         }
     }
 
-    private func showDiscardToastBriefly() {
-        withAnimation { showDiscardToast = true }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            withAnimation { showDiscardToast = false }
+    // MARK: - Turn Banner
+
+    private var turnBanner: some View {
+        Group {
+            if let currentPlayer = localGameState.currentPlayer {
+                TurnBannerView(
+                    playerName: currentPlayer.name,
+                    teamColor: ThemeColor.getTeamColor(for: currentPlayer.team.color)
+                )
+            } else {
+                TurnBannerView(playerName: "Waiting…", teamColor: ThemeColor.accentPrimary)
+            }
         }
+    }
+
+    // MARK: - Hand View
+
+    /// Custom hand view that calls client methods instead of local GameState methods.
+    private var multiplayerHandView: some View {
+        GeometryReader { geo in
+            let availableWidth = geo.size.width
+            let cards = client.myCards
+            let cardSize = calculateCardSize(availableWidth: availableWidth, cardCount: cards.count)
+
+            HStack {
+                HStack(spacing: GameConstants.handSpacing) {
+                    ForEach(cards) { card in
+                        let isSelected = client.selectedCardId == card.id
+                        ZStack {
+                            CardFaceView(card: card)
+                                .frame(width: cardSize.width, height: cardSize.height)
+
+                            RoundedRectangle(cornerRadius: GameConstants.handCardCornerRadius)
+                                .stroke(isSelected ? ThemeColor.accentGolden : .clear, lineWidth: GameConstants.handCardBorderWidth)
+                                .frame(width: cardSize.width, height: cardSize.height)
+                        }
+                        .contentShape(Rectangle())
+                        .offset(y: isSelected ? GameConstants.handCardSelectedOffset : 0)
+                        .scaleEffect(isSelected ? GameConstants.handCardSelectedScale : 1.0)
+                        .shadow(
+                            color: .black.opacity(isSelected ? GameConstants.handCardShadowOpacity : 0.0),
+                            radius: GameConstants.handCardShadowRadius,
+                            y: GameConstants.handCardShadowY
+                        )
+                        .zIndex(isSelected ? 1 : 0)
+                        .animation(.spring(response: 0.25, dampingFraction: 0.8), value: client.selectedCardId)
+                        .onTapGesture {
+                            guard client.isMyTurn else { return }
+                            if isSelected {
+                                client.deselectCard()
+                            } else {
+                                client.selectCard(card.id)
+                            }
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+            }
+            .padding(.vertical, GameConstants.handVerticalInsets)
+            .padding(.horizontal, GameConstants.handHorizontalInsets / 2)
+            .background(ThemeColor.boardFelt)
+            .clipShape(RoundedRectangle(cornerRadius: GameConstants.universalCornerRadius, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: GameConstants.universalCornerRadius).stroke(ThemeColor.border, lineWidth: GameConstants.universalBorderWidth))
+        }
+    }
+
+    private func calculateCardSize(availableWidth: CGFloat, cardCount: Int) -> (width: CGFloat, height: CGFloat) {
+        let minWidth = GameConstants.handMinCardWidth
+        let maxWidth = GameConstants.handMaxCardWidth
+        let aspect = GameConstants.handCardAspect
+        let spacing = GameConstants.handSpacing
+        let insets = GameConstants.handHorizontalInsets
+        guard cardCount > 0 else { return (minWidth, minWidth * aspect) }
+        let inner = max(0, availableWidth - insets)
+        let totalSpacing = spacing * CGFloat(max(0, cardCount - 1))
+        let raw = (inner - totalSpacing) / CGFloat(cardCount)
+        let width = min(max(raw, minWidth), maxWidth)
+        return (width, width * aspect)
+    }
+
+    // MARK: - Board Tap Overlay
+
+    /// Transparent grid overlay aligned to BoardView's tile layout.
+    ///
+    /// `geometry` must come from a GeometryReader placed inside the board ZStack —
+    /// the same space that BoardView's own GeometryReader measures — so tile sizes match.
+    private func boardTapOverlay(cardId: UUID, in geometry: GeometryProxy) -> some View {
+        let borderThickness = GameConstants.boardBorderThickness
+        let insetV = GameConstants.boardContentInsetTop + GameConstants.boardContentInsetBottom
+        let insetH = GameConstants.boardContentInsetLeading + GameConstants.boardContentInsetTrailing
+        let availableWidth = geometry.size.width - borderThickness * 2 - insetH
+        let availableHeight = geometry.size.height - borderThickness * 2 - insetV
+        let calcTileW = availableWidth / CGFloat(GameConstants.boardColumns)
+        let calcTileH = availableHeight / CGFloat(GameConstants.boardRows)
+        let aspectRatio = GameConstants.cardAspectRatio
+        let tileW: CGFloat = calcTileW * aspectRatio <= calcTileH ? calcTileW : calcTileH / aspectRatio
+        let tileH: CGFloat = calcTileW * aspectRatio <= calcTileH ? calcTileW * aspectRatio : calcTileH
+        let validPositions = client.validPositions
+
+        return VStack(spacing: 0) {
+            ForEach(0..<GameConstants.boardRows, id: \.self) { row in
+                HStack(spacing: 0) {
+                    ForEach(0..<GameConstants.boardColumns, id: \.self) { col in
+                        let position = Position(row: row, col: col)
+                        let isValid = validPositions.contains(position)
+                        Color.clear
+                            .contentShape(Rectangle())
+                            .frame(width: tileW, height: tileH)
+                            .onTapGesture {
+                                guard isValid else { return }
+                                client.confirmPlacement(position: position, cardId: cardId)
+                            }
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+}
+
+// MARK: - State Sync
+
+private extension MultiplayerPlayerView {
+
+    /// Sync the local display-only GameState from the latest host broadcast.
+    func syncLocalState(from broadcast: MultiplayerGameStateBroadcast) {
+        let players: [Player] = broadcast.playerInfoList.map { info in
+            let playersOnTeam = broadcast.playerInfoList.filter { $0.teamColor == info.teamColor }.count
+            let team = Team(color: info.teamColor, numberOfPlayers: playersOnTeam)
+            var player = Player(name: info.name, team: team)
+            player.id = info.id
+            if info.id == broadcast.receivingPlayerId {
+                player.cards = broadcast.myCards
+            }
+            return player
+        }
+
+        localGameState.players = players
+        localGameState.currentPlayerIndex = broadcast.currentPlayerIndex
+        localGameState.boardTiles = broadcast.boardTiles
+        localGameState.detectedSequence = broadcast.detectedSequences
+        localGameState.selectedCardId = broadcast.selectedCardId
+        localGameState.overlayMode = broadcast.overlayMode
+        localGameState.winningTeam = broadcast.winningTeam
     }
 }
 
-#Preview("MultiplayerPlayerView – My Turn") {
+#Preview("MultiplayerPlayerView") {
     let sessionManager = MultipeerSessionManager(displayName: "Preview")
     let client = MultiplayerClient(sessionManager: sessionManager, localPlayerId: UUID())
     MultiplayerPlayerView(client: client)
