@@ -75,8 +75,8 @@ struct PlayerLobbyView: View {
             }
             .onAppear { sessionManager.startBrowsing() }
             .onDisappear { sessionManager.stopBrowsing() }
-            .onChange(of: sessionManager.connectedPeers) { updateStatus() }
-            .onChange(of: client.latestBroadcast) { broadcast in
+            .onChange(of: sessionManager.connectedPeers) { _, _ in updateStatus() }
+            .onChange(of: client.latestBroadcast) { _, broadcast in
                 if broadcast != nil { isGameActive = true }
             }
             .navigationDestination(isPresented: $isGameActive) {

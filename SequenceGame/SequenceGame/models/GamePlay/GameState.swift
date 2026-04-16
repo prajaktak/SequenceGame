@@ -509,12 +509,10 @@ final class GameState: ObservableObject {
 
         // Check if board is full (draw/stalemate)
         if isBoardFull() {
-            winningTeam = nil
             return .draw
         }
 
         // No team has won yet and board is not full
-        winningTeam = nil
         return .ongoing
     }
 
