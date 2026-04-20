@@ -223,12 +223,18 @@ final class MultiplayerCoordinator: ObservableObject {
     // MARK: - Game End
 
     /// End the game for all connected players and disconnect.
+    ///
+    /// `isGameEnded` is set immediately so the host navigates away at once.
+    /// The actual session disconnect is delayed 0.5 s to give connected peers
+    /// time to receive the `isGameEnded` broadcast before the link closes.
     func endGame() {
         disconnectionTimer?.cancel()
         disconnectionTimer = nil
         broadcastGameEnded()
-        sessionManager.disconnect()
         isGameEnded = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.sessionManager.disconnect()
+        }
     }
 
     // MARK: - Disconnection Handling
