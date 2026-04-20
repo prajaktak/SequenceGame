@@ -209,9 +209,10 @@ final class GameState: ObservableObject {
         guard !players.isEmpty else {
             throw GameStateError.cannotRestartWithoutPlayers
         }
-        // Save current player configuration (names, teams, and AI settings)
+        // Save current player configuration (names, teams, AI settings, and IDs).
+        // IDs must be preserved so multiplayer session peer→player mappings remain valid.
         let savedPlayers = players.map { player in
-            Player(
+            var savedPlayer = Player(
                 name: player.name,
                 team: player.team,
                 isPlaying: false,
@@ -219,6 +220,9 @@ final class GameState: ObservableObject {
                 isAI: player.isAI,
                 aiDifficulty: player.aiDifficulty
             )
+            savedPlayer.id = player.id
+            savedPlayer.peerID = player.peerID
+            return savedPlayer
         }
         
         // Reset all game state
