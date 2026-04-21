@@ -126,6 +126,14 @@ final class MultiplayerClient: ObservableObject {
         send(action: .requestRestart)
     }
 
+    /// Ask the host to end the game and redirect all devices to the main menu.
+    ///
+    /// Does NOT disconnect — the iPhone waits for the host's `isGameEnded` broadcast
+    /// so all devices navigate together.
+    func requestEndGame() {
+        send(action: .requestEndGame)
+    }
+
     /// Tell the host this player is leaving, then disconnect.
     func leaveGame() {
         send(action: .leaveGame)

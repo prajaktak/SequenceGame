@@ -147,7 +147,7 @@ struct MultiplayerPlayerView: View {
                     backgroundColor: teamColor,
                     onHelp: {},
                     onClose: {},
-                    onNewGame: { client.leaveGame(); dismiss() },
+                    onNewGame: { client.requestEndGame() },
                     onReplayOverride: { client.requestRestart() },
                     mode: .gameOver
                 )

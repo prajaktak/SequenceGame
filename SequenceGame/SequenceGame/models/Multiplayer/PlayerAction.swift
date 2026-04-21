@@ -33,4 +33,11 @@ enum PlayerAction: Codable, Equatable {
 
     /// Player requests the host to restart the game with the same players.
     case requestRestart
+
+    /// Player requests the host to end the game and send all devices to the main menu.
+    ///
+    /// Unlike `leaveGame`, this does not disconnect immediately — the iPhone stays
+    /// connected so it can receive the host's `isGameEnded` broadcast and navigate
+    /// in sync with all other players.
+    case requestEndGame
 }

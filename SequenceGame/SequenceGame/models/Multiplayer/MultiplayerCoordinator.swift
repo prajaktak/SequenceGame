@@ -156,6 +156,9 @@ final class MultiplayerCoordinator: ObservableObject {
 
         case .requestRestart:
             restartGame()
+
+        case .requestEndGame:
+            endGame()
         }
     }
 
