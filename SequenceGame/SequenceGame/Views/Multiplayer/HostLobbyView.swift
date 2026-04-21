@@ -77,6 +77,12 @@ struct HostLobbyView: View {
             .onChange(of: sessionManager.connectedPeers) { updatePeerDefaults() }
             .onChange(of: peerNames) { updateStartEnabled() }
             .onChange(of: peerTeams) { updateStartEnabled() }
+            .onChange(of: coordinator.isGameEnded) { _, ended in
+                guard ended else { return }
+                isGameActive = false
+                NotificationCenter.default.post(name: .multiplayerSessionEnded, object: nil)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { dismiss() }
+            }
             .navigationDestination(isPresented: $isGameActive) {
                 MultiplayerBoardHostView(coordinator: coordinator)
                     .navigationBarBackButtonHidden(true)

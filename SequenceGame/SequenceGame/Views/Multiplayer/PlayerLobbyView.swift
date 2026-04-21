@@ -79,6 +79,12 @@ struct PlayerLobbyView: View {
             .onChange(of: client.latestBroadcast) { _, broadcast in
                 if broadcast != nil { isGameActive = true }
             }
+            .onChange(of: client.isGameEnded) { _, ended in
+                guard ended else { return }
+                isGameActive = false
+                NotificationCenter.default.post(name: .multiplayerSessionEnded, object: nil)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { dismiss() }
+            }
             .navigationDestination(isPresented: $isGameActive) {
                 MultiplayerPlayerView(client: client)
                     .navigationBarBackButtonHidden(true)

@@ -11,6 +11,10 @@ import SwiftUI
 /// Entry point for local multiplayer — choose Host or Join.
 struct MultiplayerModeSelectionView: View {
 
+    // MARK: - Environment
+
+    @Environment(\.dismiss) private var dismiss
+
     // MARK: - Device Detection
 
     private var isIPad: Bool {
@@ -40,6 +44,11 @@ struct MultiplayerModeSelectionView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(ThemeColor.backgroundMenu, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
+        // When any device ends a session, all screens pop back to the main menu.
+        // The 0.8 s delay lets the lobby views finish their own dismissal animations first.
+        .onReceive(NotificationCenter.default.publisher(for: .multiplayerSessionEnded)) { _ in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { dismiss() }
+        }
     }
 
     // MARK: - Subviews
