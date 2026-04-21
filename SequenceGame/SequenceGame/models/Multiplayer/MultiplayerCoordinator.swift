@@ -115,7 +115,7 @@ final class MultiplayerCoordinator: ObservableObject {
             guard isCurrentTurnPeer(peerId) else { return }
         case .selectCard, .selectPosition, .confirmPlacement, .replaceDeadCard:
             guard isCurrentTurnPeer(peerId) else { return }
-        case .leaveGame, .requestRestart:
+        case .leaveGame, .requestRestart, .requestEndGame:
             // These are always allowed regardless of whose turn it is.
             break
         }
